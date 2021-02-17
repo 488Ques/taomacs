@@ -127,11 +127,23 @@ Default keybind is Super-Control-<arrow>
 	(mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
       (define-key 'kill (kbd "o") 'kill-other-buffers)
     #+end_src
-** Defer loading packages for faster startup time 
+** Defer loading packages for faster startup time
+*** Description
+Only load packages when they are called.
+*NOTE* I still can't figure out why some minor modes aren't diminished from the Modeline when this feature is enabled so I won't use it for now.
+The load time is pretty fast anyway (31 packages, ~1.2secs as of 18 Feb 2021)
 *** Code
     # #+begin_src emacs-lisp
     #   (setq use-package-always-defer t)
     # #+end_src
+** Visual line mode enabled for all buffers
+*** Description
+Text will be put on a new line when it hits the border of buffer.
+Feel free to disable this for some buffers (e.g email buffer).
+*** Code
+    #+begin_src emacs-lisp
+      (global-visual-line-mode t)
+    #+end_src
 * Terminal
 ** Setting default shell to bash
 *** Description
