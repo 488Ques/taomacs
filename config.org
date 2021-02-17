@@ -1,0 +1,361 @@
+* Keymaps
+** Kill buffer map
+   #+begin_src emacs-lisp
+     (define-prefix-command 'kill)
+     (global-set-key (kbd "C-x k") 'kill)
+   #+end_src
+* Config edit/reload
+** Edit
+*** Code
+    #+begin_src emacs-lisp
+      (defun config-visit ()
+	(interactive)
+	(find-file "~/.emacs.d/config.org"))
+      (global-set-key (kbd "C-c e") 'config-visit)
+    #+end_src
+** Reload
+*** Code
+    #+begin_src emacs-lisp
+      (defun config-reload ()
+	(interactive)
+	(org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+      (global-set-key (kbd "C-c r") 'config-reload)
+    #+end_src
+* Org
+** Open source editing in its own window
+*** Code
+    #+begin_src emacs-lisp
+      (setq org-src-window-setup 'current-window)
+    #+end_src
+** Emacs Lisp template
+*** Code
+    #+begin_src emacs-lisp
+      (add-to-list 'org-structure-template-alist
+		   '("el" . "src emacs-lisp"))
+    #+end_src
+* QoL
+** GUI elements disabled
+*** Code
+    #+begin_src emacs-lisp
+      (tool-bar-mode -1)
+      (menu-bar-mode -1)
+      (scroll-bar-mode -1)
+    #+end_src
+** Line number enabled
+*** Code
+    #+begin_src emacs-lisp
+      (global-display-line-numbers-mode)
+    #+end_src
+** Highlight the line which cursor is on
+*** Code
+    #+begin_src emacs-lisp
+      (global-hl-line-mode t)
+    #+end_src
+** Scroll conservatively
+*** Code
+    #+begin_src emacs-lisp
+      (when window-system (setq scroll-conservatively 100))
+    #+end_src
+** Disablef default startup screen
+*** Code
+    #+begin_src emacs-lisp
+      (setq inhibit-startup-message t)
+    #+end_src
+** Disable ring bell
+*** Code
+    #+begin_src emacs-lisp 
+      (setq ring-bell-function 'ignore)
+    #+end_src
+** Disable auto save/backup
+*** Code
+    #+begin_src emacs-lisp
+      (setq make-backup-file nil)
+      (setq auto-save-default nil)
+    #+end_src
+** Map yes/no to y/n
+*** Code
+    #+begin_src emacs-lisp
+      (defalias 'yes-or-no-p 'y-or-n-p)
+    #+end_src
+** Move between subwords
+*** Code
+    #+begin_src emacs-lisp
+      (global-subword-mode 1)
+    #+end_src
+** Autocomplete parentheses
+*** Code
+    #+begin_src emacs-lisp
+      (setq electric-pair-pairs '(
+				  (?\( . ?\))
+				  (?\[ . ?\])
+				  (?\{ . ?\})
+				  (?\" . ?\")
+				  ))
+      (electric-pair-mode t)
+    #+end_src
+** Delete whole word
+*** Code
+    # #+begin_src emacs-lisp
+    #   (defun kill-whole-word ()
+    # 	(interactive)
+    # 	(backward-word)
+    # 	(kill-word 1))
+    #   (define-key 'string-manipulation (kbd "d") 'kill-whole-word)
+    # #+end_src
+** Show line and column number on modeline
+*** Code
+    #+begin_src emacs-lisp
+      (line-number-mode 1)
+      (column-number-mode 1)
+    #+end_src
+** Easy window resize
+*** Description
+Default keybind is Super-Control-<arrow>
+*** Code
+    #+begin_src emacs-lisp
+      (global-set-key (kbd "s-C-<left>") 'shrink-window-horizontally)
+      (global-set-key (kbd "s-C-<right>") 'enlarge-window-horizontally)
+      (global-set-key (kbd "s-C-<down>") 'shrink-window)
+      (global-set-key (kbd "s-C-<up>") 'enlarge-window)
+    #+end_src
+** Kill all buffers except current buffer
+*** Code
+    #+begin_src emacs-lisp
+      (defun kill-other-buffers ()
+	"Kill all other buffers."
+	(interactive)
+	(mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+      (define-key 'kill (kbd "o") 'kill-other-buffers)
+    #+end_src
+** Defer loading packages for faster startup time 
+*** Code
+    # #+begin_src emacs-lisp
+    #   (setq use-package-always-defer t)
+    # #+end_src
+* Terminal
+** Setting default shell to bash
+*** Description
+Enable terminal emulator (*ansi-term* by default) to use bash without confirming.
+*** Code
+   #+begin_src emacs-lisp
+     (defvar my-term-shell "/bin/bash")
+     (defadvice ansi-term (before force-bash)
+       (interactive (list my-term-shell)))
+     (ad-activate 'ansi-term)
+   #+end_src
+** Bind Super-Return to open terminal 
+*** Code
+    #+begin_src emacs-lisp
+      (global-set-key (kbd "<s-return>") 'ansi-term)
+    #+end_src
+* which-key
+*** Code
+    #+begin_src emacs-lisp
+      (use-package which-key
+	:ensure t
+	:init
+	(which-key-mode))
+    #+end_src
+* IDO
+** Enable IDO mode
+*** Code
+    #+begin_src emacs-lisp
+      (setq ido-enable-flex-matching nil)
+      (setq ido-create-new-buffer 'always)
+      (setq ido-everywhere t)
+      (ido-mode 1)
+    #+end_src
+** IDO-vertical
+*** Code
+    #+begin_src emacs-lisp
+      (use-package ido-vertical-mode
+	:ensure t
+	:init
+	(ido-vertical-mode 1))
+      (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right)
+    #+end_src
+** Rebind ido-kill-buffer
+*** Code
+    #+begin_src emacs-lisp
+      (global-set-key (kbd "C-x C-k") 'ido-kill-buffer)
+    #+end_src
+* smex  
+*** Description
+Better Meta-x interface.
+*** Code
+    #+begin_src emacs-lisp
+      (use-package smex
+	:ensure t
+	:init (smex-initialize)
+	:bind
+	("M-x" . smex))
+    #+end_src
+* ibuffer
+*** Description
+Better buffer menu. Default keybind is still C-x C-b.
+*** Code
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "C-x C-b") 'ibuffer)
+   #+end_src
+* avy
+Come with many useful functionalities concerning text utilities.
+** Jump to character
+*** Description
+Jump to character quickly. Default keybind is Meta-s.
+*** Code
+    #+begin_src emacs-lisp
+      (use-package avy
+	:ensure t
+	:bind
+	("M-s" . avy-goto-char))
+    #+end_src
+** Copy and yank whole line to the line above cursor's current line
+# *** Code
+#     #+begin_src emacs-lisp
+#       (define-key string-manipulation (kbd "c") 'avy-copy-line)
+#     #+end_src
+* rainbow
+** Display hex code color
+*** Description
+Display color of hex code in its background.
+*** Code
+    #+begin_src emacs-lisp
+      (define-globalized-minor-mode global-rainbow-mode rainbow-mode 
+	(lambda () (rainbow-mode 1)))
+      (global-rainbow-mode 1)
+    #+end_src
+** Color parentheses
+*** Code
+    #+begin_src emacs-lisp
+      (use-package rainbow-delimiters
+	:ensure t
+	:init
+	(add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+    #+end_src
+* ace-window
+*** Description
+Switch windows quickly. Default keybind is Meta-o
+*** Code
+    #+begin_src emacs-lisp
+      (use-package ace-window
+	:ensure t
+	:bind
+	("M-o" . ace-window))
+    #+end_src
+* sudo-edit
+*** Description
+Edit in super user mode.
+*** Code
+    #+begin_src emacs-lisp
+      (use-package sudo-edit
+	:ensure t
+	:bind ("s-e" . sudo-edit))
+    #+end_src
+* hungry-delete
+# *** Description
+# Delete all white spaces till the first non white space character is found.
+# *** Code
+#     #+begin_src emacs-lisp
+#       (use-package hungry-delete
+# 	:ensure t
+# 	:config (global-hungry-delete-mode))
+#     #+end_src
+* dashboard
+*** Description
+Startup screen - the window that you always see first after starting up emacs.
+*** Code
+    #+begin_src emacs-lisp
+      (use-package dashboard
+	:ensure t
+	:defer nil
+	:config
+	(dashboard-setup-startup-hook)
+	(setq dashboard-items '((recents . 10)))
+	(setq dashboard-banner-logo-title "T A O M A C S - The abominable Emacs distribution!")
+	(setq dashboard-startup-banner "~/.emacs.d/seigasama.png")
+	(setq dashboard-center-content t)
+	(setq dashboard-show-shortcuts nil)
+	(setq dashboard-set-init-info t)
+	(setq dashboard-init-info (format "%d packages loaded in %s"
+					  (length package-activated-list) (emacs-init-time)))
+	(setq dashboard-set-footer nil)
+	(setq dashboard-set-navigator nil))
+    #+end_src
+* dired-sidebar
+*** Code
+    #+begin_src emacs-lisp
+      (use-package dired-sidebar
+	:bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+	:ensure t
+	:commands (dired-sidebar-toggle-sidebar)
+	:init
+	(add-hook 'dired-sidebar-mode-hook
+		  (lambda ()
+		    (unless (file-remote-p default-directory)
+		      (auto-revert-mode))))
+	:config
+	(push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+	(push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+
+	(setq dired-sidebar-subtree-line-prefix "__")
+	;; (setq dired-sidebar-theme 'vscode)
+	(setq dired-sidebar-use-term-integration t)
+	(setq dired-sidebar-use-custom-font t))
+    #+end_src
+* eglot
+*** Code
+    #+begin_src emacs-lisp
+      (use-package eglot
+	:ensure t)
+    #+end_src
+* go-mode
+*** Code
+    #+begin_src emacs-lisp
+      (use-package go-mode
+	:ensure t)
+      (add-to-list 'exec-path (expand-file-name "~/go/bin")) 
+    #+end_src
+* company
+*** Code
+    #+begin_src emacs-lisp
+      (use-package company
+	:ensure t
+	:init
+	(add-hook 'after-init-hook 'global-company-mode))
+    #+end_src
+* flycheck
+*** Code
+    #+begin_src emacs-lisp
+      (use-package flycheck
+	:ensure t
+	:init
+	(add-hook 'after-init-hook #'global-flycheck-mode)
+	(add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
+	:bind
+	("C-c l" . 'flycheck-list-errors))
+      (with-eval-after-load 'flycheck
+	(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+    #+end_src
+* Modeline
+** powerline
+*** Code
+    #+begin_src emacs-lisp
+      (use-package powerline
+	:ensure t
+	:init
+	(powerline-default-theme))
+    #+end_src
+** delight
+*** Code
+    #+begin_src emacs-lisp
+      (use-package delight
+    	:ensure t
+    	:init
+    	(delight '((rainbow-mode nil t)
+    		   (which-key-mode nil t)
+    		   (subword-mode nil t)
+    		   (flycheck-mode nil t)
+    		   (company-mode nil t)
+    		   (eldoc-mode nil t)
+    		   (page-break-lines-mode nil t))))
+    #+end_src
