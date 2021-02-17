@@ -361,13 +361,14 @@ Startup screen - the window that you always see first after starting up emacs.
 *** Code
     #+begin_src emacs-lisp
       (use-package delight
-    	:ensure t
-    	:init
-    	(delight '((rainbow-mode nil t)
-    		   (which-key-mode nil t)
-    		   (subword-mode nil t)
-    		   (flycheck-mode nil t)
-    		   (company-mode nil t)
-    		   (eldoc-mode nil t)
-    		   (page-break-lines-mode nil t))))
+	:ensure t
+	:init
+	(delight '((rainbow-mode nil t)
+		   (which-key-mode nil t)
+		   (subword-mode nil t)
+		   (flycheck-mode nil t)
+		   (company-mode nil t)
+		   (eldoc-mode nil t)
+		   (page-break-lines-mode nil t)
+		   (visual-line-mode nil t))))
     #+end_src
