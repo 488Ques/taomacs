@@ -144,6 +144,12 @@ Feel free to disable this for some buffers (e.g email buffer).
     #+begin_src emacs-lisp
       (global-visual-line-mode t)
     #+end_src
+** Scroll buffer without moving point
+*** Code
+    #+begin_src emacs-lisp
+      (global-set-key "\M-n" "\C-u1\C-v")
+      (global-set-key "\M-p" "\C-u1\M-v")
+    #+end_src
 * Terminal
 ** Setting default shell to bash
 *** Description
