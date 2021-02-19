@@ -270,14 +270,14 @@ Edit in super user mode.
 	:bind ("s-e" . sudo-edit))
     #+end_src
 * hungry-delete
-# *** Description
-# Delete all white spaces till the first non white space character is found.
-# *** Code
-#     #+begin_src emacs-lisp
-#       (use-package hungry-delete
-# 	:ensure t
-# 	:config (global-hungry-delete-mode))
-#     #+end_src
+*** Description
+Delete all white spaces till the first non white space character is found.
+*** Code
+    #+begin_src emacs-lisp
+      (use-package hungry-delete
+	:ensure t
+	:config (global-hungry-delete-mode))
+    #+end_src
 * dashboard
 *** Description
 Startup screen - the window that you always see first after starting up emacs.
