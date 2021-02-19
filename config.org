@@ -320,6 +320,12 @@ Startup screen, where Seiga shows up.
 	(setq dired-sidebar-use-term-integration t)
 	(setq dired-sidebar-use-custom-font t))
     #+end_src
+* Magit
+*** Code
+    #+begin_src emacs-lisp
+      (use-package magit
+	:ensure t)
+    #+end_src
 * eglot
 *** Code
     #+begin_src emacs-lisp
@@ -376,5 +382,7 @@ Startup screen, where Seiga shows up.
 		   (company-mode nil t)
 		   (eldoc-mode nil t)
 		   (page-break-lines-mode nil t)
-		   (visual-line-mode nil t))))
+		   (visual-line-mode nil t)
+		   (hungry-delete-mode nil t)
+		   (auto-revert-mode nil t))))
     #+end_src
