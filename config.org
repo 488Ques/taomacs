@@ -280,7 +280,7 @@ Delete all white spaces till the first non white space character is found.
     #+end_src
 * dashboard
 *** Description
-Startup screen - the window that you always see first after starting up emacs.
+Startup screen, where Seiga shows up.
 *** Code
     #+begin_src emacs-lisp
       (use-package dashboard
