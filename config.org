@@ -64,8 +64,8 @@
 ** Disable auto save/backup
 *** Code
     #+begin_src emacs-lisp
-      (setq make-backup-file nil)
-      (setq auto-save-default nil)
+      (setq make-backup-files nil
+	    auto-save-default nil)
     #+end_src
 ** Map yes/no to y/n
 *** Code
