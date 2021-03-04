@@ -1,9 +1,4 @@
 * Keymaps
-** Kill buffer map
-   #+begin_src emacs-lisp
-     (define-prefix-command 'kill)
-     (global-set-key (kbd "C-x k") 'kill)
-   #+end_src
 * Config edit/reload
 ** Edit
 *** Code
@@ -125,7 +120,7 @@ Default keybind is Super-Control-<arrow>
 	"Kill all other buffers."
 	(interactive)
 	(mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
-      (define-key 'kill (kbd "o") 'kill-other-buffers)
+      (global-set-key (kbd "C-c k") 'kill-other-buffers)
     #+end_src
 ** Defer loading packages for faster startup time
 *** Description
@@ -191,11 +186,6 @@ Enable terminal emulator (*ansi-term* by default) to use bash without confirming
 	:init
 	(ido-vertical-mode 1))
       (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right)
-    #+end_src
-** Rebind ido-kill-buffer
-*** Code
-    #+begin_src emacs-lisp
-      (global-set-key (kbd "C-x C-k") 'ido-kill-buffer)
     #+end_src
 * smex  
 *** Description
