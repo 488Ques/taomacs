@@ -1,0 +1,14 @@
+.cache/
+.lsp-session-v1
+auto-save-list/
+elpa/
+tutorial/
+url/
+config.el
+ido.last
+recentf
+smex-items
+tramp
+projects
+transient/
+*~
