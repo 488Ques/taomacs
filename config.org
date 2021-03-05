@@ -259,14 +259,15 @@ Edit in super user mode.
 	:ensure t
 	:bind ("s-e" . sudo-edit))
     #+end_src
-* hungry-delete
+* smart-hungry-delete
 *** Description
 Delete all white spaces till the first non white space character is found.
 *** Code
     #+begin_src emacs-lisp
-      (use-package hungry-delete
+      (use-package smart-hungry-delete
 	:ensure t
-	:config (global-hungry-delete-mode))
+	:bind (("<backspace>" . smart-hungry-delete-backward-char)
+	       ("C-d" . smart-hungry-delete-forward-char)))
     #+end_src
 * dashboard
 *** Description
