@@ -240,9 +240,10 @@ Jump to character quickly. Default keybind is Meta-s.
 Create a nice looking mini-buffer that you can traverse with C-n, C-p whenever you search for word.
 *** Code
     #+begin_src emacs-lisp
-       (use-package swiper
-	      :ensure t
-	      :bind ("C-s" . 'swiper))
+      (use-package swiper
+	     :ensure t
+	     :bind ("C-s" . 'swiper)
+	     ("C-r" . 'swiper))
     #+end_src
 * rainbow
 ** Display hex code color
@@ -291,6 +292,12 @@ Delete all white spaces till the first non white space character is found.
 	:ensure t
 	:bind (("<backspace>" . smart-hungry-delete-backward-char)
 	       ("C-d" . smart-hungry-delete-forward-char)))
+    #+end_src
+* cua-mode
+*** Code
+    #+begin_src emacs-lisp
+      (use-package cua-base
+	:init (cua-mode t))
     #+end_src
 * dashboard
 *** Description
