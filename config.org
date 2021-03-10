@@ -178,7 +178,8 @@ Enable terminal emulator (*ansi-term* by default) to use bash without confirming
       (use-package which-key
 	:ensure t
 	:init
-	(which-key-mode))
+	(which-key-mode)
+	:diminish which-key-mode)
     #+end_src
 * IDO
 ** Enable IDO mode
@@ -249,7 +250,8 @@ Display color of hex code in its background.
       (use-package rainbow-delimiters
 	:ensure t
 	:init
-	(add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+	(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+	:diminish rainbow-mode)
     #+end_src
 * ace-window
 *** Description
@@ -347,7 +349,8 @@ Startup screen, where Seiga shows up.
       (use-package company
 	:ensure t
 	:init
-	(add-hook 'after-init-hook 'global-company-mode))
+	(add-hook 'after-init-hook 'global-company-mode)
+	:diminish company-mode)
     #+end_src
 * flycheck
 *** Code
@@ -358,7 +361,8 @@ Startup screen, where Seiga shows up.
 	(add-hook 'after-init-hook #'global-flycheck-mode)
 	(add-hook 'eglot--managed-mode-hook (lambda () (flymake-mode -1)))
 	:bind
-	("C-c l" . 'flycheck-list-errors))
+	("C-c l" . 'flycheck-list-errors)
+	:diminish flycheck-mode)
       (with-eval-after-load 'flycheck
 	(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
     #+end_src
@@ -371,20 +375,15 @@ Startup screen, where Seiga shows up.
 	:init
 	(powerline-default-theme))
     #+end_src
-** delight
+* diminish
 *** Code
     #+begin_src emacs-lisp
-      (use-package delight
+      (use-package diminish
 	:ensure t
 	:init
-	(delight '((rainbow-mode nil t)
-		   (which-key-mode nil t)
-		   (subword-mode nil t)
-		   (flycheck-mode nil t)
-		   (company-mode nil t)
-		   (eldoc-mode nil t)
-		   (page-break-lines-mode nil t)
-		   (visual-line-mode nil t)
-		   (hungry-delete-mode nil t)
-		   (auto-revert-mode nil t))))
+	(diminish 'subword-mode)
+	(diminish 'auto-revert-mode)
+	(diminish 'visual-line-mode)
+	(diminish 'page-break-lines-mode)
+	(diminish 'eldoc-mode))
     #+end_src
