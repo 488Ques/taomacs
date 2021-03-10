@@ -39,7 +39,18 @@
 ** Line number enabled
 *** Code
     #+begin_src emacs-lisp
-      (global-display-line-numbers-mode)
+      (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+      (add-hook 'text-mode-hook 'display-line-numbers-mode)
+    #+end_src
+** Enable omni-directional copypasting
+*** Code
+    #+begin_src emacs-lisp
+      (setq x-select-enable-clipboard t)
+    #+end_src
+** Show parent parentheses
+*** Code
+    #+begin_src emacs-lisp
+      (show-paren-mode 1)
     #+end_src
 ** Highlight the line which cursor is on
 *** Code
@@ -51,7 +62,7 @@
     #+begin_src emacs-lisp
       (when window-system (setq scroll-conservatively 100))
     #+end_src
-** Disablef default startup screen
+** Disable default startup screen
 *** Code
     #+begin_src emacs-lisp
       (setq inhibit-startup-message t)
