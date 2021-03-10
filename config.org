@@ -218,6 +218,7 @@ Better buffer menu. Default keybind is still C-x C-b.
      (global-set-key (kbd "C-x C-b") 'ibuffer)
    #+end_src
 * avy
+** Description
 Come with many useful functionalities concerning text utilities.
 ** Jump to character
 *** Description
@@ -234,6 +235,15 @@ Jump to character quickly. Default keybind is Meta-s.
 #     #+begin_src emacs-lisp
 #       (define-key string-manipulation (kbd "c") 'avy-copy-line)
 #     #+end_src
+* swiper
+*** Description
+Create a nice looking mini-buffer that you can traverse with C-n, C-p whenever you search for word.
+*** Code
+    #+begin_src emacs-lisp
+       (use-package swiper
+	      :ensure t
+	      :bind ("C-s" . 'swiper))
+    #+end_src
 * rainbow
 ** Display hex code color
 *** Description
