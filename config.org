@@ -137,6 +137,11 @@ Enable terminal emulator (*ansi-term* by default) to use bash without confirming
     #+begin_src emacs-lisp
       (global-set-key (kbd "<s-return>") 'ansi-term)
     #+end_src
+* diminish
+    #+begin_src emacs-lisp
+      (use-package diminish
+	:ensure t)
+    #+end_src
 * which-key
     #+begin_src emacs-lisp
       (use-package which-key
@@ -327,14 +332,16 @@ Startup screen, where Seiga shows up.
 	:init
 	(powerline-default-theme))
     #+end_src
-* diminish
-    #+begin_src emacs-lisp
-      (use-package diminish
-	:ensure t
-	:init
-	(diminish 'subword-mode)
-	(diminish 'auto-revert-mode)
-	(diminish 'visual-line-mode)
-	(diminish 'page-break-lines-mode)
-	(diminish 'eldoc-mode))
-    #+end_src
+
+* Diminish built-in minor modes
+  #+begin_src emacs-lisp
+    (use-package page-break-lines
+      :ensure t
+      :diminish (page-break-lines-mode visual-line-mode))
+    (use-package subword
+      :diminish subword-mode)
+    (use-package eldoc
+      :diminish eldoc-mode)
+    (use-package autorevert
+      :diminish auto-revert-mode)
+  #+end_src
