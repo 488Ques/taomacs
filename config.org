@@ -181,7 +181,6 @@ Better buffer menu. Default keybind is still C-x C-b.
      (global-set-key (kbd "C-x C-b") 'ibuffer)
    #+end_src
 * avy
-** Description
 Come with many useful functionalities concerning text utilities.
 ** Jump to character
 Jump to character quickly. Default keybind is Meta-s.
@@ -247,6 +246,7 @@ Delete all white spaces till the first non white space character is found.
 	       ("C-d" . smart-hungry-delete-forward-char)))
     #+end_src
 * cua-mode
+Common User Actions (I guess). Replace C-w,M-w,C-y, C-/ (Cut, Copy, Paste, Undo) with C-c, C-x, C-v, C-z.
     #+begin_src emacs-lisp
       (use-package cua-base
 	:init (cua-mode t))
