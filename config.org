@@ -125,10 +125,11 @@ Feel free to disable this for some buffers (e.g email buffer).
     #+begin_src emacs-lisp
       (global-visual-line-mode t)
     #+end_src
-** Scroll buffer without moving point
+** Scroll buffer without moving point (at least until point hits up or bottom buffer's border)
+CUA mode is enabled and fortunately it has this built in so we will use it.
     #+begin_src emacs-lisp
-      (global-set-key "\M-n" "\C-u1\C-v")
-      (global-set-key "\M-p" "\C-u1\M-v")
+      (global-set-key (kbd "M-n") (lambda () (interactive) (cua-scroll-up 1)))
+      (global-set-key (kbd "M-p") (lambda () (interactive) (cua-scroll-down 1)))
     #+end_src
 * Terminal
 ** Setting default shell to bash
