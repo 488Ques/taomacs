@@ -203,6 +203,9 @@ Create a nice looking mini-buffer that you can traverse with C-n, C-p whenever y
 	     :ensure t
 	     :bind ("C-s" . 'swiper)
 	     ("C-r" . 'swiper))
+      ;; Force swiper to scan actual lines only even if visual line is enabled.
+      (setq swiper-use-visual-line nil)
+      (setq swiper-use-visual-line-p (lambda (a) nil))
     #+end_src
 * rainbow
 ** Display hex code color
@@ -332,7 +335,6 @@ Startup screen, where Seiga shows up.
 	:init
 	(powerline-default-theme))
     #+end_src
-
 * Diminish built-in minor modes
   #+begin_src emacs-lisp
     (use-package page-break-lines
