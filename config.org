@@ -244,7 +244,7 @@ Delete all white spaces till the first non white space character is found.
 	       ("C-d" . smart-hungry-delete-forward-char)))
     #+end_src
 * cua-mode
-Common User Actions (I guess). Replace C-w,M-w,C-y, C-/ (Cut, Copy, Paste, Undo) with C-c, C-x, C-v, C-z.
+Common User Actions (I guess). Replace C-w, M-w, C-y, C-/ (Cut, Copy, Paste, Undo) with C-c, C-x, C-v, C-z.
     #+begin_src emacs-lisp
       (use-package cua-base
 	:init (cua-mode t))
@@ -299,11 +299,10 @@ Startup screen, where Seiga shows up.
 	:ensure t)
     #+end_src
 * go-mode
-    #+begin_src emacs-lisp
-      (use-package go-mode
-	:ensure t)
-      (add-to-list 'exec-path (expand-file-name "~/go/bin")) 
-    #+end_src
+  #+begin_src emacs-lisp
+    (use-package go-mode
+      :ensure t)
+  #+end_src
 * company
     #+begin_src emacs-lisp
       (use-package company
