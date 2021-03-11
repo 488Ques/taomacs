@@ -1,4 +1,3 @@
-* Keymaps
 * Config edit/reload
 ** Edit
     #+begin_src emacs-lisp
@@ -80,13 +79,13 @@
       (electric-pair-mode t)
     #+end_src
 ** Delete whole word
-    # #+begin_src emacs-lisp
-    #   (defun kill-whole-word ()
-    # 	(interactive)
-    # 	(backward-word)
-    # 	(kill-word 1))
-    #   (define-key 'string-manipulation (kbd "d") 'kill-whole-word)
-    # #+end_src
+    #+begin_src emacs-lisp
+      (defun kill-whole-word ()
+	(interactive)
+	(backward-word)
+	(kill-word 1))
+      (global-set-key (kbd "C-w") 'kill-whole-word)
+    #+end_src
 ** Show line and column number on modeline
     #+begin_src emacs-lisp
       (line-number-mode 1)
