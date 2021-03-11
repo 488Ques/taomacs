@@ -221,7 +221,7 @@ Display color of hex code in its background.
 	:diminish rainbow-mode)
     #+end_src
 * ace-window
-Switch windows quickly. Default keybind is Meta-o
+Switch windows quickly.
     #+begin_src emacs-lisp
       (use-package ace-window
 	:ensure t
