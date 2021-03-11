@@ -189,11 +189,10 @@ Jump to character quickly. Default keybind is Meta-s.
 	:bind
 	("M-s" . avy-goto-char))
     #+end_src
-** Copy and yank whole line to the line above cursor's current line
-# *** Code
-#     #+begin_src emacs-lisp
-#       (define-key string-manipulation (kbd "c") 'avy-copy-line)
-#     #+end_src
+** Copy and paste whole line to current point's position
+    #+begin_src emacs-lisp
+      (global-set-key (kbd "M-c") 'avy-copy-line)
+    #+end_src
 * swiper
 Create a nice looking mini-buffer that you can traverse with C-n, C-p whenever you search for word.
     #+begin_src emacs-lisp
