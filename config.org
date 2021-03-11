@@ -44,10 +44,6 @@
     #+begin_src emacs-lisp
       (show-paren-mode 1)
     #+end_src
-** Highlight the line which cursor is on
-    #+begin_src emacs-lisp
-      (global-hl-line-mode t)
-    #+end_src
 ** Scroll conservatively
     #+begin_src emacs-lisp
       (when window-system (setq scroll-conservatively 100))
