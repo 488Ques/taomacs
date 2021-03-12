@@ -33,7 +33,7 @@
  '(custom-safe-themes
    '("2dff5f0b44a9e6c8644b2159414af72261e38686072e063aa66ee98a2faecf0e" default))
  '(package-selected-packages
-   '(go-mode swiper diminish smart-hungry-delete magit dired-sidebar flycheck company eglot powerline dashboard rainbow-delimiters sudo-edit ace-window rainbow-mode rainbow avy -t smex ido-vertical-mode which-key dracula-theme use-package)))
+   '(exec-path-from-shell go-mode swiper diminish smart-hungry-delete magit dired-sidebar flycheck company eglot powerline dashboard rainbow-delimiters sudo-edit ace-window rainbow-mode rainbow avy -t smex ido-vertical-mode which-key dracula-theme use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

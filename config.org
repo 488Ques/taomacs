@@ -136,6 +136,15 @@ Enable terminal emulator (*ansi-term* by default) to use bash without confirming
     #+begin_src emacs-lisp
       (global-set-key (kbd "<s-return>") 'ansi-term)
     #+end_src
+* exec-path-from-shell
+Make sure that Emacs' environment variables are the same ones that are read from your shell's.
+  #+begin_src emacs-lisp
+    (use-package exec-path-from-shell
+      :ensure t
+      :defer nil
+      :config (when (memq window-system '(mac ns x))
+		(exec-path-from-shell-initialize)))
+  #+end_src
 * diminish
     #+begin_src emacs-lisp
       (use-package diminish
@@ -293,11 +302,6 @@ Startup screen, where Seiga shows up.
       (use-package magit
 	:ensure t)
     #+end_src
-* eglot
-    #+begin_src emacs-lisp
-      (use-package eglot
-	:ensure t)
-    #+end_src
 * go-mode
   #+begin_src emacs-lisp
     (use-package go-mode
@@ -310,6 +314,17 @@ Startup screen, where Seiga shows up.
 	:init
 	(add-hook 'after-init-hook 'global-company-mode)
 	:diminish company-mode)
+    #+end_src
+* eglot
+    #+begin_src emacs-lisp
+      (defun eglot-format-buffer-on-save ()
+	(add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+      (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
+
+      (add-hook 'go-mode-hook 'eglot-ensure)
+
+      (use-package eglot
+	:ensure t)
     #+end_src
 * flycheck
     #+begin_src emacs-lisp
