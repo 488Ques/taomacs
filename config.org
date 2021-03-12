@@ -131,18 +131,16 @@ CUA mode is enabled and fortunately it has this built in so we will use it.
       (global-set-key (kbd "M-n") (lambda () (interactive) (cua-scroll-up 1)))
       (global-set-key (kbd "M-p") (lambda () (interactive) (cua-scroll-down 1)))
     #+end_src
-* Terminal
-** Setting default shell to bash
-Enable terminal emulator (*ansi-term* by default) to use bash without confirming.
-   #+begin_src emacs-lisp
-     (defvar my-term-shell "/bin/bash")
-     (defadvice ansi-term (before force-bash)
-       (interactive (list my-term-shell)))
-     (ad-activate 'ansi-term)
-   #+end_src
-** Bind Super-Return to open terminal 
+* Eshell
     #+begin_src emacs-lisp
-      (global-set-key (kbd "<s-return>") 'ansi-term)
+      (defun horizontal-eshell ()
+	(interactive)
+	(split-window-below 36)
+	(other-window 1)
+	(eshell))
+      (defalias 'clr 'eshell/clear-scrollback)
+
+      (global-set-key (kbd "<s-return>") 'horizontal-eshell)
     #+end_src
 * exec-path-from-shell
 Make sure that Emacs' environment variables are the same ones that are read from your shell's.
