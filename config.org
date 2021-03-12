@@ -86,6 +86,14 @@
 	(kill-word 1))
       (global-set-key (kbd "C-w") 'kill-whole-word)
     #+end_src
+** Delete whole line
+   #+begin_src emacs-lisp
+     (defun kill-whole-line ()
+       (interactive)
+       (beginning-of-visual-line)
+       (kill-visual-line))
+     (global-set-key (kbd "C-l") 'kill-whole-line)
+   #+end_src
 ** Show line and column number on modeline
     #+begin_src emacs-lisp
       (line-number-mode 1)
