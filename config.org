@@ -219,21 +219,20 @@ Create a nice looking mini-buffer that you can traverse with C-n, C-p whenever y
       (setq swiper-use-visual-line nil)
       (setq swiper-use-visual-line-p (lambda (a) nil))
     #+end_src
-* rainbow
-** Display hex code color
-Display color of hex code in its background.
+* rainbow-mode
     #+begin_src emacs-lisp
-      (define-globalized-minor-mode global-rainbow-mode rainbow-mode 
-	(lambda () (rainbow-mode 1)))
-      (global-rainbow-mode 1)
+     (use-package rainbow-mode
+     :ensure t
+     :init
+     (add-hook 'prog-mode-hook 'rainbow-mode)
+     :diminish rainbow-mode)
     #+end_src
-** Color parentheses
+* rainbow-delimiters
     #+begin_src emacs-lisp
-      (use-package rainbow-delimiters
-	:ensure t
-	:init
-	(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-	:diminish rainbow-mode)
+     (use-package rainbow-delimiters
+     :ensure t
+     :init
+     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
     #+end_src
 * ace-window
 Switch windows quickly.
