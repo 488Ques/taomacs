@@ -25,3 +25,7 @@
 
 ;; Load configuration file
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+
+;; org-structure-template-alist seems to only work when this is present
+(when (version<= "9.2" (org-version))
+  (require 'org-tempo))
