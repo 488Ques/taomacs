@@ -81,6 +81,8 @@
 ** Delete whole word
     #+begin_src emacs-lisp
       (defun kill-whole-word ()
+	"Move backward to the beginning of a word and delete it.
+      Only delete word, special characters like parentheses and period are left alone."
 	(interactive)
 	(backward-word)
 	(kill-word 1))
@@ -89,10 +91,11 @@
 ** Delete whole line
    #+begin_src emacs-lisp
      (defun kill-whole-line ()
+       "Delete an entire line the point is currently on."
        (interactive)
        (beginning-of-visual-line)
        (kill-visual-line))
-     (global-set-key (kbd "C-l") 'kill-whole-line)
+     (global-set-key (kbd "C-S-w") 'kill-whole-line)
    #+end_src
 ** Show line and column number on modeline
     #+begin_src emacs-lisp
