@@ -147,6 +147,22 @@ CUA mode is enabled and fortunately it has this built in so we will use it.
      ;; Default keybind is Ctrl-/
      (global-set-key (kbd "C-/") 'comment-or-uncomment-region-or-line)
    #+end_src
+** Creating a new window switches to it
+  #+begin_src emacs-lisp
+     (defun split-and-follow-horizontally ()
+	    (interactive)
+	    (split-window-below)
+	    (balance-windows)
+	    (other-window 1))
+     (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+     (defun split-and-follow-vertically ()
+	    (interactive)
+	    (split-window-right)
+	    (balance-windows)
+	    (other-window 1))
+     (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+  #+end_src
 * Initialize theme
   #+begin_src emacs-lisp
     (use-package dracula-theme
