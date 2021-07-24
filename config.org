@@ -156,7 +156,7 @@ CUA mode is enabled and fortunately it has this built in so we will use it.
 	(eshell))
       (defalias 'clr 'eshell/clear-scrollback)
 
-      (global-set-key (kbd "<s-return>") 'horizontal-eshell)
+      (global-set-key (kbd "<C-s-return>") 'horizontal-eshell)
     #+end_src
 * exec-path-from-shell
 Make sure that Emacs' environment variables are the same ones that are read from your shell's.
