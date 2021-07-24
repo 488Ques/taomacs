@@ -29,3 +29,18 @@
 ;; org-structure-template-alist seems to only work when this is present
 (when (version<= "9.2" (org-version))
   (require 'org-tempo))
+
+;; Auto generated
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(dracula which-key use-package swiper sudo-edit smex smart-hungry-delete rainbow-mode rainbow-delimiters powerline page-break-lines magit ido-vertical-mode go-mode flycheck exec-path-from-shell eglot dracula-theme dired-sidebar diminish dashboard company ace-window)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

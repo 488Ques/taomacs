@@ -147,6 +147,13 @@ CUA mode is enabled and fortunately it has this built in so we will use it.
      ;; Default keybind is Ctrl-/
      (global-set-key (kbd "C-/") 'comment-or-uncomment-region-or-line)
    #+end_src
+* Initialize theme
+  #+begin_src emacs-lisp
+    (use-package dracula-theme
+      :ensure t
+      :init
+      (load-theme 'dracula t))
+  #+end_src
 * Eshell
     #+begin_src emacs-lisp
       (defun horizontal-eshell ()
