@@ -134,6 +134,19 @@ CUA mode is enabled and fortunately it has this built in so we will use it.
       (global-set-key (kbd "M-n") (lambda () (interactive) (cua-scroll-up 1)))
       (global-set-key (kbd "M-p") (lambda () (interactive) (cua-scroll-down 1)))
     #+end_src
+** Comment or uncomment a region
+   #+begin_src emacs-lisp
+     (defun comment-or-uncomment-region-or-line ()
+	 "Comments or uncomments the region or the current line if there's no active region."
+	 (interactive)
+	 (let (beg end)
+	     (if (region-active-p)
+		 (setq beg (region-beginning) end (region-end))
+		 (setq beg (line-beginning-position) end (line-end-position)))
+	     (comment-or-uncomment-region beg end)))
+     ;; Default keybind is Ctrl-/
+     (global-set-key (kbd "C-/") 'comment-or-uncomment-region-or-line)
+   #+end_src
 * Eshell
     #+begin_src emacs-lisp
       (defun horizontal-eshell ()
