@@ -398,9 +398,12 @@ Startup screen, where Seiga shows up.
     #+end_src
 * Diminish built-in minor modes
   #+begin_src emacs-lisp
-    (diminish 'page-break-lines-mode)
-    (diminish 'subword-mode)
-    (diminish 'eldoc-mode)
-    (diminish 'auto-revert-mode)
-    (diminish 'visual-line-mode)
+    (use-package page-break-lines
+       :diminish (page-break-lines-mode visual-line-mode))
+    (use-package subword
+      :diminish subword-mode)
+    (use-package eldoc
+      :diminish eldoc-mode)
+    (use-package autorevert
+      :diminish auto-revert-mode)
   #+end_src
