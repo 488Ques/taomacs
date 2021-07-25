@@ -351,6 +351,12 @@ Startup screen, where Seiga shows up.
     (use-package go-mode
       :ensure t)
   #+end_src
+* web-mode
+  #+begin_src emacs-lisp
+    (use-package web-mode
+      :ensure t
+      :mode ("\\.html?\\'" "\\.js\\'" "\\.css\\'" "\\.vue\\'"))
+  #+end_src
 * company
     #+begin_src emacs-lisp
       (use-package company
