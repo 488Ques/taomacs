@@ -372,12 +372,6 @@ Startup screen, where Seiga shows up.
     #+end_src
 * eglot
     #+begin_src emacs-lisp
-      (defun eglot-format-buffer-on-save ()
-	(add-hook 'before-save-hook #'eglot-format-buffer -10 t))
-      (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
-
-      (add-hook 'go-mode-hook 'eglot-ensure)
-
       (use-package eglot
 	:ensure t
 	:config (add-to-list 'eglot-server-programs '(web-mode . ("vls"))))
