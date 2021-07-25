@@ -357,6 +357,12 @@ Startup screen, where Seiga shows up.
       :ensure t
       :mode ("\\.html?\\'" "\\.js\\'" "\\.css\\'" "\\.vue\\'"))
   #+end_src
+* emmet-mode
+  #+begin_src emacs-lisp
+    (use-package emmet-mode
+      :ensure t
+      :hook (sgml-mode . emmet-mode))
+  #+end_src
 * company
     #+begin_src emacs-lisp
       (use-package company
@@ -373,7 +379,8 @@ Startup screen, where Seiga shows up.
       (add-hook 'go-mode-hook 'eglot-ensure)
 
       (use-package eglot
-	:ensure t)
+	:ensure t
+	:config (add-to-list 'eglot-server-programs '(web-mode . ("vls"))))
     #+end_src
 * flycheck
     #+begin_src emacs-lisp
