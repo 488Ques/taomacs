@@ -14,9 +14,9 @@
       (global-set-key (kbd "C-c r") 'config-reload)
     #+end_src
 * Org
-** Open source editing in its own window
+** Open the source code edit buffer in another window
     #+begin_src emacs-lisp
-      (setq org-src-window-setup 'current-window)
+      (setq org-src-window-setup 'reorganize-frame)
     #+end_src
 ** Emacs Lisp template
     #+begin_src emacs-lisp
