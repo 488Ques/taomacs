@@ -286,7 +286,7 @@ Edit in super user mode.
     #+begin_src emacs-lisp
       (use-package sudo-edit
 	:ensure t
-	:bind ("s-e" . sudo-edit))
+	:bind ("C-s-e" . sudo-edit))
     #+end_src
 * smart-hungry-delete
 Delete all white spaces till the first non white space character is found.
