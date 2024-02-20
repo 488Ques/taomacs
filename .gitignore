@@ -1,0 +1,15 @@
+auto-save-list/
+bookmarks
+elpa/
+eshell/
+url/
+transient/
+tramp
+recentf
+projectile-bookmarks.eld
+projects
+history
+custom.el
+eln-cache/
+places
+tmp/
