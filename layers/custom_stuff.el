@@ -10,9 +10,9 @@
       (setq deleted-something t))))
 
 (defun taomacs-edit-config ()
-  "Open init.el quickly"
+  "Open init file"
   (interactive)
-  (find-file (expand-file-name "init.el" user-emacs-directory)))
+  (find-file user-init-file))
 
 (defun taomacs-find-file-in-dir (dir)
   "Call `find-file' interactively as if `default-directory' is in DIR."
@@ -21,4 +21,12 @@
 
 (defun taomacs-find-layer ()
   (interactive)
-  (taomacs-find-file-in-dir (expand-file-name "layers/" user-emacs-directory)))
+  (taomacs-find-file-in-dir taomacs--layers-dir))
+
+(defun taomacs-list-layers ()
+  (let ((filenames (directory-files taomacs--layers-dir
+				    nil
+				    directory-files-no-dot-files-regexp)))
+    (mapcar (lambda (filename)
+	      (replace-regexp-in-string ".el$" "" filename))
+	    filenames)))
