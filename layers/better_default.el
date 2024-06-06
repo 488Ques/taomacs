@@ -2,7 +2,9 @@
   :bind
   (("C-<backspace>" . taomacs-backward-delete)
    ("C-M-r" . raise-sexp)
-   ("C-;" . comment-line))
+   ("C-;" . comment-line)
+   ("C-x 2" . split-window-below-and-switch)
+   ("C-x 3" . split-window-right-and-switch))
 
   :bind-keymap
   ("C-c e" . config-keymap)

@@ -30,3 +30,13 @@
     (mapcar (lambda (filename)
 	      (replace-regexp-in-string ".el$" "" filename))
 	    filenames)))
+
+(defun split-window-below-and-switch ()
+  (interactive)
+  (split-window-below)
+  (other-window 1))
+
+(defun split-window-right-and-switch ()
+  (interactive)
+  (split-window-right)
+  (other-window 1))

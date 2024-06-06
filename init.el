@@ -22,14 +22,14 @@
 
 (setq taomacs--layers '(
 			;; Editor
-			"custom_stuff"
-			"better_default"
-			"appearance"
-			"completion_framework"
+			"custom_stuff" ; custom elisp code
+			"better_default" ; default packages' configuration
+			"appearance" ; UI stuff
+			"completion_framework" ; packages that deal with completion
 			"hydra"
 			"lsp"
-			"vcs"
-			"utils"
+			"vcs" ; Version control system
+			"utils" ; third-party utilility packages
 
 			;; Languages
 			"clojure"

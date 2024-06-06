@@ -19,7 +19,8 @@
 (use-package corfu
   :hook
   ;; Enable autocompletion by default in programming buffers
-  (prog-mode . corfu-mode)
+  ((prog-mode . corfu-mode)
+   (sly-mrepl-mode . corfu-mode))
   :config
   ;; Enable automatic completion
   (setq corfu-auto t)
