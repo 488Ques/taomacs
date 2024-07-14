@@ -9,6 +9,13 @@
   (nerd-icons-completion-mode)
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
+;; Meow
+(use-package catppuccin-theme
+  :config
+  (load-theme 'catppuccin t)
+  (setq catppuccin-flavor 'frappe)
+  (catppuccin-reload))
+
 ;; Alternative start-up buffer
 ;; (use-package dashboard
 ;;   :config

@@ -11,7 +11,7 @@
 ;; Fuzzy completion
 (use-package orderless
   :init
-  (setq completion-styles '(orderless basic)
+  (setq completion-styles '(orderless partial-completion basic)
 	completion-category-defaults nil
 	completion-category-overrides '((file (styles basic partial-completion)))))
 
@@ -21,13 +21,18 @@
   ;; Enable autocompletion by default in programming buffers
   ((prog-mode . corfu-mode)
    (sly-mrepl-mode . corfu-mode))
-  :config
+  :custom
   ;; Enable automatic completion
-  (setq corfu-auto t)
+  (corfu-auto t)
+  (corfu-separator ?\s)
+  :config
   ;; Provide popup documentation
-  (corfu-popupinfo-mode))
+  (corfu-popupinfo-mode)
+  :bind
+  (:map corfu-map
+	("C-S" . corfu-insert-separator)))
 
-;; Enable rich annotations
+;; Enable rich annotations in auto-complete interfaces like `vertico'
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the

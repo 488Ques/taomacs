@@ -42,5 +42,6 @@
   "Loads a Taomacs layer"
   (load (expand-file-name (concat layer-name ".el") taomacs--layers-dir)))
 
+;; Load all layers
 (dolist (layer taomacs--layers)
   (taomacs--load-layer layer))

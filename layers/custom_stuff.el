@@ -1,5 +1,5 @@
 (defun taomacs-backward-delete ()
-  "A replacement for C-<backspace> with behavior similar to other text editors."
+  "Make backward delete behave similarly to other text editors."
   (interactive)
   (let ((deleted-something nil)
 	(at-space (looking-back "[ \t\n]")))

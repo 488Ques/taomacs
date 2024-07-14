@@ -2,7 +2,7 @@
   :bind
   (("C-<backspace>" . taomacs-backward-delete)
    ("C-M-r" . raise-sexp)
-   ("C-;" . comment-line)
+   ("C-/" . comment-line)
    ("C-x 2" . split-window-below-and-switch)
    ("C-x 3" . split-window-right-and-switch))
 
@@ -16,11 +16,11 @@
   :config
   ;; Load a custom theme
   ;; Requires Emacs 28
-  (load-theme 'modus-operandi t)
+  ;; (load-theme 'modus-operandi t)
   ;; Disable splash screen
   (setq inhibit-startup-screen t)
   ;; Set default font face
-  (set-face-attribute 'default nil :height 110 :font "IBM Plex Mono")
+  (set-face-attribute 'default nil :height 120 :font "IBM Plex Mono")
   ;; Disable the menu bar
   (menu-bar-mode -1)
   ;; Disable the tool bar
@@ -29,6 +29,8 @@
   (scroll-bar-mode -1)
   ;; Automatically pair parentheses
   (electric-pair-mode t)
+  ;; Common User Actions - Replace default cut, copy and undo keybinds
+  (cua-mode 1)
 
   ;; Miscellaneous options
   (setq-default major-mode

@@ -1,3 +1,5 @@
+;;; utils.el --- For one-off packages that can't be categorized cleanly
+
 ;; In-Emacs Terminal Emulation
 (use-package eat
   :config
@@ -9,7 +11,7 @@
 ;; Jump to arbitrary positions
 (use-package avy
   :bind
-  ("C-c z" . avy-goto-word-1)
+  ("M-s" . avy-goto-char)
   :config
   ;; Jump to any open window or frame
   (setq avy-all-windows 'all-frames))
