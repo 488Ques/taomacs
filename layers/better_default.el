@@ -38,6 +38,7 @@
 		  (unless buffer-file-name
 		    (let ((buffer-file-name (buffer-name)))
 		      (set-auto-mode)))))
+  ;; Ask before closing Emacs
   (setq confirm-kill-emacs #'y-or-n-p)
   (setq window-resize-pixelwise t)
   (setq frame-resize-pixelwise t)
@@ -46,6 +47,8 @@
   (recentf-mode t)
   ;; yes/no to y/n
   (setq use-short-answers t)
+  ;; Display all non-nil results of functions in the eldoc hook
+  (setq eldoc-documentation-strategy 'eldoc-documentation-compose)
 
   ;; Keymaps
   (defvar config-keymap
