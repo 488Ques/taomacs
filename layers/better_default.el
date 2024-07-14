@@ -3,8 +3,9 @@
   (("C-<backspace>" . taomacs-backward-delete)
    ("C-M-r" . raise-sexp)
    ("C-/" . comment-line)
-   ("C-x 2" . split-window-below-and-switch)
-   ("C-x 3" . split-window-right-and-switch))
+   ("C-x 2" . taomacs-split-window-below-and-switch)
+   ("C-x 3" . taomacs-split-window-right-and-switch)
+   ("C-c `" . taomacs-toggle-eat-window))
 
   :bind-keymap
   ("C-c e" . config-keymap)

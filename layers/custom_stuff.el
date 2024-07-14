@@ -31,12 +31,39 @@
 	      (replace-regexp-in-string ".el$" "" filename))
 	    filenames)))
 
-(defun split-window-below-and-switch ()
+(defun taomacs-split-window-below-and-switch ()
   (interactive)
   (split-window-below)
   (other-window 1))
 
-(defun split-window-right-and-switch ()
+(defun taomacs-split-window-right-and-switch ()
   (interactive)
   (split-window-right)
   (other-window 1))
+
+(defun taomacs-delete-terminal-emulator-windows (terminal-mode)
+  "Delete all open terminal emulator windows that are of `TERMINAL-MODE' mode.
+If one or more window is deleted, it will return t, otherwise nil."
+  (let ((terminal-emulator-exists-p nil))
+    (dolist (wd (window-list))
+      (let ((wb (window-buffer wd)))
+	(with-current-buffer wb
+	  (when (eq terminal-mode major-mode)
+	    (delete-window wd)
+	    (setq terminal-emulator-exists-p t)))))
+    terminal-emulator-exists-p))
+
+(defun taomacs-toggle-eat-window (&optional arg)
+  "Open a small horizontal eshell window.
+If the focused buffer's height is large enough, open in another buffer,
+otherwise open it in the current buffer.
+
+If ARG is supplied and there's no open eshell window, open a new eshell session."
+  (interactive "P")
+  (unless (taomacs-delete-terminal-emulator-windows 'eat-mode)
+    (when (> (window-total-height) 28)
+      (let ((wd (split-window-below 32)))
+	(select-window wd))
+      (if arg
+	  (eat t)
+	(eat)))))

@@ -11,7 +11,7 @@
 ;; Jump to arbitrary positions
 (use-package avy
   :bind
-  ("M-s" . avy-goto-char)
+  ("C-c s" . avy-goto-char)
   :config
   ;; Jump to any open window or frame
   (setq avy-all-windows 'all-frames))
