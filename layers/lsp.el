@@ -1,4 +1,4 @@
-;; A good alternative is
+;; A good alternative is eglot, which is built-in
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
