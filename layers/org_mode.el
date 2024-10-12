@@ -36,7 +36,3 @@
 
 ;; Additional Org-mode related functionality
 (use-package org-contrib)
-
-(use-package ox-moderncv
-  :load-path "~/.emacs.d/external/org-cv"
-  :init (require 'ox-moderncv))

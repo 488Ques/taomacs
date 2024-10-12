@@ -67,3 +67,8 @@ If ARG is supplied and there's no open eshell window, open a new eshell session.
       (if arg
 	  (eat t)
 	(eat)))))
+
+(defun taomacs-buffer-major-mode ()
+  "Print the current buffer's major mode."
+  (interactive)
+  (message "%s" major-mode))
