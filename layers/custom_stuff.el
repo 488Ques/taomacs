@@ -10,7 +10,7 @@
       (setq deleted-something t))))
 
 (defun taomacs-edit-config ()
-  "Open init file"
+  "Open init file."
   (interactive)
   (find-file user-init-file))
 
@@ -21,10 +21,10 @@
 
 (defun taomacs-find-layer ()
   (interactive)
-  (taomacs-find-file-in-dir taomacs--layers-dir))
+  (taomacs-find-file-in-dir taomacs-layers-dir))
 
 (defun taomacs-list-layers ()
-  (let ((filenames (directory-files taomacs--layers-dir
+  (let ((filenames (directory-files taomacs-layers-dir
 				    nil
 				    directory-files-no-dot-files-regexp)))
     (mapcar (lambda (filename)
@@ -60,15 +60,28 @@ otherwise open it in the current buffer.
 
 If ARG is supplied and there's no open eshell window, open a new eshell session."
   (interactive "P")
-  (unless (taomacs-delete-terminal-emulator-windows 'eat-mode)
+  (unless (taomacs-delete-terminal-emulator-windows 'eshell-mode)
     (when (> (window-total-height) 28)
       (let ((wd (split-window-below 32)))
 	(select-window wd))
       (if arg
-	  (eat t)
-	(eat)))))
+	  (eshell t)
+	(eshell)))))
 
 (defun taomacs-buffer-major-mode ()
   "Print the current buffer's major mode."
   (interactive)
   (message "%s" major-mode))
+
+(defvar-keymap resize-window-keymap
+  :repeat t
+  "h" #'shrink-window-horizontally
+  "l" #'enlarge-window-horizontally
+  "j" #'shrink-window
+  "k" #'enlarge-window)
+
+(defvar-keymap config-keymap
+  "e" #'taomacs-edit-config
+  "f" #'taomacs-find-layer)
+
+(provide 'custom_stuff)

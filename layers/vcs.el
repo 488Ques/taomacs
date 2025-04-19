@@ -15,3 +15,5 @@
   :config
   ;; Update the highlighting without saving
   (diff-hl-flydiff-mode t))
+
+(provide 'vcs)

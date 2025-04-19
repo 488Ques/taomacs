@@ -36,3 +36,5 @@
 
 ;; Additional Org-mode related functionality
 (use-package org-contrib)
+
+(provide 'org_mode)

@@ -30,8 +30,7 @@
   ;; Provide popup documentation
   (corfu-popupinfo-mode)
   :bind
-  (:map corfu-map
-	("C-S" . corfu-insert-separator)))
+  ("C-t" . corfu-insert-separator))
 
 ;; Enable rich annotations in auto-complete interfaces like `vertico'
 (use-package marginalia
@@ -199,3 +198,5 @@
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
   )
+
+(provide 'completion_framework)

@@ -16,6 +16,10 @@
   (setq catppuccin-flavor 'frappe)
   (catppuccin-reload))
 
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family "Symbols Nerd Font Mono"))
+
 ;; Alternative start-up buffer
 ;; (use-package dashboard
 ;;   :config
@@ -32,3 +36,5 @@
 ;;				    (length package-activated-list) (emacs-init-time "%.2f seconds")))
 ;;   (setq dashboard-set-footer nil)
 ;;   (setq dashboard-set-navigator nil))
+
+(provide 'appearance)

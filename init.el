@@ -1,47 +1,49 @@
-;;; Personal configuration -*- lexical-binding: t -*-
+;;; init.el --- Personal configuration -*- lexical-binding: t -*-
 
-;;; Initialize package sources
-(require 'package)
-(setq package-archives '(("nongnu" . "https://elpa.nongnu.org/nongnu/")
-			 ("stable-melpa" . "https://stable.melpa.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
-(unless package-archive-contents (package-refresh-contents))
+;; straight.el initialization
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+	"straight/repos/straight.el/bootstrap.el"
+	(or (bound-and-true-p straight-base-dir)
+	    user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-;;; Initialize use-package for old Emacs and Emacs on non-Linux platforms
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(require 'use-package)
+;; Install use-package, new Emacs versions don't need to do this
+(straight-use-package 'use-package)
 
 ;; Ensure use-package always installs missing packages
-(setq use-package-always-ensure t)
+(setq straight-use-package-by-default t)
 
-;;; Setup directories
-(setq taomacs--layers-dir (expand-file-name "layers" user-emacs-directory))
+;;; Define layers directory path
+(defvar taomacs-layers-dir (expand-file-name "layers" user-emacs-directory))
+(add-to-list 'load-path taomacs-layers-dir)
 
-(setq taomacs--layers '(
-			;; Editor
-			"custom_stuff" ; custom elisp code
-			"better_default" ; default packages' configuration
-			"appearance" ; UI stuff
-			"completion_framework" ; packages that deal with completion
-			"hydra"
-			"lsp"
-			"vcs" ; Version control system
-			"utils" ; third-party utilility packages
+(defvar taomacs-layers '(
+			 ;; Editor
+			 custom_stuff ; custom elisp code
+			 better_default ; default packages' configuration
+			 appearance ; UI stuff
+			 completion_framework ; packages that deal with completion
+			 lsp ; language servers
+			 vcs ; version control system
+			 utils ; third-party utilility packages
 
-			;; Languages
-			"clojure"
-			"common_lisp"
-			"org_mode"
-			"markdown"
-			))
+			 ;; Languages
+			 clojure
+			 common_lisp
+			 org_mode
+			 markdown
+			 ))
 
-(defun taomacs--load-layer (layer-name)
-  "Loads a Taomacs layer"
-  (load (expand-file-name (concat layer-name ".el") taomacs--layers-dir)))
-
-;; Load all layers
-(dolist (layer taomacs--layers)
-  (taomacs--load-layer layer))
+;; Requires all layers
+(dolist (layer taomacs-layers)
+  (require layer))

@@ -1,17 +1,9 @@
 ;;; utils.el --- For one-off packages that can't be categorized cleanly
 
-;; In-Emacs Terminal Emulation
-(use-package eat
-  :config
-  ;; Close the terminal buffer when the shell terminates.
-  (setq eat-kill-buffer-on-exit t)
-  ;; Enable mouse-support.
-  (setq eat-enable-mouse t))
-
 ;; Jump to arbitrary positions
 (use-package avy
   :bind
-  ("C-c s" . avy-goto-char)
+  ("C-c s" . avy-goto-char-timer)
   :config
   ;; Jump to any open window or frame
   (setq avy-all-windows 'all-frames))
@@ -39,6 +31,23 @@
 
 ;; Copy environment variables into Emacs
 (use-package exec-path-from-shell
-  :config
-  (when (memq (display-graphic-p) '(mac ns x))
+  :init
+  (when (display-graphic-p)
     (exec-path-from-shell-initialize)))
+
+;; Use puni-mode only for certain major modes.
+(use-package puni
+  :defer t
+  :hook ((prog-mode sgml-mode nxml-mode tex-mode eval-expression-minibuffer-setup) . puni-mode)
+  :bind
+  (:map puni-mode-map
+	("C-<right>" . puni-slurp-forward)
+	("C-<left>" . puni-barf-forward)
+	("M-<left>" . puni-slurp-backward)
+	("M-<right>" . puni-barf-backward)
+	("C-M-SPC" . puni-expand-region)
+	("C-M-r" . puni-raise)
+	("C-<backspace>" . puni-backward-kill-word)
+	("C-M-<backspace>" . puni-forward-kill-word)))
+
+(provide 'utils)
