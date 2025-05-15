@@ -33,7 +33,7 @@
 			 better_default ; default packages' configuration
 			 appearance ; UI stuff
 			 completion_framework ; packages that deal with completion
-			 lsp ; language servers
+			 ;; lsp ; language servers
 			 vcs ; version control system
 			 utils ; third-party utilility packages
 

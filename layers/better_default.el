@@ -38,7 +38,27 @@
   (cua-mode 1)
   ;; Enable repeating a keybind after activating it once
   (repeat-mode)
+  ;; Make manual buffer switching obey window rules
+  (setq switch-to-buffer-obey-display-actions t)
+  ;; Open the buffer somewhere else if opening it in a dedicated window
+  (setq switch-to-buffer-in-dedicated-window 'pop)
+  ;;
+  (setq reb-re-syntax 'string)
 
+  (setq display-buffer-alist
+	'(
+	  ("\\*Occur\\*"
+	   (display-buffer-reuse-mode-window
+	    display-buffer-below-selected)
+	   (window-height . fit-window-to-buffer)
+	   (dedicated . t)
+	   (body-function . (lambda (window) (select-window window))))
+	  ("\\*helpful.\*\\*"
+	   (display-buffer-reuse-mode-window
+	    display-buffer-pop-up-window))
+	  ))
+
+  ;; Rebind modifier keys on macOS
   (custom-set-variables
    '(ns-alternate-modifier 'meta)
    '(ns-command-modifier 'control)
