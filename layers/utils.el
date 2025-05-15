@@ -36,18 +36,26 @@
     (exec-path-from-shell-initialize)))
 
 ;; Use puni-mode only for certain major modes.
-(use-package puni
-  :defer t
-  :hook ((prog-mode sgml-mode nxml-mode tex-mode eval-expression-minibuffer-setup) . puni-mode)
+;; (use-package puni
+;;   :defer t
+;;   :hook ((prog-mode sgml-mode nxml-mode tex-mode eval-expression-minibuffer-setup) . puni-mode)
+;;   :bind
+;;   (:map puni-mode-map
+;;	("C-<right>" . puni-slurp-forward)
+;;	("C-<left>" . puni-barf-forward)
+;;	("M-<left>" . puni-slurp-backward)
+;;	("M-<right>" . puni-barf-backward)
+;;	("C-M-SPC" . puni-expand-region)
+;;	("C-M-r" . puni-raise)
+;;	("C-<backspace>" . puni-backward-kill-word)
+;;	("C-M-<backspace>" . puni-forward-kill-word)))
+
+(use-package crux
   :bind
-  (:map puni-mode-map
-	("C-<right>" . puni-slurp-forward)
-	("C-<left>" . puni-barf-forward)
-	("M-<left>" . puni-slurp-backward)
-	("M-<right>" . puni-barf-backward)
-	("C-M-SPC" . puni-expand-region)
-	("C-M-r" . puni-raise)
-	("C-<backspace>" . puni-backward-kill-word)
-	("C-M-<backspace>" . puni-forward-kill-word)))
+  ("C-a" . crux-move-beginning-of-line))
+
+(use-package whole-line-or-region
+  :init
+  (whole-line-or-region-global-mode))
 
 (provide 'utils)

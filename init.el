@@ -42,6 +42,7 @@
 			 common_lisp
 			 org_mode
 			 markdown
+			 web
 			 ))
 
 ;; Requires all layers

@@ -2,10 +2,10 @@
   "Make backward delete behave similarly to other text editors."
   (interactive)
   (let ((deleted-something nil)
-	(at-space (looking-back "[ \t\n]")))
+        (at-space (looking-back "[ \t]")))
     (while (and (> (point) (point-min))
-		(eq (looking-back "[ \t\n]") at-space)
-		(not (and deleted-something (looking-back "[.:(){},]"))))
+                (eq (looking-back "[ \t]") at-space)
+                (not (and deleted-something (looking-back "[.:(){},]"))))
       (backward-delete-char 1)
       (setq deleted-something t))))
 
@@ -25,11 +25,11 @@
 
 (defun taomacs-list-layers ()
   (let ((filenames (directory-files taomacs-layers-dir
-				    nil
-				    directory-files-no-dot-files-regexp)))
+                                    nil
+                                    directory-files-no-dot-files-regexp)))
     (mapcar (lambda (filename)
-	      (replace-regexp-in-string ".el$" "" filename))
-	    filenames)))
+              (replace-regexp-in-string ".el$" "" filename))
+            filenames)))
 
 (defun taomacs-split-window-below-and-switch ()
   (interactive)
@@ -47,10 +47,10 @@ If one or more window is deleted, it will return t, otherwise nil."
   (let ((terminal-emulator-exists-p nil))
     (dolist (wd (window-list))
       (let ((wb (window-buffer wd)))
-	(with-current-buffer wb
-	  (when (eq terminal-mode major-mode)
-	    (delete-window wd)
-	    (setq terminal-emulator-exists-p t)))))
+        (with-current-buffer wb
+          (when (eq terminal-mode major-mode)
+            (delete-window wd)
+            (setq terminal-emulator-exists-p t)))))
     terminal-emulator-exists-p))
 
 (defun taomacs-toggle-eat-window (&optional arg)
@@ -63,15 +63,21 @@ If ARG is supplied and there's no open eshell window, open a new eshell session.
   (unless (taomacs-delete-terminal-emulator-windows 'eshell-mode)
     (when (> (window-total-height) 28)
       (let ((wd (split-window-below 32)))
-	(select-window wd))
+        (select-window wd))
       (if arg
-	  (eshell t)
-	(eshell)))))
+          (eshell t)
+        (eshell)))))
 
 (defun taomacs-buffer-major-mode ()
   "Print the current buffer's major mode."
   (interactive)
   (message "%s" major-mode))
+
+(defun taomacs-indent-buffer ()
+  "Indent the whole buffer."
+  (interactive)
+  (indent-region (point-min)
+                 (point-max)))
 
 (defvar-keymap resize-window-keymap
   :repeat t

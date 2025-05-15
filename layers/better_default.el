@@ -3,9 +3,10 @@
 (use-package emacs
   :bind
   (
-   ;; ("C-<backspace>" . taomacs-backward-delete)
-   ;; ("C-M-r" . raise-sexp)
-   ("C-/" . comment-line)
+   ("C-<backspace>" . taomacs-backward-delete)
+   ("M-<backspace>" . taomacs-backward-delete)
+   ("C-M-r" . raise-sexp)
+   ("C-;" . comment-line)
    ("C-x 2" . taomacs-split-window-below-and-switch)
    ("C-x 3" . taomacs-split-window-right-and-switch)
    ("C-c `" . taomacs-toggle-eat-window))
@@ -17,6 +18,7 @@
   :hook
   ;; Clean up whitespace on save
   (before-save . whitespace-cleanup)
+  (prog-mode . display-line-numbers-mode)
 
   :config
   ;; Load a custom theme
@@ -24,10 +26,8 @@
   ;; (load-theme 'modus-operandi t)
   ;; Disable the default startup screen
   (setq inhibit-startup-screen t)
-  ;; Set default font face
-  (set-face-attribute 'default nil :height 140 :font "IBM Plex Mono")
-  ;; Disable the menu bar
-  (menu-bar-mode -1)
+  ;; Enable the menu bar
+  (menu-bar-mode 1)
   ;; Disable the tool bar
   (tool-bar-mode -1)
   ;; Disable the scroll bars
@@ -35,10 +35,31 @@
   ;; Automatically pair parentheses
   (electric-pair-mode t)
   ;; Common User Actions - Replace default cut, copy and undo keybinds
-  (cua-mode 1)
+  ;; (cua-mode -1)
   ;; Enable repeating a keybind after activating it once
-  (repeat-mode)
-
+  (repeat-mode 1)
+  ;; Wrap line by word boundary
+  (global-visual-line-mode 1)
+  ;; Make manual buffer switching obey window rules
+  (setq switch-to-buffer-obey-display-actions t)
+  ;; Open the buffer somewhere else if opening it in a dedicated window
+  (setq switch-to-buffer-in-dedicated-window 'pop)
+  ;; Use the string syntax of Emacs regex
+  ;; (setq reb-re-syntax 'string)
+  ;; Buffer rules
+  (setq display-buffer-alist
+        '(
+          ("\\*Occur\\*"
+           (display-buffer-reuse-mode-window
+            display-buffer-below-selected)
+           (window-height . fit-window-to-buffer)
+           (dedicated . t)
+           (body-function . (lambda (window) (select-window window))))
+          ("\\*helpful.\*\\*"
+           (display-buffer-reuse-mode-window
+            display-buffer-pop-up-window))
+          ))
+  ;; Rebind modifier keys on macOS
   (custom-set-variables
    '(ns-alternate-modifier 'meta)
    '(ns-command-modifier 'control)
@@ -62,6 +83,9 @@
   (setq use-short-answers t)
   ;; Display all non-nil results of functions in the eldoc hook
   (setq eldoc-documentation-strategy 'eldoc-documentation-compose)
+
+  (setq-default indent-tabs-mode nil)
+  (setq tab-always-indent 'complete)
 
   ;; Store automatic customisation options elsewhere
   (setq custom-file (locate-user-emacs-file "custom.el"))

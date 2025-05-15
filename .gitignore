@@ -14,3 +14,8 @@ eln-cache/
 places
 tmp/
 straight/
+.DS_Store
+.cache/
+.lsp-session-v1
+ielm-history.eld
+semanticdb/
