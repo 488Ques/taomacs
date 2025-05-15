@@ -52,7 +52,7 @@
   :ensure t
   :bind
   (("C-." . embark-act)
-   ("C-;" . embark-dwim)
+   ("C-'" . embark-dwim)
    ("C-h B" . embark-bindings))
 
   :init
@@ -98,7 +98,7 @@
 	 ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
 	 ("C-M-#" . consult-register)
 	 ;; Other custom bindings
-	 ("C-M-v" . consult-yank-pop)                ;; orig. yank-pop
+	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
 	 ;; M-g bindings in `goto-map'
 	 ("M-g e" . consult-compile-error)
 	 ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck

@@ -1,3 +1,6 @@
+;; Set default font face
+(set-face-attribute 'default nil :height 140 :font "IBM Plex Mono")
+
 ;; Fully featured and fast modeline
 (use-package doom-modeline
   :hook (after-init . doom-modeline-mode))
@@ -9,18 +12,15 @@
   (nerd-icons-completion-mode)
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-;; Meow
-(use-package catppuccin-theme
+(use-package zenburn-theme
   :config
-  (load-theme 'catppuccin t)
-  (setq catppuccin-flavor 'frappe)
-  (catppuccin-reload))
+  (load-theme 'zenburn t))
 
 (use-package nerd-icons
   :custom
   (nerd-icons-font-family "Symbols Nerd Font Mono"))
 
-;; Alternative start-up buffer
+;; Shows a custom dashboard on start up
 ;; (use-package dashboard
 ;;   :config
 ;;   (dashboard-setup-startup-hook)

@@ -14,7 +14,7 @@
   (lsp-completion-provider :none) ;; corfu is used instead
   :hook
   ((clojure-mode . lsp)
-   (clojure-mode . taomacs/clojure-mode-config)
+   ;; (clojure-mode . taomacs/clojure-mode-config)
    (lsp-mode . lsp-enable-which-key-integration)
    (lsp-completion-mode . taomacs/lsp-mode-setup-completion))
   :commands lsp)
