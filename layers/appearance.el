@@ -1,5 +1,5 @@
-;; Set default font face
-(set-face-attribute 'default nil :height 140 :font "IBM Plex Mono")
+(set-face-attribute 'default nil :height 140 :font "IBM Plex Mono") ; Set font face
+(load-theme 'modus-operandi-tinted t) ; Load theme
 
 ;; Fully featured and fast modeline
 (use-package doom-modeline
@@ -12,9 +12,9 @@
   (nerd-icons-completion-mode)
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-(use-package zenburn-theme
-  :config
-  (load-theme 'zenburn t))
+;; (use-package zenburn-theme
+;;   :config
+;;   (load-theme 'zenburn t))
 
 (use-package nerd-icons
   :custom

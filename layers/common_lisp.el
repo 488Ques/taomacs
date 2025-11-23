@@ -1,6 +1,6 @@
 ;; Additional Lisp support
-(use-package sly
-  :config
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
+(use-package slime
+  :init
+  (setq inferior-lisp-program "sbcl"))
 
 (provide 'common_lisp)
