@@ -10,26 +10,31 @@
 
 ;;; Emacs configuration
 
-;; This function creates nested directories in the backup folder. If
-;; instead you would like all backup files in a flat structure, albeit
-;; with their full paths concatenated into a filename, then you can
-;; use the following configuration:
-;; (Run `'M-x describe-variable RET backup-directory-alist RET' for more help)
-;;
-;; (let ((backup-dir (expand-file-name "emacs-backup/" user-emacs-directory)))
-;;   (setopt backup-directory-alist `(("." . ,backup-dir))))
-(defun bedrock--backup-file-name (fpath)
-  "Return a new file path of a given file path.
-If the new path's directories does not exist, create them."
-  (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
-	 (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-	 (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-    backupFilePath))
-
 (use-package emacs
   :config
-  (load-theme 'modus-operandi-tinted)
+  ;; This function creates nested directories in the backup folder. If
+  ;; instead you would like all backup files in a flat structure, albeit
+  ;; with their full paths concatenated into a filename, then you can
+  ;; use the following configuration:
+  ;; (Run `'M-x describe-variable RET backup-directory-alist RET' for more help)
+  ;;
+  ;; (let ((backup-dir (expand-file-name "emacs-backup/" user-emacs-directory)))
+  ;;   (setopt backup-directory-alist `(("." . ,backup-dir))))
+  (defun taomacs/backup-file-name (fpath)
+    "Return a new file path of a given file path.
+If the new path's directories does not exist, create them."
+    (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
+	   (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
+	   (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
+      (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
+      backupFilePath))
+
+  (defun taomacs/open-init-file ()
+    "Open init.el file for editing."
+    (interactive)
+    (find-file user-init-file))
+
+  (load-theme 'modus-operandi-tinted t)
 
   ;; Enable imenu to include 'use-package' declarations
   (setopt use-package-enable-imenu-support t)
@@ -63,7 +68,9 @@ If the new path's directories does not exist, create them."
    mouse-wheel-tilt-scroll t
    mouse-wheel-flip-direction t
    ;; Set a minimum width for line numbers
-   display-line-numbers-width 3)
+   display-line-numbers-width 3
+   ;; y/n instead of yes/no when prompted
+   use-short-answers t)
 
   ;; We won't set these, but they're good to know about
   ;; (setopt indent-tabs-mode nil)
@@ -78,7 +85,7 @@ If the new path's directories does not exist, create them."
 
   ;; Don't litter file system with *~ backup files; put them all inside
   ;; ~/.emacs.d/backup or wherever
-  (setopt make-backup-file-name-function 'bedrock--backup-file-name)
+  (setopt make-backup-file-name-function 'taomacs/backup-file-name)
 
   ;; For help, see: https://www.masteringemacs.org/article/understanding-minibuffer-completion
   (setopt
@@ -107,7 +114,7 @@ If the new path's directories does not exist, create them."
    ;; Much more eager
    completion-auto-select 'second-tab)
 
-  ;; Tell Emacs to prefer the treesitter mode
+  ;; Tell Emacs to prefer the treesit mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
   (setq major-mode-remap-alist
 	'((yaml-mode . yaml-ts-mode)
@@ -117,6 +124,10 @@ If the new path's directories does not exist, create them."
 	  (json-mode . json-ts-mode)
 	  (css-mode . css-ts-mode)
 	  (python-mode . python-ts-mode)))
+
+  ;; Set sources for treesit language grammar
+  (setq treesit-language-source-alist
+	'((typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))))
 
   ;; Show the tab-bar as soon as tab-bar functions are invoked
   (setopt tab-bar-show 1)
@@ -151,6 +162,16 @@ If the new path's directories does not exist, create them."
   ;; For terminal users, make the mouse more useful
   (xterm-mouse-mode 1)
 
+  ;; Repeat keybinding
+  (repeat-mode 1)
+
+  (defvar-keymap taomacs/resize-window-keymap
+    :repeat t
+    "h" #'shrink-window-horizontally
+    "l" #'enlarge-window-horizontally
+    "j" #'shrink-window
+    "k" #'enlarge-window)
+
   :hook
   ;; Display line numbers in programming mode
   (prog-mode . display-line-numbers-mode)
@@ -160,19 +181,61 @@ If the new path's directories does not exist, create them."
   ((text-mode prog-mode) . hl-line-mode)
   ;; Auto parenthesis matching
   (prog-mode . electric-pair-mode)
+  ;; Clean up whitespace
+  (before-save . whitespace-cleanup)
 
   :bind
-  (:map minibuffer-mode-map
-	("TAB" . minibuffer-complete)))
+  (("C-c e" . taomacs/open-init-file)
+
+   :map minibuffer-mode-map
+   ("TAB" . minibuffer-complete))
+
+  :bind-keymap
+  ("C-c r" . taomacs/resize-window-keymap))
 
 ;;; packages
 
 ;; which-key: shows a popup of available keybindings when typing a long key
 ;; sequence (e.g. C-x ...)
 (use-package which-key
-  :ensure t
   :config
   (which-key-mode))
+
+;; Automatically clean up unused buffers at midnight
+(use-package midnight
+  :hook (after-init . midnight-mode))
+
+;; Dired - The best way to manage files
+(use-package dired
+  :hook
+  (dired-mode . dired-hide-details-mode)
+  :config
+  (setq dired-dwim-target t)                  ;; do what I mean
+  (setq dired-recursive-copies 'always)       ;; don't ask when copying directories
+  (setq dired-create-destination-dirs 'ask)
+  (setq dired-clean-confirm-killing-deleted-buffers nil)
+  (setq dired-make-directory-clickable t)
+  (setq dired-mouse-drag-files t)
+  (setq dired-kill-when-opening-new-dired-buffer t)   ;; Tidy up open buffers by default
+  (when (eq system-type 'darwin)
+    (let ((gls (executable-find "gls")))
+      (when gls
+	(setq dired-use-ls-dired t
+	      insert-directory-program gls
+	      dired-listing-switches "-aBhl  --group-directories-first")))))
+
+;; Toggle a directory to show items inside it
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :bind (:map dired-mode-map
+	      ("TAB" . dired-subtree-toggle)))
+
+;; Fully featured and fast modeline
+(use-package doom-modeline
+  :ensure t
+  :config
+  (doom-modeline-mode))
 
 ;; Navigation aid
 (use-package avy
@@ -218,7 +281,7 @@ If the new path's directories does not exist, create them."
   :bind (("C-c a" . embark-act))        ; bind this to an easy key to hit
   :init
   ;; Add the option to run embark when using avy
-  (defun bedrock/avy-action-embark (pt)
+  (defun taomacs/avy-action-embark (pt)
     (unwind-protect
 	(save-excursion
 	  (goto-char pt)
@@ -229,7 +292,7 @@ If the new path's directories does not exist, create them."
 
   ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
   ;; candidate you select
-  (setf (alist-get ?. avy-dispatch-alist) 'bedrock/avy-action-embark))
+  (setf (alist-get ?. avy-dispatch-alist) 'taomacs/avy-action-embark))
 
 ;; Vertico: better vertical completion for minibuffer commands
 (use-package vertico
@@ -297,11 +360,11 @@ If the new path's directories does not exist, create them."
 
 (use-package eshell
   :init
-  (defun bedrock/setup-eshell ()
+  (defun taomacs/setup-eshell ()
     ;; Something funny is going on with how Eshell sets up its keymaps; this is
     ;; a work-around to make C-r bound in the keymap
     (keymap-set eshell-mode-map "C-r" 'consult-history))
-  :hook ((eshell-mode . bedrock/setup-eshell)))
+  :hook ((eshell-mode . taomacs/setup-eshell)))
 
 ;; Eat: Emulate A Terminal
 (use-package eat
@@ -333,6 +396,19 @@ If the new path's directories does not exist, create them."
 ;; Magit: best Git client to ever exist
 (use-package magit
   :ensure t
+  :config
+  ;; 1. Replace the "OR" function with the specific "Unpushed" function
+  (magit-add-section-hook 'magit-status-sections-hook
+			  'magit-insert-unpushed-to-upstream
+			  'magit-insert-unpushed-to-upstream-or-recent
+			  'replace)
+
+  ;; 2. Add the "Recent" function explicitly after the "Unpushed" one
+  (magit-add-section-hook 'magit-status-sections-hook
+			  'magit-insert-recent-commits
+			  'magit-insert-unpushed-to-upstream
+			  t)
+
   :bind (("C-x g" . magit-status)))
 
 (use-package markdown-mode
@@ -383,25 +459,41 @@ If the new path's directories does not exist, create them."
   :init
   ;; Make a function that adds the tempel expansion function to the
   ;; list of completion-at-point-functions (capf).
-  (defun tempel-setup-capf ()
+  (defun taomacs/tempel-setup-capf ()
     (add-hook 'completion-at-point-functions #'tempel-expand -1 'local))
   ;; Put tempel-expand on the list whenever you start programming or
   ;; writing prose.
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf))
+  (add-hook 'prog-mode-hook 'taomacs/tempel-setup-capf)
+  (add-hook 'text-mode-hook 'taomacs/tempel-setup-capf))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;;   Built-in customization framework
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Collection of useful commands
+(use-package crux
+  :ensure t
+  :bind
+  ("C-a" . crux-move-beginning-of-line))
+
+;; Copy environment variables into Emacs
+(use-package exec-path-from-shell
+  :ensure t
+  :init
+  (when (display-graphic-p)
+    (exec-path-from-shell-initialize)))
+
+;; Enhancement for window navigation
+(use-package ace-window
+  :ensure t
+  :bind (("C-x o" . ace-window)))
+
+;;; Built-in customization framework
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(which-key)))
+ '(package-selected-packages
+   '(ace-window crux dired-subtree doom-modeline exec-path-from-shell
+		which-key)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
