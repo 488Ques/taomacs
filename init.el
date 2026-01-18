@@ -102,7 +102,7 @@ If the new path's directories does not exist, create them."
    ;; See `C-h v completion-auto-select' for more possible values
    ;; completion-auto-select t
    ;; Different styles to match input to candidates
-   completion-styles '(basic initials substring)
+   ;; completion-styles '(basic initials substring)
    ;; Open completion always; `lazy' another option
    completion-auto-help 'always
    ;; This is arbitrary
@@ -172,6 +172,10 @@ If the new path's directories does not exist, create them."
     "j" #'shrink-window
     "k" #'enlarge-window)
 
+  (setopt world-clock-list '(("Asia/Ho_Chi_Minh" "Vietnam")
+			     ("Poland" "Poland")
+			     ("Portugal" "Portugal")))
+
   :hook
   ;; Display line numbers in programming mode
   (prog-mode . display-line-numbers-mode)
@@ -186,6 +190,7 @@ If the new path's directories does not exist, create them."
 
   :bind
   (("C-c e" . taomacs/open-init-file)
+   ("C-;" . comment-line)
 
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete))
@@ -299,7 +304,12 @@ If the new path's directories does not exist, create them."
   :ensure t
   :init
   ;; You'll want to make sure that e.g. fido-mode isn't enabled
-  (vertico-mode))
+  (vertico-mode)
+
+  :bind
+  (:map vertico-map
+	;; Improve directory navigation
+	("DEL" . vertico-directory-delete-char)))
 
 (use-package vertico-directory
   :ensure nil
@@ -358,6 +368,33 @@ If the new path's directories does not exist, create them."
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
+;; nerd-icons for completion candidates
+(use-package nerd-icons-completion
+  :ensure t
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :ensure t
+
+  :config
+  (defun taomacs/dired-subtree-add-nerd-icons ()
+    (interactive)
+    (revert-buffer))
+
+
+  (defun taomacs/dired-subtree-toggle-nerd-icons ()
+    (when (require 'dired-subtree nil t)
+      (if nerd-icons-dired-mode
+	  (advice-add #'dired-subtree-toggle :after #'taomacs/dired-subtree-add-nerd-icons)
+	(advice-remove #'dired-subtree-toggle #'taomacs/dired-subtree-add-nerd-icons))))
+
+  :hook
+  ((dired-mode . nerd-icons-dired-mode)
+   (nerd-icons-dired-mode . taomacs/dired-subtree-toggle-nerd-icons)))
+
 (use-package eshell
   :init
   (defun taomacs/setup-eshell ()
@@ -388,6 +425,9 @@ If the new path's directories does not exist, create them."
   (setq wgrep-auto-save-buffer t))
 
 (use-package project
+  :config
+  (setopt project-vc-extra-root-markers '("deps.edn"))
+
   :custom
   (when (>= emacs-major-version 30)
     ;; show project name in modeline
@@ -418,28 +458,47 @@ If the new path's directories does not exist, create them."
 (use-package yaml-mode
   :ensure t)
 
-(use-package json-mode
-  :ensure t)
+;; (use-package json-mode
+;;   :ensure t)
 
-;; Helpful resources:
-;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
-(use-package eglot
-  ;; no :ensure t here because it's built-in
+;; ;; Helpful resources:
+;; ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
+;; (use-package eglot
+;;   ;; no :ensure t here because it's built-in
 
-  ;; Configure hooks to automatically turn-on eglot for selected modes
-  ; :hook
-  ; (((python-mode ruby-mode elixir-mode) . eglot-ensure))
+;;   ;; Configure hooks to automatically turn-on eglot for selected modes
+;;   ; :hook
+;;   ; (((python-mode ruby-mode elixir-mode) . eglot-ensure))
 
-  :custom
-  (eglot-send-changes-idle-time 0.1)
-  (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
+;;   :custom
+;;   (eglot-send-changes-idle-time 0.1)
+;;   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
 
-  :config
-  (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-  ;; Sometimes you need to tell Eglot where to find the language server
-  ; (add-to-list 'eglot-server-programs
-  ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-  )
+;;   :config
+;;   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+;;   ;; Sometimes you need to tell Eglot where to find the language server
+;;   ; (add-to-list 'eglot-server-programs
+;;   ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+;;   )
+
+(use-package lsp-mode
+  :ensure t
+
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+
+  (defun taomacs/clojure-mode-config ()
+    ;; Disable lsp completion
+    (setq lsp-completion-enable nil)
+    ;; Disable hover
+    (setq lsp-eldoc-enable-hover t))
+
+  :hook
+  ((lsp-mode . lsp-enable-which-key-integration)
+   (clojure-ts-mode . lsp)
+   (clojure-ts-mode . taomacs/clojure-mode-config))
+
+  :commands lsp)
 
 (use-package tempel
   :ensure t
@@ -470,7 +529,20 @@ If the new path's directories does not exist, create them."
 (use-package crux
   :ensure t
   :bind
-  ("C-a" . crux-move-beginning-of-line))
+  ;; ("C-a" . crux-move-beginning-of-line)
+  )
+
+(use-package mwim
+  :ensure t
+  :bind
+  (("C-a" . mwim-beginning)
+   ("C-e" . mwim-end)))
+
+(use-package bbww
+  :ensure t
+  :config
+  (bbww-mode 1)
+  (bbww-init-global-bindings))
 
 ;; Copy environment variables into Emacs
 (use-package exec-path-from-shell
@@ -484,6 +556,43 @@ If the new path's directories does not exist, create them."
   :ensure t
   :bind (("C-x o" . ace-window)))
 
+;; Better interface for Emacs' help
+(use-package helpful
+  :ensure t
+  :bind
+  ([remap describe-function] . helpful-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-symbol] . helpful-symbol))
+
+;; Indication of local VCS changes
+(use-package diff-hl
+  :ensure t
+  :hook
+  ;; Enable `diff-hl' support by default in programming buffers
+  (prog-mode . diff-hl-mode)
+  :config
+  ;; Update the highlighting without saving
+  (diff-hl-flydiff-mode t))
+
+;; Clojure major mode that uses Tree-sitter
+(use-package clojure-ts-mode
+  :ensure t)
+
+;; Clojure REPL
+(use-package cider
+  :ensure t)
+
+;; Clojure refactoring utilities
+;; (use-package clj-refactor
+;;   :ensure t
+;;   :hook
+;;   (clojure-ts-mode-hook . (lambda ()
+;;			    (clj-refactor-mode 1)
+;;			    (yas-minor-mode 1)
+;;			    (cljr-add-keybindings-with-prefix "C-c C-m"))))
+
 ;;; Built-in customization framework
 
 (custom-set-variables
@@ -492,8 +601,12 @@ If the new path's directories does not exist, create them."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(ace-window crux dired-subtree doom-modeline exec-path-from-shell
-		which-key)))
+   '(ace-window bbww cape cider clojure-ts-mode corfu-terminal crux
+		diff-hl dired-subtree doom-modeline eat embark-consult
+		exec-path-from-shell helpful json-mode kind-icon
+		lsp-mode magit marginalia markdown-mode
+		nerd-icons-completion nerd-icons-dired orderless
+		tempel vertico wgrep yaml-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
