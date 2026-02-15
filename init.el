@@ -162,6 +162,9 @@ If the new path's directories does not exist, create them."
   ;; For terminal users, make the mouse more useful
   (xterm-mouse-mode 1)
 
+  ;; Auto parenthesis matching
+  (electric-pair-mode 1)
+
   ;; Repeat keybinding
   (repeat-mode 1)
 
@@ -183,8 +186,6 @@ If the new path's directories does not exist, create them."
   (text-mode . visual-line-mode)
   ;; Modes to highlight the current line with
   ((text-mode prog-mode) . hl-line-mode)
-  ;; Auto parenthesis matching
-  (prog-mode . electric-pair-mode)
   ;; Clean up whitespace
   (before-save . whitespace-cleanup)
 
@@ -593,6 +594,15 @@ If the new path's directories does not exist, create them."
 ;;			    (yas-minor-mode 1)
 ;;			    (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
+;; SLIME
+(use-package slime
+  :ensure t
+  :init
+  (setq inferior-lisp-program "sbcl")
+
+  :config
+  (slime-setup '(slime-fancy slime-quicklisp slime-asdf slime-mrepl)))
+
 ;;; Built-in customization framework
 
 (custom-set-variables
@@ -605,7 +615,7 @@ If the new path's directories does not exist, create them."
 		diff-hl dired-subtree doom-modeline eat embark-consult
 		exec-path-from-shell helpful json-mode kind-icon
 		lsp-mode magit marginalia markdown-mode
-		nerd-icons-completion nerd-icons-dired orderless
+		nerd-icons-completion nerd-icons-dired orderless slime
 		tempel vertico wgrep yaml-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
