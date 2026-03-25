@@ -600,6 +600,10 @@ If the new path's directories does not exist, create them."
   :init
   (setq inferior-lisp-program "sbcl")
 
+  :hook
+  ((slime-mode . (lambda () (setq-local corfu-popupinfo-delay nil)))
+   (slime-repl-mode . (lambda () (setq-local corfu-popupinfo-delay nil))))
+
   :config
   (slime-setup '(slime-fancy slime-quicklisp slime-asdf slime-mrepl)))
 
