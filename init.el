@@ -1,17 +1,11 @@
-;;; Guardrail
-
-(when (< emacs-major-version 29)
-  (error "Emacs Bedrock only works with Emacs 29 and newer; you have version %s" emacs-major-version))
-
-;;; Enable MELPA packages
-
+;; Enable MELPA packages
 (with-eval-after-load 'package
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
 
-;;; Emacs configuration
-
+;; Core configuration
 (use-package emacs
   :config
+
   ;; This function creates nested directories in the backup folder. If
   ;; instead you would like all backup files in a flat structure, albeit
   ;; with their full paths concatenated into a filename, then you can
@@ -20,7 +14,7 @@
   ;;
   ;; (let ((backup-dir (expand-file-name "emacs-backup/" user-emacs-directory)))
   ;;   (setopt backup-directory-alist `(("." . ,backup-dir))))
-  (defun taomacs/backup-file-name (fpath)
+  (defun taomacs-backup-file-name (fpath)
     "Return a new file path of a given file path.
 If the new path's directories does not exist, create them."
     (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
@@ -29,12 +23,27 @@ If the new path's directories does not exist, create them."
       (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
       backupFilePath))
 
-  (defun taomacs/open-init-file ()
+  ;; Function to quickly open the init.el file
+  (defun taomacs-open-init-file ()
     "Open init.el file for editing."
     (interactive)
     (find-file user-init-file))
 
+  ;; Check whether a given font exists
+  (defun font-exists-p (font)
+    "Check if the FONT exists."
+    (and (display-graphic-p) (not (null (x-list-fonts font)))))
+
+  ;; Use the excellent modus-operandi-tinted theme
   (load-theme 'modus-operandi-tinted t)
+
+  (when (font-exists-p "IBM Plex Mono")
+    (set-face-attribute 'default nil
+			:family "IBM Plex Mono"
+			:height 140))
+
+  ;; Word wrap
+  (global-visual-line-mode 1)
 
   ;; Enable imenu to include 'use-package' declarations
   (setopt use-package-enable-imenu-support t)
@@ -42,8 +51,6 @@ If the new path's directories does not exist, create them."
   (setopt
    ;; Turn off the welcome screen
    inhibit-splash-screen t
-   ;; Default mode for the *scratch* buffer
-   initial-major-mode 'fundamental-mode
    ;; this information is useless for most
    display-time-default-load-average nil
    ;; Fix archaic defaults
@@ -85,7 +92,7 @@ If the new path's directories does not exist, create them."
 
   ;; Don't litter file system with *~ backup files; put them all inside
   ;; ~/.emacs.d/backup or wherever
-  (setopt make-backup-file-name-function 'taomacs/backup-file-name)
+  (setopt make-backup-file-name-function 'taomacs-backup-file-name)
 
   ;; For help, see: https://www.masteringemacs.org/article/understanding-minibuffer-completion
   (setopt
@@ -138,6 +145,9 @@ If the new path's directories does not exist, create them."
   (setopt display-time-interval 1)
   (display-time-mode)
 
+  ;; Banish the Custom stuff
+  (setopt custom-file (locate-user-emacs-file "custom.el"))
+
   ;; Automatically reread from disk if the underlying file changes
   (global-auto-revert-mode)
 
@@ -165,19 +175,24 @@ If the new path's directories does not exist, create them."
   ;; Auto parenthesis matching
   (electric-pair-mode 1)
 
+  ;; Remember and restore the last cursor location of opened files
+  (save-place-mode 1)
+
   ;; Repeat keybinding
   (repeat-mode 1)
 
-  (defvar-keymap taomacs/resize-window-keymap
+  (defvar-keymap taomacs-resize-window-keymap
     :repeat t
     "h" #'shrink-window-horizontally
     "l" #'enlarge-window-horizontally
     "j" #'shrink-window
     "k" #'enlarge-window)
 
+  ;; Setup list of times to track
   (setopt world-clock-list '(("Asia/Ho_Chi_Minh" "Vietnam")
 			     ("Poland" "Poland")
-			     ("Portugal" "Portugal")))
+			     ("Portugal" "Portugal")
+			     ("America/New_York" "US EST")))
 
   :hook
   ;; Display line numbers in programming mode
@@ -190,16 +205,14 @@ If the new path's directories does not exist, create them."
   (before-save . whitespace-cleanup)
 
   :bind
-  (("C-c e" . taomacs/open-init-file)
+  (("C-c e" . taomacs-open-init-file)
    ("C-;" . comment-line)
 
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete))
 
   :bind-keymap
-  ("C-c r" . taomacs/resize-window-keymap))
-
-;;; packages
+  ("C-c r" . taomacs-resize-window-keymap))
 
 ;; which-key: shows a popup of available keybindings when typing a long key
 ;; sequence (e.g. C-x ...)
@@ -207,11 +220,12 @@ If the new path's directories does not exist, create them."
   :config
   (which-key-mode))
 
-;; Automatically clean up unused buffers at midnight
+;; Run actions at midnight
+;; By defaul clean up unused buffers at midnight
 (use-package midnight
   :hook (after-init . midnight-mode))
 
-;; Dired - The best way to manage files
+;; Dired: file manager
 (use-package dired
   :hook
   (dired-mode . dired-hide-details-mode)
@@ -237,19 +251,6 @@ If the new path's directories does not exist, create them."
   :bind (:map dired-mode-map
 	      ("TAB" . dired-subtree-toggle)))
 
-;; Fully featured and fast modeline
-(use-package doom-modeline
-  :ensure t
-  :config
-  (doom-modeline-mode))
-
-;; Navigation aid
-(use-package avy
-  :ensure t
-  :demand t
-  :bind (("C-c j" . avy-goto-line)
-	 ("s-j"   . avy-goto-char-timer)))
-
 ;; Consult: Misc. enhanced commands
 (use-package consult
   :ensure t
@@ -257,7 +258,7 @@ If the new path's directories does not exist, create them."
 	 ;; Drop-in replacements
 	 ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
 	 ("M-y"   . consult-yank-pop)   ; orig. yank-pop
-	 ("M-g i" . consult-imenu)      ; orig. imenu
+	 ("M-i" . consult-imenu)      ; orig. imenu
 	 ;; Searching
 	 ("M-s r" . consult-ripgrep)
 	 ("C-s" . consult-line)       ; Alternative: rebind C-s to use
@@ -275,6 +276,7 @@ If the new path's directories does not exist, create them."
   ;; Narrowing lets you restrict results to certain groups of candidates
   (setq consult-narrow-key "<"))
 
+;; Integration between embark and consult
 (use-package embark-consult
   :ensure t)
 
@@ -287,7 +289,7 @@ If the new path's directories does not exist, create them."
   :bind (("C-c a" . embark-act))        ; bind this to an easy key to hit
   :init
   ;; Add the option to run embark when using avy
-  (defun taomacs/avy-action-embark (pt)
+  (defun taomacs-avy-action-embark (pt)
     (unwind-protect
 	(save-excursion
 	  (goto-char pt)
@@ -298,7 +300,7 @@ If the new path's directories does not exist, create them."
 
   ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
   ;; candidate you select
-  (setf (alist-get ?. avy-dispatch-alist) 'taomacs/avy-action-embark))
+  (setf (alist-get ?. avy-dispatch-alist) 'taomacs-avy-action-embark))
 
 ;; Vertico: better vertical completion for minibuffer commands
 (use-package vertico
@@ -323,6 +325,12 @@ If the new path's directories does not exist, create them."
   :ensure t
   :config
   (marginalia-mode))
+
+;; Orderless: powerful completion style
+(use-package orderless
+  :ensure t
+  :config
+  (setq completion-styles '(orderless)))
 
 ;; Corfu: Popup completion-at-point
 (use-package corfu
@@ -381,28 +389,101 @@ If the new path's directories does not exist, create them."
   :ensure t
 
   :config
-  (defun taomacs/dired-subtree-add-nerd-icons ()
+  (defun taomacs-dired-subtree-add-nerd-icons ()
     (interactive)
     (revert-buffer))
 
 
-  (defun taomacs/dired-subtree-toggle-nerd-icons ()
+  (defun taomacs-dired-subtree-toggle-nerd-icons ()
     (when (require 'dired-subtree nil t)
       (if nerd-icons-dired-mode
-	  (advice-add #'dired-subtree-toggle :after #'taomacs/dired-subtree-add-nerd-icons)
-	(advice-remove #'dired-subtree-toggle #'taomacs/dired-subtree-add-nerd-icons))))
+	  (advice-add #'dired-subtree-toggle :after #'taomacs-dired-subtree-add-nerd-icons)
+	(advice-remove #'dired-subtree-toggle #'taomacs-dired-subtree-add-nerd-icons))))
 
   :hook
   ((dired-mode . nerd-icons-dired-mode)
-   (nerd-icons-dired-mode . taomacs/dired-subtree-toggle-nerd-icons)))
+   (nerd-icons-dired-mode . taomacs-dired-subtree-toggle-nerd-icons)))
 
+;; Snippet
+(use-package yasnippet
+  :ensure t
+
+  :init
+  (yas-global-mode 1)
+
+  :config
+  (add-to-list 'yas-snippet-dirs (locate-user-emacs-file "snippets")))
+
+;; Auto insert a template when opening a file
+(use-package autoinsert
+  :init
+  ;; Don't ask before insertion
+  (setopt auto-insert-query nil)
+
+  ;; Set autoinsert's template directory
+  (setq auto-insert-directory (locate-user-emacs-file "templates"))
+
+  ;; Enable it
+  (auto-insert-mode 1)
+
+  :config
+  (defun taomacs-autoinsert-yas-expand ()
+    "Replace text in yasnippet template."
+    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+
+  (define-auto-insert "\\.el$" ["default-elisp.el" taomacs-autoinsert-yas-expand])
+
+  :hook
+  (find-file . auto-insert))
+
+;; Navigation aid
+(use-package avy
+  :ensure t
+  :demand t
+  :bind (("C-c j" . avy-goto-line)
+	 ("s-j"   . avy-goto-char-timer)))
+
+;; Modeline
+(use-package doom-modeline
+  :ensure t
+  :config
+  (doom-modeline-mode))
+
+;; eshell
 (use-package eshell
   :init
-  (defun taomacs/setup-eshell ()
+  (defun taomacs-setup-eshell ()
     ;; Something funny is going on with how Eshell sets up its keymaps; this is
     ;; a work-around to make C-r bound in the keymap
     (keymap-set eshell-mode-map "C-r" 'consult-history))
-  :hook ((eshell-mode . taomacs/setup-eshell)))
+
+  (defun taomacs-toggle-eshell ()
+    "Opens an eshell window in the bottom area when there is not one."
+    (interactive)
+    (let ((eshell-buf (get-buffer "*eshell*")))
+      (cond
+       ;; Already in eshell window → close it
+       ((string= (buffer-name) "*eshell*")
+	(delete-window))
+       ;; Eshell open somewhere else → jump to it
+       ((and eshell-buf (get-buffer-window eshell-buf))
+	(select-window (get-buffer-window eshell-buf)))
+       ;; Eshell buffer exists but not visible → show it in a split
+       (eshell-buf
+	(split-window-vertically -15)
+	(other-window 1)
+	(switch-to-buffer eshell-buf))
+       ;; No eshell buffer yet → create one
+       (t
+	(split-window-vertically -15)
+	(other-window 1)
+	(eshell)))))
+
+  :bind
+  (("C-c t" . taomacs-toggle-eshell))
+
+  :hook
+  ((eshell-mode . taomacs-setup-eshell)))
 
 ;; Eat: Emulate A Terminal
 (use-package eat
@@ -413,18 +494,13 @@ If the new path's directories does not exist, create them."
   (eat-eshell-mode)                     ; use Eat to handle term codes in program output
   (eat-eshell-visual-command-mode))     ; commands like less will be handled by Eat
 
-;; Orderless: powerful completion style
-(use-package orderless
-  :ensure t
-  :config
-  (setq completion-styles '(orderless)))
-
 ;; Modify search results en masse
 (use-package wgrep
   :ensure t
   :config
   (setq wgrep-auto-save-buffer t))
 
+;; Project management
 (use-package project
   :config
   (setopt project-vc-extra-root-markers '("deps.edn"))
@@ -459,8 +535,8 @@ If the new path's directories does not exist, create them."
 (use-package yaml-mode
   :ensure t)
 
-;; (use-package json-mode
-;;   :ensure t)
+(use-package json-mode
+  :ensure t)
 
 ;; ;; Helpful resources:
 ;; ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
@@ -482,63 +558,39 @@ If the new path's directories does not exist, create them."
 ;;   ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
 ;;   )
 
-(use-package lsp-mode
-  :ensure t
+;; (use-package lsp-mode
+;;   :ensure t
 
-  :init
-  (setq lsp-keymap-prefix "C-c l")
+;;   :init
+;;   (setq lsp-keymap-prefix "C-c l")
 
-  (defun taomacs/clojure-mode-config ()
-    ;; Disable lsp completion
-    (setq lsp-completion-enable nil)
-    ;; Disable hover
-    (setq lsp-eldoc-enable-hover t))
+;;   (defun taomacs-clojure-mode-config ()
+;;     ;; Disable lsp completion
+;;     (setq lsp-completion-enable nil)
+;;     ;; Disable hover
+;;     (setq lsp-eldoc-enable-hover t))
 
-  :hook
-  ((lsp-mode . lsp-enable-which-key-integration)
-   (clojure-ts-mode . lsp)
-   (clojure-ts-mode . taomacs/clojure-mode-config))
+;;   :hook
+;;   ((lsp-mode . lsp-enable-which-key-integration)
+;;    (clojure-ts-mode . lsp)
+;;    (clojure-ts-mode . taomacs-clojure-mode-config))
 
-  :commands lsp)
+;;   :commands lsp)
 
-(use-package tempel
-  :ensure t
-  ;; By default, tempel looks at the file "templates" in
-  ;; user-emacs-directory, but you can customize that with the
-  ;; tempel-path variable:
-  ;; :custom
-  ;; (tempel-path (concat user-emacs-directory "custom_template_file"))
-  :bind (("M-*" . tempel-insert)
-	 ("M-+" . tempel-complete)
-	 :map tempel-map
-	 ("C-c RET" . tempel-done)
-	 ("C-<down>" . tempel-next)
-	 ("C-<up>" . tempel-previous)
-	 ("M-<down>" . tempel-next)
-	 ("M-<up>" . tempel-previous))
-  :init
-  ;; Make a function that adds the tempel expansion function to the
-  ;; list of completion-at-point-functions (capf).
-  (defun taomacs/tempel-setup-capf ()
-    (add-hook 'completion-at-point-functions #'tempel-expand -1 'local))
-  ;; Put tempel-expand on the list whenever you start programming or
-  ;; writing prose.
-  (add-hook 'prog-mode-hook 'taomacs/tempel-setup-capf)
-  (add-hook 'text-mode-hook 'taomacs/tempel-setup-capf))
-
-;; Collection of useful commands
+;; crux: provides some useful commands
 (use-package crux
-  :ensure t
-  :bind
-  ;; ("C-a" . crux-move-beginning-of-line)
-  )
+  :ensure t)
 
+;; mwim: Move Where I Mean
+;; Make moving to beginning or end of a line more like other editors
 (use-package mwim
   :ensure t
   :bind
   (("C-a" . mwim-beginning)
    ("C-e" . mwim-end)))
 
+;; Make `forward-word', `backward-word', `backward-kill-word'
+;; and `forward-kill-word' less greedy
 (use-package bbww
   :ensure t
   :config
@@ -555,7 +607,7 @@ If the new path's directories does not exist, create them."
 ;; Enhancement for window navigation
 (use-package ace-window
   :ensure t
-  :bind (("C-x o" . ace-window)))
+  :bind (("M-o" . ace-window)))
 
 ;; Better interface for Emacs' help
 (use-package helpful
@@ -594,7 +646,7 @@ If the new path's directories does not exist, create them."
 ;;			    (yas-minor-mode 1)
 ;;			    (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
-;; SLIME
+;; Emacs support for Common Lisp
 (use-package slime
   :ensure t
   :init
@@ -607,25 +659,95 @@ If the new path's directories does not exist, create them."
   :config
   (slime-setup '(slime-fancy slime-quicklisp slime-asdf slime-mrepl)))
 
-;;; Built-in customization framework
+;; Provide some helpers for structural editing
+(use-package smartparens
+  :ensure t
+  :hook (prog-mode)
+  :config
+  (require 'smartparens-config))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window bbww cape cider clojure-ts-mode corfu-terminal crux
-		diff-hl dired-subtree doom-modeline eat embark-consult
-		exec-path-from-shell helpful json-mode kind-icon
-		lsp-mode magit marginalia markdown-mode
-		nerd-icons-completion nerd-icons-dired orderless slime
-		tempel vertico wgrep yaml-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; Structural editing
+(use-package structural-editing
+  :ensure nil
+  :after smartparens
+
+  :init
+  (defun point-at-beginning-of-sexp ()
+    (save-excursion
+      (let ((here (point)))
+	(ignore-errors
+	  (forward-sexp)
+	  (backward-sexp)
+	  (= here (point))))))
+
+  (defun taomacs-drag-sexp-backward ()
+    (interactive)
+    (ignore-errors
+      (if (point-at-beginning-of-sexp)
+	  (progn
+	    (transpose-sexps 1)
+	    (backward-sexp 2))
+	(backward-sexp)
+	(transpose-sexps 1)
+	(backward-sexp 2))))
+
+  (defun taomacs-drag-sexp-forward ()
+    (interactive)
+    (condition-case _
+	(progn
+	  (forward-sexp)
+	  (transpose-sexps 1)
+	  (backward-sexp))
+      (scan-error (backward-sexp))))
+
+  (defvar structural-edit-map
+    (let ((map (make-sparse-keymap)))
+      (pcase-dolist (`(,k . ,f)
+		     '(("a" . beginning-of-defun)
+		       ("e" . end-of-defun)
+		       ("u" . backward-up-list)
+		       ("d" . down-list)
+		       ("f" . forward-sexp)
+		       ("b" . backward-sexp)
+		       ("n" . sp-next-sexp)
+		       ("p" . sp-previous-sexp)
+		       ("[" . taomacs-drag-sexp-backward)
+		       ("]" . taomacs-drag-sexp-forward)
+		       ("k" . kill-sexp)
+		       ("j" . sp-join-sexp)
+		       ("s" . sp-split-sexp)
+		       ("w" . sp-splice-sexp)
+		       ("r" . raise-sexp)
+		       ("\\" . indent-region)
+		       ("/" . undo)
+		       ("t" . transpose-sexps)
+		       ("x" . eval-defun)))
+	(define-key map (kbd k) f))
+      map))
+
+  (map-keymap
+   (lambda (_ cmd)
+     (put cmd 'repeat-map 'structural-edit-map))
+   structural-edit-map)
+
+  :bind
+  (("C-M-r" . raise-sexp)
+   ("C-M-[" . taomacs-drag-sexp-backward)
+   ("C-M-]" . taomacs-drag-sexp-forward)
+
+   ("C-M-n" . sp-next-sexp)
+   ("C-M-p" . sp-previous-sexp)
+   ("M-]" . sp-forward-slurp-sexp)
+   ("M-[" . sp-backward-slurp-sexp)
+   ("M-}" . sp-forward-barf-sexp)
+   ("M-{" . sp-backward-barf-sexp)
+   ("C-M-j" . sp-join-sexp)
+   ("C-M-s" . sp-split-sexp)
+   ("C-M-w" . sp-splice-sexp)))
+
+;; Load local configuration in "local.el"
+(let ((local-config (expand-file-name "local.el" user-emacs-directory)))
+  (when (file-exists-p local-config)
+    (load local-config)))
 
 (setq gc-cons-threshold (or bedrock--initial-gc-threshold 800000))
