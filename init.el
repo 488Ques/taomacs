@@ -167,7 +167,7 @@ If the new path's directories does not exist, create them."
   (pixel-scroll-precision-mode)
 
   ;; Use common keystrokes by default
-  (cua-mode)
+  ;; (cua-mode)
 
   ;; For terminal users, make the mouse more useful
   (xterm-mouse-mode 1)
@@ -177,6 +177,12 @@ If the new path's directories does not exist, create them."
 
   ;; Remember and restore the last cursor location of opened files
   (save-place-mode 1)
+
+  ;; Unset the annoying zooming in behavior when pinching on a touchpad
+  (global-unset-key (kbd "<pinch>"))
+
+  ;; Unset this key since I have a habit of pressing it for undo
+  (global-unset-key (kbd "C-z"))
 
   ;; Repeat keybinding
   (repeat-mode 1)
@@ -393,7 +399,6 @@ If the new path's directories does not exist, create them."
     (interactive)
     (revert-buffer))
 
-
   (defun taomacs-dired-subtree-toggle-nerd-icons ()
     (when (require 'dired-subtree nil t)
       (if nerd-icons-dired-mode
@@ -490,9 +495,12 @@ If the new path's directories does not exist, create them."
   :ensure t
   :custom
   (eat-term-name "xterm")
-  :config
-  (eat-eshell-mode)                     ; use Eat to handle term codes in program output
-  (eat-eshell-visual-command-mode))     ; commands like less will be handled by Eat
+
+  :hook
+  (;; use Eat to handle term codes in program output
+   (eshell-load . eat-eshell-mode)
+   ;; commands like less will be handled by Eat
+   (eshell-load . eat-eshell-visual-command-mode)))
 
 ;; Modify search results en masse
 (use-package wgrep
@@ -525,6 +533,8 @@ If the new path's directories does not exist, create them."
 			  'magit-insert-recent-commits
 			  'magit-insert-unpushed-to-upstream
 			  t)
+
+  (setopt magit-log-section-commit-count 30)
 
   :bind (("C-x g" . magit-status)))
 
@@ -607,7 +617,7 @@ If the new path's directories does not exist, create them."
 ;; Enhancement for window navigation
 (use-package ace-window
   :ensure t
-  :bind (("M-o" . ace-window)))
+  :bind (("C-x o" . ace-window)))
 
 ;; Better interface for Emacs' help
 (use-package helpful
@@ -660,90 +670,112 @@ If the new path's directories does not exist, create them."
   (slime-setup '(slime-fancy slime-quicklisp slime-asdf slime-mrepl)))
 
 ;; Provide some helpers for structural editing
-(use-package smartparens
-  :ensure t
-  :hook (prog-mode)
-  :config
-  (require 'smartparens-config))
+;; (use-package smartparens
+;;   :ensure t
+;;   :hook (prog-mode)
+;;   :config
+;;   (require 'smartparens-config))
 
 ;; Structural editing
-(use-package structural-editing
-  :ensure nil
-  :after smartparens
+;; (use-package structural-editing
+;;   :ensure nil
+;;   :after smartparens
 
-  :init
-  (defun point-at-beginning-of-sexp ()
-    (save-excursion
-      (let ((here (point)))
-	(ignore-errors
-	  (forward-sexp)
-	  (backward-sexp)
-	  (= here (point))))))
+;;   :init
+;;   (defun point-at-beginning-of-sexp ()
+;;     (save-excursion
+;;       (let ((here (point)))
+;;	(ignore-errors
+;;	  (forward-sexp)
+;;	  (backward-sexp)
+;;	  (= here (point))))))
 
-  (defun taomacs-drag-sexp-backward ()
-    (interactive)
-    (ignore-errors
-      (if (point-at-beginning-of-sexp)
-	  (progn
-	    (transpose-sexps 1)
-	    (backward-sexp 2))
-	(backward-sexp)
-	(transpose-sexps 1)
-	(backward-sexp 2))))
+;;   (defun taomacs-drag-sexp-backward ()
+;;     (interactive)
+;;     (ignore-errors
+;;       (if (point-at-beginning-of-sexp)
+;;	  (progn
+;;	    (transpose-sexps 1)
+;;	    (backward-sexp 2))
+;;	(backward-sexp)
+;;	(transpose-sexps 1)
+;;	(backward-sexp 2))))
 
-  (defun taomacs-drag-sexp-forward ()
-    (interactive)
-    (condition-case _
-	(progn
-	  (forward-sexp)
-	  (transpose-sexps 1)
-	  (backward-sexp))
-      (scan-error (backward-sexp))))
+;;   (defun taomacs-drag-sexp-forward ()
+;;     (interactive)
+;;     (condition-case _
+;;	(progn
+;;	  (forward-sexp)
+;;	  (transpose-sexps 1)
+;;	  (backward-sexp))
+;;       (scan-error (backward-sexp))))
 
-  (defvar structural-edit-map
-    (let ((map (make-sparse-keymap)))
-      (pcase-dolist (`(,k . ,f)
-		     '(("a" . beginning-of-defun)
-		       ("e" . end-of-defun)
-		       ("u" . backward-up-list)
-		       ("d" . down-list)
-		       ("f" . forward-sexp)
-		       ("b" . backward-sexp)
-		       ("n" . sp-next-sexp)
-		       ("p" . sp-previous-sexp)
-		       ("[" . taomacs-drag-sexp-backward)
-		       ("]" . taomacs-drag-sexp-forward)
-		       ("k" . kill-sexp)
-		       ("j" . sp-join-sexp)
-		       ("s" . sp-split-sexp)
-		       ("w" . sp-splice-sexp)
-		       ("r" . raise-sexp)
-		       ("\\" . indent-region)
-		       ("/" . undo)
-		       ("t" . transpose-sexps)
-		       ("x" . eval-defun)))
-	(define-key map (kbd k) f))
-      map))
+;;   (defvar structural-edit-map
+;;     (let ((map (make-sparse-keymap)))
+;;       (pcase-dolist (`(,k . ,f)
+;;		     '(("a" . beginning-of-defun)
+;;		       ("e" . end-of-defun)
+;;		       ("u" . backward-up-list)
+;;		       ("d" . down-list)
+;;		       ("f" . forward-sexp)
+;;		       ("b" . backward-sexp)
+;;		       ("n" . sp-next-sexp)
+;;		       ("p" . sp-previous-sexp)
+;;		       ("[" . taomacs-drag-sexp-backward)
+;;		       ("]" . taomacs-drag-sexp-forward)
+;;		       ("k" . kill-sexp)
+;;		       ("j" . sp-join-sexp)
+;;		       ("s" . sp-split-sexp)
+;;		       ("w" . sp-splice-sexp)
+;;		       ("r" . raise-sexp)
+;;		       ("\\" . indent-region)
+;;		       ("/" . undo)
+;;		       ("t" . transpose-sexps)
+;;		       ("x" . eval-defun)))
+;;	(define-key map (kbd k) f))
+;;       map))
 
-  (map-keymap
-   (lambda (_ cmd)
-     (put cmd 'repeat-map 'structural-edit-map))
-   structural-edit-map)
+;;   (map-keymap
+;;    (lambda (_ cmd)
+;;      (put cmd 'repeat-map 'structural-edit-map))
+;;    structural-edit-map)
 
-  :bind
-  (("C-M-r" . raise-sexp)
-   ("C-M-[" . taomacs-drag-sexp-backward)
-   ("C-M-]" . taomacs-drag-sexp-forward)
+;;   :bind
+;;   (("C-M-r" . raise-sexp)
+;;    ("C-M-[" . taomacs-drag-sexp-backward)
+;;    ("C-M-]" . taomacs-drag-sexp-forward)
 
-   ("C-M-n" . sp-next-sexp)
-   ("C-M-p" . sp-previous-sexp)
-   ("M-]" . sp-forward-slurp-sexp)
-   ("M-[" . sp-backward-slurp-sexp)
-   ("M-}" . sp-forward-barf-sexp)
-   ("M-{" . sp-backward-barf-sexp)
-   ("C-M-j" . sp-join-sexp)
-   ("C-M-s" . sp-split-sexp)
-   ("C-M-w" . sp-splice-sexp)))
+;;    ("C-M-n" . sp-next-sexp)
+;;    ("C-M-p" . sp-previous-sexp)
+;;    ("M-]" . sp-forward-slurp-sexp)
+;;    ("M-[" . sp-backward-slurp-sexp)
+;;    ("M-}" . sp-forward-barf-sexp)
+;;    ("M-{" . sp-backward-barf-sexp)
+;;    ("C-M-j" . sp-join-sexp)
+;;    ("C-M-s" . sp-split-sexp)
+;;    ("C-M-w" . sp-splice-sexp)))
+
+;; SQL client in Emacs
+(use-package sql
+  :config
+  (setq sql-input-ring-file-name (expand-file-name "~/.emacs.d/sql-history"))
+
+  (setq sql-connection-alist
+	'((sixsf-local
+	   (sql-product 'postgres)
+	   (sql-server "127.0.0.1")
+	   (sql-port 5433)
+	   (sql-database "sixsf")
+	   (sql-user "sixsf"))))
+
+  :hook
+  (sql-interactive-mode . (lambda ()
+			    (setq sql-prompt-regexp "^[-[:alnum:]_]*=[#>] ")
+			    (setq sql-prompt-cont-regexp "^[-[:alnum:]_]*[-(][#>] ")
+			    ;; Truncate long result buffers instead of freezing
+			    (setq comint-buffer-maximum-size 5000)
+			    (add-hook 'comint-output-filter-functions
+				      'comint-truncate-buffer nil t))))
 
 ;; Load local configuration in "local.el"
 (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
