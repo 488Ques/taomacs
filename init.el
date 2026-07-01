@@ -550,23 +550,25 @@ If the new path's directories does not exist, create them."
 
 ;; ;; Helpful resources:
 ;; ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
-;; (use-package eglot
-;;   ;; no :ensure t here because it's built-in
+(use-package eglot
+  ;; no :ensure t here because it's built-in
 
-;;   ;; Configure hooks to automatically turn-on eglot for selected modes
-;;   ; :hook
-;;   ; (((python-mode ruby-mode elixir-mode) . eglot-ensure))
+  ;; Configure hooks to automatically turn-on eglot for selected modes
+  ;; :hook
+  ;; (((python-mode ruby-mode elixir-mode) . eglot-ensure))
 
-;;   :custom
-;;   (eglot-send-changes-idle-time 0.1)
-;;   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
+  :custom
+  (eglot-send-changes-idle-time 0.1)
+  (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
 
-;;   :config
-;;   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-;;   ;; Sometimes you need to tell Eglot where to find the language server
-;;   ; (add-to-list 'eglot-server-programs
-;;   ;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
-;;   )
+  :config
+  (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+  ;; Sometimes you need to tell Eglot where to find the language server
+  ;; (add-to-list 'eglot-server-programs
+  ;;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (add-to-list 'eglot-server-programs
+	       '(sql-mode . ("sqls")))
+  )
 
 ;; (use-package lsp-mode
 ;;   :ensure t
@@ -776,6 +778,11 @@ If the new path's directories does not exist, create them."
 			    (setq comint-buffer-maximum-size 5000)
 			    (add-hook 'comint-output-filter-functions
 				      'comint-truncate-buffer nil t))))
+
+(use-package mise
+  :ensure t
+  :hook
+  (after-init . global-mise-mode))
 
 ;; Load local configuration in "local.el"
 (let ((local-config (expand-file-name "local.el" user-emacs-directory)))
