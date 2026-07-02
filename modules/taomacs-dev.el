@@ -47,9 +47,6 @@
 
   :config
   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-  ;; Sometimes you need to tell Eglot where to find the language server
-  ;; (add-to-list 'eglot-server-programs
-  ;;              '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
   )
 
 (provide 'taomacs-dev)

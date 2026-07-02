@@ -9,7 +9,7 @@
 (when (taomacs-font-exists-p "IBM Plex Mono")
   (set-face-attribute 'default nil :family "IBM Plex Mono" :height 140))
 
-;; tab-bar + clock (copied from init.el.orig)
+;; tab-bar + clock
 (setopt tab-bar-show 1)
 (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
 (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
