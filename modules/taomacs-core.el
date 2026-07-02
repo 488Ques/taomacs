@@ -202,16 +202,6 @@ If the new path's directories does not exist, create them."
   :ensure t
   :bind (("C-x o" . ace-window)))
 
-;; Better interface for Emacs' help
-(use-package helpful
-  :ensure t
-  :bind
-  ([remap describe-function] . helpful-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key] . helpful-key)
-  ([remap describe-symbol] . helpful-symbol))
-
 ;; mini-GCMH: generous GC threshold during activity, collect when idle.
 (setq gc-cons-threshold (* 128 1024 1024))
 (run-with-idle-timer 5 t #'garbage-collect)

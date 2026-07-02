@@ -1,10 +1,5 @@
 ;;; taomacs-dev.el --- Development tooling -*- lexical-binding: t -*-
 
-;; which-key is built into Emacs 30.2 — no :ensure needed
-(use-package which-key
-  :config
-  (which-key-mode))
-
 ;; Modify search results en masse
 (use-package wgrep
   :ensure t
