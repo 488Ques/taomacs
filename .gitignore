@@ -1,25 +1,42 @@
+# Package managers & compiled output
+/elpa/
+/straight/
+/eln-cache/
+*.elc
+
+# Tree-sitter grammars
+/tree-sitter/
+
+# Emacs state & history
+/auto-save-list/
+/emacs-backup/
+/.cache/
+/tmp/
 /bookmarks
+/places
+/recentf
+/history
+/ielm-history.eld
 /eshell/
 /url/
 /tramp
-/recentf
-/projectile-bookmarks.eld
-/custom.el
-/places
-/tmp/
-/straight/
-/.DS_Store
-/.lsp-session-v1
-/ielm-history.eld
-/semanticdb/
-/.cache/
-/auto-save-list/
-/eln-cache/
-/elpa/
-/eshell/
-/history
-/projects
 /transient/
-/tree-sitter/
-/emacs-backup/
-local.el
+/projects
+/network-security.data
+
+# Org-mode generated files
+/org-persist/
+/.org-id-locations
+/org-clock-save.el
+
+# Machine-local / user customization (not shared across machines)
+/custom.el
+/local.el
+
+# Old-config leftovers (harmless if absent)
+/.lsp-session-v1
+/semanticdb/
+/projectile-bookmarks.eld
+
+# OS / editor cruft
+.DS_Store
