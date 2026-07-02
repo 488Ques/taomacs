@@ -20,7 +20,7 @@ If the new path's directories does not exist, create them."
     (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
 	   (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
 	   (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-      (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
+      (make-directory (file-name-directory backupFilePath) t)
       backupFilePath))
 
   ;; Function to quickly open the init.el file
@@ -59,10 +59,6 @@ If the new path's directories does not exist, create them."
    line-number-mode t
    ;; Show column as well
    column-number-mode t
-   ;; Prettier underlines
-   x-underline-at-descent-line nil
-   ;; Make switching buffers more consistent
-   switch-to-buffer-obey-display-actions t
    ;; Prettier underlines
    x-underline-at-descent-line nil
    ;; Make switching buffers more consistent
@@ -513,10 +509,9 @@ If the new path's directories does not exist, create them."
   :config
   (setopt project-vc-extra-root-markers '("deps.edn"))
 
-  :custom
   (when (>= emacs-major-version 30)
     ;; show project name in modeline
-    (project-mode-line t)))
+    (setopt project-mode-line t)))
 
 ;; Magit: best Git client to ever exist
 (use-package magit
