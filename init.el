@@ -7,7 +7,7 @@
 (add-to-list 'load-path (locate-user-emacs-file "modules"))
 
 (defvar taomacs-modules
-  '(taomacs-core taomacs-ui)
+  '(taomacs-core taomacs-ui taomacs-completion)
   "Ordered list of config modules to load.")
 
 (dolist (m taomacs-modules) (require m))
