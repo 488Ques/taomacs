@@ -103,5 +103,9 @@ narrowing and point afterward so the cursor does not jump."
   :bind (("C-c j" . avy-goto-line)
 	 ("s-j"   . avy-goto-char-timer)))
 
+;; Re-open the current (or another) file as root via TRAMP
+(use-package sudo-edit
+  :ensure t)
+
 (provide 'taomacs-editing)
 ;;; taomacs-editing.el ends here
