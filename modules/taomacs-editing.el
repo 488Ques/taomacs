@@ -52,6 +52,18 @@ line, join with the previous line."
 (global-set-key (kbd "M-DEL") #'taomacs-backward-delete-word)
 (global-set-key (kbd "C-<backspace>") #'taomacs-backward-delete-line)
 
+;; --- Re-indent the whole buffer ---
+(defun taomacs-indent-buffer ()
+  "Re-indent the entire buffer using the current major mode's rules.
+Unlike the naive `indent-region' over point-min/point-max, this widens
+first so a narrowed buffer is still fully indented, and restores both the
+narrowing and point afterward so the cursor does not jump."
+  (interactive)
+  (save-excursion
+    (save-restriction
+      (widen)
+      (indent-region (point-min) (point-max)))))
+
 ;; Snippet
 (use-package yasnippet
   :ensure t
