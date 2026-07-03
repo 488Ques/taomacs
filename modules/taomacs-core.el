@@ -138,9 +138,6 @@ If the new path's directories does not exist, create them."
   ;; Smooth scrolling
   (pixel-scroll-precision-mode)
 
-  ;; Use common keystrokes by default
-  ;; (cua-mode)
-
   ;; For terminal users, make the mouse more useful
   (xterm-mouse-mode 1)
 
