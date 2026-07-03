@@ -181,7 +181,11 @@ If the new path's directories does not exist, create them."
 
   :bind
   (("C-c e" . taomacs-open-init-file)
+
    ("C-;" . comment-line)
+
+   ("M-n" . scroll-up-line)
+   ("M-p" . scroll-down-line)
 
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete))
