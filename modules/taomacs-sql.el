@@ -49,13 +49,38 @@ regardless of when `local.el' is loaded relative to this module."
   :ensure t
   :hook (sql-mode . sqlind-minor-mode))
 
+;; Completion: let `cape-dabbrev' see schema dumps and REPL output.  By
+;; default `cape-dabbrev' only scans same-major-mode buffers
+;; (`cape-same-mode-buffers'), but `sql-list-all' dumps object names into a
+;; plain `*List ...*' buffer (fundamental-mode) and the REPL is
+;; `sql-interactive-mode' -- both a different mode than the `.sql' buffer, so
+;; their identifiers would never complete.  Scope dabbrev to SQL-related
+;; buffers instead, buffer-locally, so the rest of Emacs keeps the default.
+(defun taomacs-sql--dabbrev-buffers ()
+  "Return SQL-related buffers for `cape-dabbrev' to scan.
+Covers other SQL edit buffers, interactive REPLs, and the
+`*List ...*' object listings produced by `sql-list-all'."
+  (seq-filter
+   (lambda (buf)
+     (or (memq (buffer-local-value 'major-mode buf)
+               '(sql-mode sql-interactive-mode))
+         (string-prefix-p "*List " (buffer-name buf))))
+   (buffer-list)))
+
+(defun taomacs-sql--setup-completion ()
+  "Scope dabbrev completion to SQL-related buffers in the current buffer."
+  (setq-local cape-dabbrev-buffer-function #'taomacs-sql--dabbrev-buffers))
+
+(add-hook 'sql-mode-hook #'taomacs-sql--setup-completion)
+(add-hook 'sql-interactive-mode-hook #'taomacs-sql--setup-completion)
+
 ;; ---------------------------------------------------------------------------
 ;; UPGRADE PATH -- schema-aware completion via the `sqls' LSP server.
 ;;
 ;; Completion today is dabbrev (see `cape-dabbrev' in taomacs-completion.el):
 ;; after connecting, run `C-c d l' (`sql-list-all') to dump object names into
-;; the SQLi buffer; dabbrev then completes them in your .sql buffer.  Re-run
-;; after schema changes.
+;; a `*List ...*' buffer; dabbrev (scoped above) then completes them in your
+;; .sql buffer via `completion-at-point' (C-M-i).  Re-run after schema changes.
 ;;
 ;; To upgrade to structured, scoped, auto-updating completion, install nothing
 ;; (the `sqls' binary is already on PATH via mise) and enable eglot for SQL.
