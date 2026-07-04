@@ -1,0 +1,53 @@
+#+TITLE: Multiple Cursors in Emacs
+#+OPTIONS: toc:nil num:nil
+
+Classic simultaneous multiple cursors is a *third-party* package
+(=multiple-cursors.el=) — *not* bundled with Emacs, including Emacs 30.2, and
+not currently installed in this config. But several built-ins cover most
+of what people reach for multiple cursors to do.
+
+* Built-in substitutes
+
+** Keyboard macros — the idiomatic "do this edit N times"
+
+| Key            | Action                                    |
+|----------------+-------------------------------------------|
+| =F3=             | Start recording                           |
+| =F4=             | Stop recording / replay once              |
+| =C-u 10 F4=      | Replay 10×                                |
+| =C-x C-k r=      | Apply macro to each line in a region      |
+
+More flexible than multiple cursors: a macro can contain *any* commands,
+not just typing.
+
+** Rectangle editing — true column / multi-line editing
+
+| Key       | Command             | Action                              |
+|-----------+---------------------+-------------------------------------|
+| =C-x SPC=   | =rectangle-mark-mode= | Select a rectangular block          |
+| =C-x r t=   | =string-rectangle=    | Insert same text on every row       |
+| =C-x r k=   | kill rectangle      |                                     |
+| =C-x r d=   | delete rectangle    |                                     |
+| =C-x r o=   | open rectangle      |                                     |
+
+=C-x r t= is the closest built-in to "a cursor on each line."
+
+** query-replace — interactive rename
+
+- =M-%=   — =query-replace=
+- =C-M-%= — =query-replace-regexp=
+
+* If you want the real thing
+
+| Package            | Experience                                             |
+|--------------------+--------------------------------------------------------|
+| =multiple-cursors=   | A blinking cursor at each spot; type once, edit all    |
+| =iedit=              | Mark all occurrences of a symbol, edit simultaneously  |
+
+Both are one-line =use-package … :ensure t= additions to
+[[file:../modules/taomacs-editing.el][=taomacs-editing.el=]] if wanted.
+
+* Note
+
+In the [[file:embark-wgrep.org][wgrep workflow]], "multiple cursors" isn't available out of the
+box — use =query-replace= or a keyboard macro there instead; both built in.

@@ -1,0 +1,54 @@
+#+TITLE: Embark Export + wgrep — Edit Matches Across Files
+#+OPTIONS: toc:nil num:nil
+
+Emacs' native, reviewable find-and-replace-across-files. Two pieces:
+*embark-export* builds an editable buffer; *wgrep* makes it writable.
+
+* What embark-export does
+
+=embark-act= (=C-c a=) runs an action on *one* candidate. =embark-export= takes
+the *entire set* of current candidates and dumps them into a real,
+persistent buffer whose major mode matches the candidate type:
+
+| Exported from…              | You get a…                             |
+|-----------------------------+----------------------------------------|
+| =consult-ripgrep= / =consult-grep= | *=grep-mode=* buffer (=file:line: text=)   |
+| =consult-line=                | =occur-mode= buffer                      |
+| file candidates             | =dired= buffer                           |
+| buffer candidates           | =ibuffer=                                |
+
+The =grep-mode= buffer is the bridge to wgrep.
+
+* The full edit-matches workflow
+
+Example: rename a function across the config.
+
+1. =M-s r= → type the search string (=consult-ripgrep=).
+2. =C-c a= (=embark-act=) → choose *export*. A =*grep*= buffer lists every match.
+3. =C-c C-p= — =wgrep-change-to-wgrep-mode=. Turns the read-only grep buffer
+   *editable*; match text becomes live text.
+4. Edit the matches directly, like any buffer (search/replace, kill, etc.).
+   Editing the =file:line:= prefixes is blocked — only match content is
+   writable.
+5. =C-c C-e= — =wgrep-finish-edit=. Applies every edit back to the files.
+   This config sets =wgrep-auto-save-buffer t=, so changed files are *saved
+   to disk automatically*.
+
+* Cheat sheet (inside the grep buffer)
+
+| Key                | Action                             |
+|--------------------+------------------------------------|
+| =C-c C-p=            | Start editing (enter wgrep mode)   |
+| =C-c C-e= (or =C-x C-s=) | Apply edits to files               |
+| =C-c C-k=            | Abort — discard all edits          |
+| =C-c C-u=            | Remove all changes (stay editing)  |
+| =C-c C-r=            | Remove changes in region           |
+
+* Mental model
+
+=M-s r= finds → =C-c a= export makes it a buffer → =C-c C-p= makes it editable
+→ edit → =C-c C-e= writes it back.
+
+*Caveat:* only lines that matched are editable. For a rename where
+occurrences span text the search didn't catch, widen the ripgrep pattern
+first so every occurrence appears as a match.

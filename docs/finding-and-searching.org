@@ -1,0 +1,41 @@
+#+TITLE: Finding Packages & Searching the Config
+#+OPTIONS: toc:nil num:nil
+
+Two different tasks: locating *where a package lives* vs. searching for
+*text inside* the config.
+
+* Where a package is installed
+
+| Command             | What it does                                             |
+|---------------------+----------------------------------------------------------|
+| =C-h P= (=describe-package=) | Package status, version, and install dir under =elpa/=     |
+| =M-x find-library=    | Jump into the package's source =.el= (path shown in buffer) |
+| =M-x locate-library=  | Echo just the full path, without opening it              |
+| =C-c e f=             | Browse *your own* config modules by description          |
+
+Raw path from =M-:= (eval):
+
+#+begin_src emacs-lisp
+(locate-library "consult")
+;; => /Users/tri.nguyen/.emacs.d/elpa/consult-.../consult.el
+#+end_src
+
+Rule of thumb: =find-library= to *open* a package, =describe-package= to see
+*where it lives*.
+
+* Searching for a string in the config
+
+| Key     | Command           | Scope                                  |
+|---------+-------------------+----------------------------------------|
+| =M-s r=   | =consult-ripgrep=   | Whole project (=~/.emacs.d= is a git repo) |
+| =C-u M-s r= | =consult-ripgrep= | Prompts for a directory first          |
+| =C-s=     | =consult-line=      | Current buffer only                    |
+| =M-s o=   | =consult-outline=   | Headings/sections in current file      |
+
+- =consult-ripgrep= needs the =rg= binary (=brew install ripgrep=).
+- Run =M-s r= from any buffer inside =~/.emacs.d= and it searches the entire
+  config from the repo root.
+- Use =C-u M-s r= to point it elsewhere, e.g. into =elpa/= to grep package
+  sources too.
+
+To edit the matches it finds, see [[file:embark-wgrep.org][embark-wgrep.org]].
