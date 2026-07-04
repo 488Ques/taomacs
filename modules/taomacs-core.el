@@ -180,7 +180,7 @@ If the new path's directories does not exist, create them."
   (before-save . whitespace-cleanup)
 
   :bind
-  (("C-c e" . taomacs-open-init-file)
+  (("C-c e e" . taomacs-open-init-file)
 
    ("C-;" . comment-line)
 
