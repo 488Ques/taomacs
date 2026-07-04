@@ -16,7 +16,7 @@
 			  'magit-insert-unpushed-to-upstream
 			  t)
 
-  (setopt magit-log-section-commit-count 30)
+  (setopt magit-log-section-commit-count 20)
 
   :bind (("C-x g" . magit-status)))
 
