@@ -1,0 +1,158 @@
+#+TITLE: taomacs — Emacs Configuration
+#+AUTHOR: tri.nguyen
+#+OPTIONS: toc:2 num:nil
+
+A modular, batteries-included Emacs configuration built around the
+built-in =package.el= and =use-package=. Everything under [[file:modules/][=modules/=]] is
+loaded in order by [[file:init.el][=init.el=]]; machine-specific state is kept out of
+version control.
+
+* Requirements
+
+- *GNU Emacs 30.1+* — the config uses =setopt=, the built-in =which-key=,
+  =project-mode-line=, tree-sitter, and =modus-operandi-tinted=. Developed
+  against Emacs 30.2.
+- *Network access* on first launch, to download packages from GNU ELPA,
+  NonGNU ELPA, and MELPA.
+- *Git*, for Magit.
+
+Recommended external tools (features degrade gracefully without them):
+
+| Tool                 | Used by                   | Notes                          |
+|----------------------+---------------------------+--------------------------------|
+| =ripgrep= (=rg=)         | =consult-ripgrep= (=M-s r=)   | Fast project search            |
+| A Nerd Font          | doom-modeline, nerd-icons | Install via command below      |
+| Tree-sitter grammars | =*-ts-mode= major modes     | Install via command below      |
+| =gls= (GNU coreutils)  | Dired listing on macOS    | =brew install coreutils=         |
+| =sbcl=                 | SLIME (Common Lisp)       |                                |
+| =mise=                 | =global-mise-mode=          | Per-project tool versions      |
+| Language servers     | =eglot=                     | Install per language as needed |
+
+* Installation
+
+On a fresh machine:
+
+#+begin_src sh
+git clone <this-repo> ~/.emacs.d
+#+end_src
+
+Then launch Emacs. The first start will download and install every
+=:ensure t= package automatically — this takes a minute or two. Once it
+settles, run the two one-time setup commands below.
+
+** One-time setup
+
+1. *Install icon fonts* (otherwise the modeline and Dired show □ boxes):
+
+   #+begin_src
+   M-x nerd-icons-install-fonts
+   #+end_src
+
+2. *Install tree-sitter grammars* for the languages you edit. The
+   =major-mode-remap-alist= routes Python, JS, TS, YAML, JSON, CSS, and
+   Bash to their =-ts-mode= variants, which need grammars present:
+
+   #+begin_src
+   M-x treesit-install-language-grammar
+   #+end_src
+
+   (A source is preconfigured for =typescript=; for others Emacs will
+   prompt for the grammar's Git URL.)
+
+* Portability notes
+
+- *macOS-specific code is guarded.* Native-compilation library-path setup
+  (Homebrew =gcc=/=libgccjit=) and the =gls= Dired tweak only run when
+  =system-type= is =darwin=, so the config also runs on Linux — you simply
+  lose those Mac-only niceties.
+- *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
+  otherwise the default face is used.
+- *State is not shared across machines.* Package directories, caches,
+  history, tree-sitter grammars, and =custom.el= / =local.el= are
+  =.gitignore=d (see below), so each machine builds its own.
+
+* Layout
+
+| Path            | Purpose                                             |
+|-----------------+-----------------------------------------------------|
+| [[file:early-init.el][=early-init.el=]] | Frame defaults, GC, macOS native-comp library paths |
+| [[file:init.el][=init.el=]]       | MELPA setup + ordered module loader                 |
+| [[file:modules/][=modules/=]]      | The actual configuration, one file per concern      |
+| =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
+| =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
+| [[file:snippets/][=snippets/=]]     | YASnippet snippets                                  |
+| [[file:templates/][=templates/=]]    | =autoinsert= file templates                           |
+
+** Modules
+
+| Module             | Focus                                                        |
+|--------------------+--------------------------------------------------------------|
+| =taomacs-core=       | Editor defaults, backups, completion basics, GC, keymaps     |
+| =taomacs-ui=         | Theme (=modus-operandi-tinted=), font, tab-bar, doom-modeline  |
+| =taomacs-completion= | Vertico, Consult, Embark, Marginalia, Orderless, Corfu, Cape |
+| =taomacs-editing=    | Smart line motion, VSCode-style deletes, YASnippet, avy      |
+| =taomacs-dired=      | Dired, dired-subtree, nerd-icons                             |
+| =taomacs-git=        | Magit, diff-hl                                               |
+| =taomacs-shell=      | eshell (toggle), eat terminal                                |
+| =taomacs-dev=        | project.el, exec-path-from-shell, mise, eglot, wgrep         |
+| =taomacs-help=       | which-key, helpful, module browser                           |
+| =taomacs-org=        | Org baseline: agenda, capture, comfortable visuals           |
+| =taomacs-lang-lisp=  | Clojure (=clojure-ts-mode=, CIDER), Common Lisp (SLIME)        |
+| =taomacs-lang-data=  | Markdown, YAML, JSON                                         |
+
+* Key bindings
+
+Notable custom bindings (defaults are otherwise unchanged):
+
+** General
+
+| Key                | Command                    |
+|--------------------+----------------------------|
+| =C-c e e=            | Open =init.el=               |
+| =C-c e f=            | Browse config modules      |
+| =C-;=                | Comment/uncomment line     |
+| =M-n= / =M-p=          | Scroll one line down / up  |
+| =C-c r= then h/l/j/k | Resize window (repeatable) |
+| =C-x o=              | =ace-window=                 |
+
+** Editing & navigation
+
+| Key           | Command                             |
+|---------------+-------------------------------------|
+| =C-a= / =C-e=     | Smart beginning / end of line       |
+| =M-DEL=         | Delete word backward (no kill ring) |
+| =C-<backspace>= | Delete to beginning of line         |
+| =C-c j=         | =avy-goto-line=                       |
+| =s-j=           | =avy-goto-char-timer=                 |
+| =C-c a=         | =embark-act=                          |
+
+** Search & completion
+
+| Key   | Command          |
+|-------+------------------|
+| =C-x b= | =consult-buffer=   |
+| =C-s=   | =consult-line=     |
+| =M-s r= | =consult-ripgrep=  |
+| =M-s o= | =consult-outline=  |
+| =M-i=   | =consult-imenu=    |
+| =M-y=   | =consult-yank-pop= |
+
+** Tools
+
+| Key     | Command        |
+|---------+----------------|
+| =C-x g=   | =magit-status=   |
+| =C-c t=   | Toggle eshell  |
+| =C-c o a= | =org-agenda=     |
+| =C-c o c= | =org-capture=    |
+| =C-c o l= | =org-store-link= |
+
+* Per-machine customization
+
+Create =local.el= in this directory for overrides that should not be
+shared (it is loaded last and is git-ignored). For example:
+
+#+begin_src emacs-lisp
+;; local.el
+(setq magit-repository-directories '(("~/proj/" . 1)))
+#+end_src
