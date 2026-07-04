@@ -40,9 +40,7 @@ regardless of when `local.el' is loaded relative to this module."
 ;; Built-in `sql.el' -- REPL, send-region, object listing.  No :ensure.
 (use-package sql
   :bind (("C-c d c" . taomacs-sql-connect)      ; connect to a named database
-         ("C-c d b" . sql-show-sqli-buffer)     ; show/switch the SQLi REPL
-         ("C-c d l" . sql-list-all)             ; dump schema names (feeds dabbrev)
-         ("C-c d s" . sqlite-mode-open-file)))  ; browse a local SQLite file
+         ("C-c d b" . sql-show-sqli-buffer)))   ; show/switch the SQLi REPL
 
 ;; Pure-Elisp SQL indentation.
 (use-package sql-indent
@@ -78,8 +76,9 @@ Covers other SQL edit buffers, interactive REPLs, and the
 ;; UPGRADE PATH -- schema-aware completion via the `sqls' LSP server.
 ;;
 ;; Completion today is dabbrev (see `cape-dabbrev' in taomacs-completion.el):
-;; after connecting, run `C-c d l' (`sql-list-all') to dump object names into
-;; a `*List ...*' buffer; dabbrev (scoped above) then completes them in your
+;; after connecting, run `M-x sql-list-table' (columns of one table) or
+;; `M-x sql-list-all' (table names only) to dump object names into a
+;; `*List ...*' buffer; dabbrev (scoped above) then completes them in your
 ;; .sql buffer via `completion-at-point' (C-M-i).  Re-run after schema changes.
 ;;
 ;; To upgrade to structured, scoped, auto-updating completion, install nothing
