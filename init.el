@@ -18,7 +18,8 @@
     taomacs-help
     taomacs-org
     taomacs-lang-lisp
-    taomacs-lang-data)
+    taomacs-lang-data
+    taomacs-sql)
   "Ordered list of config modules to load.")
 
 (dolist (m taomacs-modules) (require m))
