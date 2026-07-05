@@ -102,21 +102,6 @@ If the new path's directories does not exist, create them."
    ;; Much more eager
    completion-auto-select 'second-tab)
 
-  ;; Tell Emacs to prefer the treesit mode
-  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-  (setq major-mode-remap-alist
-	'((yaml-mode . yaml-ts-mode)
-	  (bash-mode . bash-ts-mode)
-	  (js2-mode . js-ts-mode)
-	  (typescript-mode . typescript-ts-mode)
-	  (json-mode . json-ts-mode)
-	  (css-mode . css-ts-mode)
-	  (python-mode . python-ts-mode)))
-
-  ;; Set sources for treesit language grammar
-  (setq treesit-language-source-alist
-	'((typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))))
-
   ;; Banish the Custom stuff
   (setopt custom-file (locate-user-emacs-file "custom.el"))
 

@@ -15,6 +15,51 @@
     ;; show project name in modeline
     (setopt project-mode-line t)))
 
+;; Tree-sitter: prefer the built-in *-ts-mode variants, but only when the
+;; language's grammar is actually installed---otherwise fall back to the
+;; classic mode instead of throwing a "grammar unavailable" warning.  This is
+;; a plain static setup that runs once at startup, so there is no per-file-open
+;; cost (an earlier `treesit-auto' + `global-treesit-auto-mode' setup re-probed
+;; every grammar on each file open, adding ~100ms).
+;;
+;; Bookkeeping is manual: install a grammar with
+;; `M-x treesit-install-language-grammar' (sources below), then restart Emacs
+;; so it gets picked up.  This Emacs loads tree-sitter ABI 15, so the grammars'
+;; default branches load fine---no revision pinning needed.
+(use-package treesit
+  ;; built-in---no :ensure
+  :config
+  (setq treesit-language-source-alist
+	'((bash       . ("https://github.com/tree-sitter/tree-sitter-bash"))
+	  (css        . ("https://github.com/tree-sitter/tree-sitter-css"))
+	  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
+	  (json       . ("https://github.com/tree-sitter/tree-sitter-json"))
+	  (python     . ("https://github.com/tree-sitter/tree-sitter-python"))
+	  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
+	  (tsx        . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
+	  (yaml       . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
+	  (go    . ("https://github.com/tree-sitter/tree-sitter-go"))
+	  (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))))
+
+  ;; Remap classic modes -> tree-sitter modes, grammar permitting.
+  (dolist (remap '((bash       . (sh-mode      . bash-ts-mode))
+		   (css        . (css-mode     . css-ts-mode))
+		   (javascript . (js-mode      . js-ts-mode))
+		   (json       . (js-json-mode . json-ts-mode))
+		   (json       . (json-mode    . json-ts-mode))
+		   (python     . (python-mode  . python-ts-mode))
+		   (yaml       . (yaml-mode    . yaml-ts-mode))))
+    (when (treesit-ready-p (car remap) t)
+      (add-to-list 'major-mode-remap-alist (cdr remap))))
+
+  ;; .ts/.tsx have no classic major mode, so route them straight to ts-mode.
+  (dolist (assoc '((typescript . ("\\.ts\\'"  . typescript-ts-mode))
+		   (tsx        . ("\\.tsx\\'" . tsx-ts-mode))
+		   (go    . ("\\.go\\'"    . go-ts-mode))
+		   (gomod . ("/go\\.mod\\'" . go-mod-ts-mode))))
+    (when (treesit-ready-p (car assoc) t)
+      (add-to-list 'auto-mode-alist (cdr assoc)))))
+
 ;; Copy environment variables into Emacs
 (use-package exec-path-from-shell
   :ensure t
