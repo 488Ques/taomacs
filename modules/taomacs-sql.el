@@ -40,7 +40,7 @@ regardless of when `local.el' is loaded relative to this module."
 ;; Built-in `sql.el' -- REPL, send-region, object listing.  No :ensure.
 (use-package sql
   :bind (("C-c d c" . taomacs-sql-connect)      ; connect to a named database
-         ("C-c d b" . sql-show-sqli-buffer)))   ; show/switch the SQLi REPL
+	 ("C-c d b" . sql-show-sqli-buffer)))   ; show/switch the SQLi REPL
 
 ;; Pure-Elisp SQL indentation.
 (use-package sql-indent
@@ -61,8 +61,8 @@ Covers other SQL edit buffers, interactive REPLs, and the
   (seq-filter
    (lambda (buf)
      (or (memq (buffer-local-value 'major-mode buf)
-               '(sql-mode sql-interactive-mode))
-         (string-prefix-p "*List " (buffer-name buf))))
+	       '(sql-mode sql-interactive-mode))
+	 (string-prefix-p "*List " (buffer-name buf))))
    (buffer-list)))
 
 (defun taomacs-sql--setup-completion ()
