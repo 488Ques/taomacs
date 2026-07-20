@@ -89,5 +89,12 @@
   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
   )
 
+;; Async, cursor-preserving format-on-save.  Per-language formatters are
+;; registered in the taomacs-lang-* modules via `with-eval-after-load'.
+(use-package apheleia
+  :ensure t
+  :config
+  (apheleia-global-mode +1))
+
 (provide 'taomacs-dev)
 ;;; taomacs-dev.el ends here
