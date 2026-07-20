@@ -21,6 +21,7 @@
     taomacs-lang-lisp
     taomacs-lang-data
     taomacs-lang-go
+    taomacs-lang-web
     taomacs-sql)
   "Ordered list of config modules to load.")
 
