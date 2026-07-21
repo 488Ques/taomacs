@@ -44,3 +44,7 @@
 # Superpowers planning docs and scratch (kept on disk, not tracked)
 /docs/superpowers/
 /.superpowers/
+
+# Runtime session data (agent-shell history, desktop-save session)
+/agent/
+/desktop/
