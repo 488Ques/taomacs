@@ -40,3 +40,7 @@
 
 # OS / editor cruft
 .DS_Store
+
+# Superpowers planning docs and scratch (kept on disk, not tracked)
+/docs/superpowers/
+/.superpowers/
