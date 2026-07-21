@@ -9,6 +9,7 @@
   :custom
   (agent-shell-anthropic-authentication
    (agent-shell-anthropic-make-authentication :login t))
+  (agent-shell-session-restore-verbosity 'full)
   :bind
   (("C-c a" . agent-shell-anthropic-start-claude-code)))
 
