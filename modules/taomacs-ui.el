@@ -11,6 +11,8 @@
 
 ;; tab-bar + clock
 (setopt tab-bar-show 1)
+;; s-1 .. s-9 jump straight to a tab by number
+(setopt tab-bar-select-tab-modifiers '(super))
 (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
 (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
 (setopt display-time-format "%a %F %T"
