@@ -8,6 +8,8 @@
 	 ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
 	 ("M-y"   . consult-yank-pop)   ; orig. yank-pop
 	 ("M-i" . consult-imenu)      ; orig. imenu
+	 ;; Diagnostics (eglot feeds flymake); C-u for whole-project errors
+	 ("M-g f" . consult-flymake)
 	 ;; Searching
 	 ("M-s r" . consult-ripgrep)
 	 ("C-s" . consult-line)       ; Alternative: rebind C-s to use
