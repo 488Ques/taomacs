@@ -14,7 +14,6 @@
     taomacs-dired
     taomacs-git
     taomacs-shell
-    taomacs-ai
     taomacs-dev
     taomacs-help
     taomacs-org

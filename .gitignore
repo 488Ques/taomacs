@@ -45,6 +45,5 @@
 /docs/superpowers/
 /.superpowers/
 
-# Runtime session data (agent-shell history, desktop-save session)
-/agent/
+# Runtime session data (desktop-save session)
 /desktop/
