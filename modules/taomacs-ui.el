@@ -9,15 +9,8 @@
 (when (taomacs-font-exists-p "IBM Plex Mono")
   (set-face-attribute 'default nil :family "IBM Plex Mono" :height 140))
 
-;; tab-bar + clock
-(setopt tab-bar-show 1)
-;; s-1 .. s-9 jump straight to a tab by number
-(setopt tab-bar-select-tab-modifiers '(super))
-(add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
-(add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
-(setopt display-time-format "%a %F %T"
-        display-time-interval 1)
-(display-time-mode)
+;; Disable clock
+(display-time-mode -1)
 
 ;; Modeline
 (use-package doom-modeline

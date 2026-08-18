@@ -138,6 +138,11 @@ If the new path's directories does not exist, create them."
   ;; Unset this key since I have a habit of pressing it for undo
   (global-unset-key (kbd "C-z"))
 
+  ;; tab-bar
+  (setopt tab-bar-show 1)
+  ;; s-1 .. s-9 jump straight to a tab by number
+  (setopt tab-bar-select-tab-modifiers '(super))
+
   ;; Repeat keybinding
   (repeat-mode 1)
 
@@ -184,9 +189,16 @@ If the new path's directories does not exist, create them."
   :hook (after-init . midnight-mode))
 
 ;; Enhancement for window navigation
+(defun taomacs-previous-window ()
+  "Select the previous window, the reverse of `other-window'."
+  (interactive)
+  (other-window -1))
+
 (use-package ace-window
   :ensure t
-  :bind (("C-x o" . ace-window)))
+  :bind (("C-x o" . ace-window)
+	 ("s-]" . other-window)
+	 ("s-[" . taomacs-previous-window)))
 
 ;; mini-GCMH: generous GC threshold during activity, collect when idle.
 (setq gc-cons-threshold (* 128 1024 1024))
