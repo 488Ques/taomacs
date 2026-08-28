@@ -48,5 +48,22 @@
    ;; commands like less will be handled by Eat
    (eshell-load . eat-eshell-visual-command-mode)))
 
+;; Ghostel: terminal emulator powered by libghostty (the Ghostty VT engine).
+;; The native module lives in the package dir; `M-x ghostel-download-module'
+;; re-fetches it after an upgrade.
+(use-package ghostel
+  :ensure t
+
+  ;; :init, not :config -- this has to run before ghostel is first loaded,
+  ;; otherwise "Ghostel" is missing from the C-x p p menu until then.
+  :init
+  (with-eval-after-load 'project
+    (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t))
+
+  :bind
+  (("C-c T" . ghostel)                  ; a real terminal, next to C-c t (eshell)
+   :map project-prefix-map
+   ("t" . ghostel-project)))            ; C-x p t: terminal in the current project
+
 (provide 'taomacs-shell)
 ;;; taomacs-shell.el ends here
