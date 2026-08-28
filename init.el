@@ -21,7 +21,8 @@
     taomacs-lang-data
     taomacs-lang-go
     taomacs-lang-web
-    taomacs-sql)
+    taomacs-sql
+    taomacs-ai)
   "Ordered list of config modules to load.")
 
 (dolist (m taomacs-modules) (require m))
