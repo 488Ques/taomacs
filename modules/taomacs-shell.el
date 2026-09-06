@@ -60,6 +60,23 @@
   (with-eval-after-load 'project
     (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t))
 
+  :config
+  ;; `M-w' / `C-w' in copy mode run `ghostel-readonly-copy', which copies and
+  ;; then exits read-only mode whenever `ghostel-readonly-fast-exit' is on
+  ;; (the default) -- hence only one copy per copy-mode entry.  Its exit
+  ;; branch reads the variable dynamically, so let-binding it to nil disables
+  ;; the exit *only* for copying: `q' / `C-g' / self-insert still exit, and
+  ;; the `use-region-p' guard (absent from plain `kill-ring-save') is kept.
+  ;; Bound in the shared parent map, which
+  ;; `ghostel-readonly-fast-exit-mode-map' inherits.
+  (defun taomacs-ghostel-copy-stay ()
+    "Copy the region like `ghostel-readonly-copy', but stay in read-only mode."
+    (interactive)
+    (let ((ghostel-readonly-fast-exit nil))
+      (call-interactively #'ghostel-readonly-copy)))
+  (keymap-set ghostel-readonly-mode-map "M-w" #'taomacs-ghostel-copy-stay)
+  (keymap-set ghostel-readonly-mode-map "C-w" #'taomacs-ghostel-copy-stay)
+
   :bind
   (("C-c T" . ghostel)                  ; a real terminal, next to C-c t (eshell)
    :map project-prefix-map
