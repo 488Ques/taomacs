@@ -25,7 +25,13 @@
 	 )
   :config
   ;; Narrowing lets you restrict results to certain groups of candidates
-  (setq consult-narrow-key "<"))
+  (setq consult-narrow-key "<")
+
+  ;; Make C-x b show the current perspective's buffers; the full list is still
+  ;; reachable by narrowing with "< b"
+  (with-eval-after-load 'perspective
+    (consult-customize consult-source-buffer :hidden t :default nil)
+    (add-to-list 'consult-buffer-sources persp-consult-source)))
 
 ;; Integration between embark and consult
 (use-package embark-consult

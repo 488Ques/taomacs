@@ -23,6 +23,7 @@
 /transient/
 /projects
 /network-security.data
+/persp-state
 
 # Org-mode generated files
 /org-persist/

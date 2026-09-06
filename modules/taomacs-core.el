@@ -200,6 +200,31 @@ If the new path's directories does not exist, create them."
 	 ("s-]" . other-window)
 	 ("s-[" . taomacs-previous-window)))
 
+;; Perspectives: named workspaces, each with its own buffer list and window
+;; layout.  Keeps long sessions across several projects from degenerating into
+;; one giant buffer list.  Prefix is C-c p; C-c p s switches/creates, C-c p `
+;; jumps by number, C-c p c kills one.
+(use-package perspective
+  :ensure t
+  :custom
+  (persp-mode-prefix-key (kbd "C-c p"))
+  ;; Ascending creation order: a new perspective appends, so the numbers
+  ;; behind C-c p ` stay put ('created is newest-first and reshuffles them)
+  (persp-sort 'oldest)
+  ;; Perspective cannot use desktop.el, so it saves its own state file;
+  ;; restore it with C-c p C-l
+  (persp-state-default-file (locate-user-emacs-file "persp-state"))
+  :init
+  (persp-mode)
+  :config
+  ;; Keep next/previous-buffer inside the current perspective
+  (setopt switch-to-prev-buffer-skip
+	  (lambda (_window buffer _bury-or-kill)
+	    (not (persp-is-current-buffer buffer t))))
+  (add-hook 'kill-emacs-hook #'persp-state-save)
+  :bind (("C-x C-b" . persp-list-buffers)  ; orig. list-buffers
+	 ("C-x k" . persp-kill-buffer*)))  ; orig. kill-buffer
+
 ;; mini-GCMH: generous GC threshold during activity, collect when idle.
 (setq gc-cons-threshold (* 128 1024 1024))
 (run-with-idle-timer 5 t #'garbage-collect)
