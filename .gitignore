@@ -23,7 +23,6 @@
 /transient/
 /projects
 /network-security.data
-/persp-state
 
 # Org-mode generated files
 /org-persist/
@@ -46,6 +45,6 @@
 /docs/superpowers/
 /.superpowers/
 
-# Runtime session data (agent-shell history, desktop-save session)
+# Saved agent conversations and desktop sessions
 /agent/
 /desktop/

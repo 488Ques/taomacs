@@ -11,7 +11,6 @@ Two different tasks: locating *where a package lives* vs. searching for
 | =C-h P= (=describe-package=) | Package status, version, and install dir under =elpa/=     |
 | =M-x find-library=    | Jump into the package's source =.el= (path shown in buffer) |
 | =M-x locate-library=  | Echo just the full path, without opening it              |
-| =C-c e f=             | Browse *your own* config modules by description          |
 
 Raw path from =M-:= (eval):
 
@@ -23,14 +22,14 @@ Raw path from =M-:= (eval):
 Rule of thumb: =find-library= to *open* a package, =describe-package= to see
 *where it lives*.
 
-* Searching for a string in the config
-
 | Key     | Command           | Scope                                  |
 |---------+-------------------+----------------------------------------|
+| =C-c e e= | =taomacs-open-init-file= | Open your =init.el= config        |
 | =M-s r=   | =consult-ripgrep=   | Whole project (=~/.emacs.d= is a git repo) |
 | =C-u M-s r= | =consult-ripgrep= | Prompts for a directory first          |
 | =C-s=     | =consult-line=      | Current buffer only                    |
-| =M-s o=   | =consult-outline=   | Headings/sections in current file      |
+| =M-s o=   | =consult-outline=   | Topic headings in =init.el=            |
+| =M-i=     | =consult-imenu=     | Functions and variables in =init.el=   |
 
 - =consult-ripgrep= needs the =rg= binary (=brew install ripgrep=).
 - Run =M-s r= from any buffer inside =~/.emacs.d= and it searches the entire

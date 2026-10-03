@@ -2,10 +2,9 @@
 #+AUTHOR: tri.nguyen
 #+OPTIONS: toc:2 num:nil
 
-A modular, batteries-included Emacs configuration built around the
-built-in =package.el= and =use-package=. Everything under [[file:modules/][=modules/=]] is
-loaded in order by [[file:init.el][=init.el=]]; machine-specific state is kept out of
-version control.
+A single-file Emacs configuration built around the built-in =package.el=
+and =use-package=. Shared settings are grouped by topic in
+[[file:init.el][=init.el=]]; machine-specific state is kept out of version control.
 
 * Requirements
 
@@ -75,30 +74,18 @@ settles, run the two one-time setup commands below.
 
 | Path            | Purpose                                             |
 |-----------------+-----------------------------------------------------|
-| [[file:early-init.el][=early-init.el=]] | Frame defaults, GC, macOS native-comp library paths |
-| [[file:init.el][=init.el=]]       | MELPA setup + ordered module loader                 |
-| [[file:modules/][=modules/=]]      | The actual configuration, one file per concern      |
+| [[file:early-init.el][=early-init.el=]] | Settings that must run before normal initialization |
+| [[file:init.el][=init.el=]]       | All shared settings, grouped by topic               |
 | =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
 | =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
 | [[file:snippets/][=snippets/=]]     | YASnippet snippets                                  |
 | [[file:templates/][=templates/=]]    | =autoinsert= file templates                           |
 
-** Modules
+** Finding a setting
 
-| Module             | Focus                                                        |
-|--------------------+--------------------------------------------------------------|
-| =taomacs-core=       | Editor defaults, backups, completion basics, GC, keymaps     |
-| =taomacs-ui=         | Theme (=modus-operandi-tinted=), font, tab-bar, doom-modeline  |
-| =taomacs-completion= | Vertico, Consult, Embark, Marginalia, Orderless, Corfu, Cape |
-| =taomacs-editing=    | Smart line motion, VSCode-style deletes, YASnippet, avy      |
-| =taomacs-dired=      | Dired, dired-subtree, nerd-icons                             |
-| =taomacs-git=        | Magit, diff-hl                                               |
-| =taomacs-shell=      | eshell (toggle), eat terminal                                |
-| =taomacs-dev=        | project.el, exec-path-from-shell, mise, eglot, wgrep         |
-| =taomacs-help=       | which-key, helpful, module browser                           |
-| =taomacs-org=        | Org baseline: agenda, capture, comfortable visuals           |
-| =taomacs-lang-lisp=  | Clojure (=clojure-ts-mode=, CIDER), Common Lisp (SLIME)        |
-| =taomacs-lang-data=  | Markdown, YAML, JSON                                         |
+Open =init.el= with =C-c e e=. Use =M-s o= (=consult-outline=) to jump
+between topic headings, =M-i= (=consult-imenu=) for function and variable
+definitions, or =C-s= to search within the file.
 
 * Key bindings
 
@@ -109,7 +96,6 @@ Notable custom bindings (defaults are otherwise unchanged):
 | Key                | Command                    |
 |--------------------+----------------------------|
 | =C-c e e=            | Open =init.el=               |
-| =C-c e f=            | Browse config modules      |
 | =C-;=                | Comment/uncomment line     |
 | =M-n= / =M-p=          | Scroll one line down / up  |
 | =C-c r= then h/l/j/k | Resize window (repeatable) |
@@ -137,15 +123,36 @@ Notable custom bindings (defaults are otherwise unchanged):
 | =M-i=   | =consult-imenu=    |
 | =M-y=   | =consult-yank-pop= |
 
+Corfu automatically offers completion candidates after two typed characters,
+including Eglot suggestions in buffers connected to a language server.
+The popup appears after a short pause; =TAB= still completes on demand.
+
 ** Tools
 
 | Key     | Command        |
 |---------+----------------|
 | =C-x g=   | =magit-status=   |
-| =C-c t=   | Toggle eshell  |
+| =C-c t=   | =ghostel=        |
+| =C-c T=   | Toggle eshell  |
 | =C-c o a= | =org-agenda=     |
 | =C-c o c= | =org-capture=    |
 | =C-c o l= | =org-store-link= |
+
+** Sessions
+
+| Key     | Command                                       |
+|---------+-----------------------------------------------|
+| =C-c s s= | Save the session (buffers, windows, frames)   |
+| =C-c s r= | Restore the saved session                     |
+
+Sessions are entirely manual: =desktop-save-mode= is never enabled, so Emacs
+neither asks to save on exit nor restores anything at startup.  =C-c s s=
+overwrites =desktop/.emacs.desktop= (git-ignored) without asking, =C-c s r=
+reads it back into the running Emacs.  The desktop lock file is released
+right away, so a session never gets tied to one Emacs process.
+
+Exiting Emacs asks for confirmation even when all buffers are saved. This is
+separate from the optional session save above.
 
 * Per-machine customization
 

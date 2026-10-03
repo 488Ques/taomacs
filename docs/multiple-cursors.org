@@ -44,8 +44,8 @@ not just typing.
 | =multiple-cursors=   | A blinking cursor at each spot; type once, edit all    |
 | =iedit=              | Mark all occurrences of a symbol, edit simultaneously  |
 
-Both are one-line =use-package … :ensure t= additions to
-[[file:../modules/taomacs-editing.el][=taomacs-editing.el=]] if wanted.
+Both are one-line =use-package … :ensure t= additions to the
+[[file:../init.el][Editing and navigation section in =init.el=]] if wanted.
 
 * Note
 
