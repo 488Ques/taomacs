@@ -337,7 +337,7 @@ If the new path's directories does not exist, create them."
   (global-corfu-mode)
   :bind
   (:map corfu-map
-	("SPC" . corfu-insert-separator)
+	("C-t" . corfu-insert-separator)
 	("C-n" . corfu-next)
 	("C-p" . corfu-previous)))
 
@@ -905,30 +905,32 @@ Overwrites any previously saved session without asking."
 
 ;;;; Go
 
-(defun taomacs-go-ts-setup ()
-  "Buffer-local Go tweaks: render tabs 4 wide like VS Code.
-Go indents with tabs (one per level); Emacs shows a tab 8 columns
-wide by default, so the same file looks twice as indented as in most
-other editors.  This is display-only---the file's tab characters are
-unchanged.  `go-ts-mode-indent-offset' is kept equal to `tab-width'
-so re-indenting emits exactly one tab per level, not two."
-  (setq-local tab-width 4))
+(defun taomacs-go-format-on-save ()
+  "Organize Go imports and format the buffer using gopls before saving."
+  (when (eglot-managed-p)
+    (let ((server (eglot-current-server)))
+      (dolist (action (eglot-code-actions (point-min) (point-max)
+                                          "source.organizeImports"))
+        (eglot-execute server action)))
+    (eglot-format-buffer)))
 
-;; Auto-start eglot for Go.  eglot ships the go-ts-mode -> gopls mapping,
-;; and roots a server per go.mod automatically, so each service in the
-;; monorepo gets isolated intelligence with no extra config.
+(defun taomacs-go-ts-setup ()
+  "Set up Go display and gopls-only formatting on save.
+Go indents with tabs; render them 4 columns wide without changing
+the file's tab characters.  `go-ts-mode-indent-offset' matches
+`tab-width' so re-indenting emits one tab per level."
+  (setq-local tab-width 4)
+  (apheleia-mode -1)
+  (add-hook 'before-save-hook #'taomacs-go-format-on-save nil t))
+
+;; Auto-start Eglot for Go; its built-in mapping uses gopls.  Eglot
+;; selects the project root via project.el, while gopls understands go.mod.
 (use-package go-ts-mode
   ;; built-in (Emacs 30)---no :ensure
   :hook ((go-ts-mode . eglot-ensure)
 	 (go-ts-mode . taomacs-go-ts-setup))
   :custom
   (go-ts-mode-indent-offset 4))
-
-;; Format-on-save with goimports (gofmt formatting + import management).
-;; goimports reads stdin and writes stdout, which is Apheleia's default I/O.
-(with-eval-after-load 'apheleia
-  (setf (alist-get 'goimports apheleia-formatters) '("goimports"))
-  (setf (alist-get 'go-ts-mode apheleia-mode-alist) 'goimports))
 
 ;;;; Web
 

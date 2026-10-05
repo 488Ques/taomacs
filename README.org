@@ -27,6 +27,11 @@ Recommended external tools (features degrade gracefully without them):
 | =mise=                 | =global-mise-mode=          | Per-project tool versions      |
 | Language servers     | =eglot=                     | Install per language as needed |
 
+Go buffers in =go-ts-mode= use =gopls= through Eglot to organize imports and
+format before saving, once the language server is connected. Install =gopls=
+and the Go tree-sitter grammar; =goimports= is not required. Apheleia still
+handles formatting for languages configured to use it, but not Go.
+
 * Installation
 
 On a fresh machine:
