@@ -768,6 +768,7 @@ Overwrites any previously saved session without asking."
   :ensure t
   :if (display-graphic-p)
   :config
+  (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK")
   (exec-path-from-shell-initialize))
 
 (use-package mise
