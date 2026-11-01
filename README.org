@@ -60,8 +60,9 @@ settles, run the two one-time setup commands below.
    M-x treesit-install-language-grammar
    #+end_src
 
-   (A source is preconfigured for =typescript=; for others Emacs will
-   prompt for the grammar's Git URL.)
+   Sources for the configured languages are listed in
+   =treesit-language-source-alist=. Restart Emacs after installing a grammar
+   so the startup-only mode remapping picks it up.
 
 * Portability notes
 
@@ -88,7 +89,7 @@ settles, run the two one-time setup commands below.
 
 ** Finding a setting
 
-Open =init.el= with =C-c e e=. Use =M-s o= (=consult-outline=) to jump
+Open =init.el= with =C-c e=. Use =M-s o= (=consult-outline=) to jump
 between topic headings, =M-i= (=consult-imenu=) for function and variable
 definitions, or =C-s= to search within the file.
 
@@ -100,7 +101,7 @@ Notable custom bindings (defaults are otherwise unchanged):
 
 | Key                | Command                    |
 |--------------------+----------------------------|
-| =C-c e e=            | Open =init.el=               |
+| =C-c e=              | Open =init.el=               |
 | =C-;=                | Comment/uncomment line     |
 | =M-n= / =M-p=          | Scroll one line down / up  |
 | =C-c r= then h/l/j/k | Resize window (repeatable) |
@@ -158,6 +159,34 @@ right away, so a session never gets tied to one Emacs process.
 
 Exiting Emacs asks for confirmation even when all buffers are saved. This is
 separate from the optional session save above.
+
+* Startup and maintenance
+
+Optional tools load on first use: Avy, Embark/Consult integration, Eglot,
+SLIME, wgrep, sudo-edit, Markdown, and the JSON/YAML fallback modes.
+Orderless and Cape load through their completion autoloads; desktop loads
+when a session command is invoked. Their commands, bindings, and file
+associations remain available without loading the implementations at startup.
+Clojure's existing startup setup is retained because loading its tree-sitter
+package also registers mode remappings and CIDER integration.
+
+Dired subtree insertion refreshes icon overlays without reverting the
+directory buffer. Byte/native compiler warnings are no longer suppressed.
+Eglot event logging is disabled with =eglot-events-buffer-config= rather
+than replacing JSONRPC internals. To troubleshoot an LSP connection, set it
+to =(:size 2000000 :format full)= and run =M-x eglot-reconnect=.
+
+Installed packages are not automatically pruned. An undeclared package can
+still be used through =M-x= or be required by another package; review these
+uses before deleting it with =M-x package-delete=.
+
+** SQL completion
+
+The SQL setup uses built-in =sql.el=, =sql-indent=, and SQL-scoped Cape
+dabbrev completion. After connecting, =M-x sql-list-table= (columns) or
+=M-x sql-list-all= (tables) makes those names available to completion in
+SQL buffers. Repeat after schema changes. Schema-aware LSP completion would
+be a separate workflow change, not a prerequisite for this setup.
 
 * Per-machine customization
 

@@ -10,14 +10,6 @@
 (use-package emacs
   :config
 
-  ;; This function creates nested directories in the backup folder. If
-  ;; instead you would like all backup files in a flat structure, albeit
-  ;; with their full paths concatenated into a filename, then you can
-  ;; use the following configuration:
-  ;; (Run `'M-x describe-variable RET backup-directory-alist RET' for more help)
-  ;;
-  ;; (let ((backup-dir (expand-file-name "emacs-backup/" user-emacs-directory)))
-  ;;   (setopt backup-directory-alist `(("." . ,backup-dir))))
   (defun taomacs-backup-file-name (fpath)
     "Return a new file path of a given file path.
 If the new path's directories does not exist, create them."
@@ -68,10 +60,6 @@ If the new path's directories does not exist, create them."
    ;; y/n instead of yes/no when prompted
    use-short-answers t)
 
-  ;; We won't set these, but they're good to know about
-  ;; (setopt indent-tabs-mode nil)
-  ;; (setopt tab-width 4)
-
   (setopt
    auto-revert-avoid-polling t
    ;; Some systems don't do file notifications well; see
@@ -95,10 +83,6 @@ If the new path's directories does not exist, create them."
    tab-always-indent 'complete)
 
   (setopt
-   ;; See `C-h v completion-auto-select' for more possible values
-   ;; completion-auto-select t
-   ;; Different styles to match input to candidates
-   ;; completion-styles '(basic initials substring)
    ;; Open completion always; `lazy' another option
    completion-auto-help 'always
    ;; This is arbitrary
@@ -160,6 +144,7 @@ If the new path's directories does not exist, create them."
     "l" #'enlarge-window-horizontally
     "j" #'shrink-window
     "k" #'enlarge-window)
+  (keymap-global-set "C-c r" taomacs-resize-window-keymap)
 
   ;; Setup list of times to track
   (setopt world-clock-list '(("Asia/Ho_Chi_Minh" "Vietnam")
@@ -170,8 +155,6 @@ If the new path's directories does not exist, create them."
   :hook
   ;; Display line numbers in programming mode
   (prog-mode . display-line-numbers-mode)
-  ;; Nice line wrapping when working with text
-  (text-mode . visual-line-mode)
   ;; Modes to highlight the current line with
   ((text-mode prog-mode) . hl-line-mode)
   ;; Clean up whitespace
@@ -186,13 +169,8 @@ If the new path's directories does not exist, create them."
    ("M-p" . scroll-down-line)
 
    :map minibuffer-mode-map
-   ("TAB" . minibuffer-complete))
+   ("TAB" . minibuffer-complete)))
 
-  :bind-keymap
-  ("C-c r" . taomacs-resize-window-keymap))
-
-;; Run actions at midnight
-;; By defaul clean up unused buffers at midnight
 (use-package midnight
   :hook (after-init . midnight-mode))
 
@@ -256,9 +234,9 @@ If the new path's directories does not exist, create them."
 	 ("M-g f" . consult-flymake)
 	 ;; Searching
 	 ("M-s r" . consult-ripgrep)
-	 ("C-s" . consult-line)       ; Alternative: rebind C-s to use
-	 ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
-	 ("M-s L" . consult-line-multi) ; isearch to M-s s
+	 ("C-s" . consult-line)
+	 ("M-s s" . consult-line)
+	 ("M-s L" . consult-line-multi)
 	 ("M-s o" . consult-outline)
 	 ;; Isearch integration
 	 :map isearch-mode-map
@@ -273,35 +251,18 @@ If the new path's directories does not exist, create them."
 
 ;; Integration between embark and consult
 (use-package embark-consult
-  :ensure t)
+  :ensure t
+  :after (embark consult))
 
-;; Embark: supercharged context-dependent menu; kinda like a
-;; super-charged right-click.
+;; Context-sensitive actions, also available through Avy's "." dispatch.
 (use-package embark
   :ensure t
-  :demand t
-  :after (avy embark-consult)
-  :bind (("C-c a" . embark-act))        ; bind this to an easy key to hit
-  :init
-  ;; Add the option to run embark when using avy
-  (defun taomacs-avy-action-embark (pt)
-    (unwind-protect
-	(save-excursion
-	  (goto-char pt)
-	  (embark-act))
-      (select-window
-       (cdr (ring-ref avy-ring 0))))
-    t)
-
-  ;; After invoking avy-goto-char-timer, hit "." to run embark at the next
-  ;; candidate you select
-  (setf (alist-get ?. avy-dispatch-alist) 'taomacs-avy-action-embark))
+  :bind ("C-c a" . embark-act))
 
 ;; Vertico: better vertical completion for minibuffer commands
 (use-package vertico
   :ensure t
   :init
-  ;; You'll want to make sure that e.g. fido-mode isn't enabled
   (vertico-mode)
 
   :bind
@@ -324,7 +285,8 @@ If the new path's directories does not exist, create them."
 ;; Orderless: powerful completion style
 (use-package orderless
   :ensure t
-  :config
+  :defer t
+  :init
   (setq completion-styles '(orderless)))
 
 ;; Corfu: Popup completion-at-point
@@ -348,9 +310,7 @@ If the new path's directories does not exist, create them."
   :hook (corfu-mode . corfu-popupinfo-mode)
   :custom
   (corfu-popupinfo-delay '(0.25 . 0.1))
-  (corfu-popupinfo-hide nil)
-  :config
-  (corfu-popupinfo-mode))
+  (corfu-popupinfo-hide nil))
 
 ;; Make corfu popup come up in terminal overlay
 (use-package corfu-terminal
@@ -359,10 +319,10 @@ If the new path's directories does not exist, create them."
   :config
   (corfu-terminal-mode))
 
-;; Fancy completion-at-point functions; there's too much in the cape package to
-;; configure here; dive in when you're comfortable!
+;; Extra completion-at-point sources, autoloaded when completion requests them.
 (use-package cape
   :ensure t
+  :defer t
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file))
@@ -394,13 +354,8 @@ If the new path's directories does not exist, create them."
     (when (= start (point))
       (beginning-of-line))))
 
-(defun taomacs-end-of-line ()
-  "Move to end of line (kept for symmetry with `taomacs-beginning-of-line')."
-  (interactive "^")
-  (end-of-line))
-
 (global-set-key (kbd "C-a") #'taomacs-beginning-of-line)
-(global-set-key (kbd "C-e") #'taomacs-end-of-line)
+(global-set-key (kbd "C-e") #'end-of-line)
 
 ;; --- VSCode-style backward delete (replaces the `bbww' package) ---
 ;; Neither command touches the kill ring, matching VSCode (deleted text does
@@ -476,21 +431,29 @@ narrowing and point afterward so the cursor does not jump."
     "Replace text in yasnippet template."
     (yas-expand-snippet (buffer-string) (point-min) (point-max)))
 
-  (define-auto-insert "\\.el$" ["default-elisp.el" taomacs-autoinsert-yas-expand])
-
-  :hook
-  (find-file . auto-insert))
+  (define-auto-insert "\\.el$" ["default-elisp.el" taomacs-autoinsert-yas-expand]))
 
 ;; Navigation aid
+(defun taomacs-avy-action-embark (pt)
+  "Run Embark at Avy target PT, then return to the original window."
+  (unwind-protect
+      (save-excursion
+	(goto-char pt)
+	(embark-act))
+    (select-window (cdr (ring-ref avy-ring 0))))
+  t)
+
 (use-package avy
   :ensure t
-  :demand t
   :bind (("C-c j" . avy-goto-line)
-	 ("s-j"   . avy-goto-char-timer)))
+	 ("s-j" . avy-goto-char-timer))
+  :config
+  (setf (alist-get ?. avy-dispatch-alist) #'taomacs-avy-action-embark))
 
 ;; Re-open the current (or another) file as root via TRAMP
 (use-package sudo-edit
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;;; Help
 
@@ -527,6 +490,7 @@ narrowing and point afterward so the cursor does not jump."
   "Directory holding the hand-saved desktop session.")
 
 (use-package desktop
+  :defer t
   :custom
   ;; Only ever look at our own session directory.
   (desktop-dirname taomacs-session-directory)
@@ -616,21 +580,10 @@ Overwrites any previously saved session without asking."
 
 (use-package nerd-icons-dired
   :ensure t
-
-  :config
-  (defun taomacs-dired-subtree-add-nerd-icons ()
-    (interactive)
-    (revert-buffer))
-
-  (defun taomacs-dired-subtree-toggle-nerd-icons ()
-    (when (require 'dired-subtree nil t)
-      (if nerd-icons-dired-mode
-	  (advice-add #'dired-subtree-toggle :after #'taomacs-dired-subtree-add-nerd-icons)
-	(advice-remove #'dired-subtree-toggle #'taomacs-dired-subtree-add-nerd-icons))))
-
   :hook
   ((dired-mode . nerd-icons-dired-mode)
-   (nerd-icons-dired-mode . taomacs-dired-subtree-toggle-nerd-icons)))
+   ;; Refresh icon overlays after insertion, without rereading the directory.
+   (dired-subtree-after-insert . nerd-icons-dired--refresh)))
 
 ;;; Version control
 
@@ -741,6 +694,7 @@ Overwrites any previously saved session without asking."
 ;; Modify search results en masse
 (use-package wgrep
   :ensure t
+  :defer t
   :config
   (setq wgrep-auto-save-buffer t))
 
@@ -749,16 +703,13 @@ Overwrites any previously saved session without asking."
   :config
   (setopt project-vc-extra-root-markers '("deps.edn"))
 
-  (when (>= emacs-major-version 30)
-    ;; show project name in modeline
-    (setopt project-mode-line t)))
+  ;; Show project name in the modeline (Emacs 30+).
+  (setopt project-mode-line t))
 
 ;; Tree-sitter: prefer the built-in *-ts-mode variants, but only when the
 ;; language's grammar is actually installed---otherwise fall back to the
-;; classic mode instead of throwing a "grammar unavailable" warning.  This is
-;; a plain static setup that runs once at startup, so there is no per-file-open
-;; cost (an earlier `treesit-auto' + `global-treesit-auto-mode' setup re-probed
-;; every grammar on each file open, adding ~100ms).
+;; classic mode instead of throwing a "grammar unavailable" warning.
+;; Grammar availability is checked once at startup, not on every file open.
 ;;
 ;; Bookkeeping is manual: install a grammar with
 ;; `M-x treesit-install-language-grammar' (sources below), then restart Emacs
@@ -801,9 +752,9 @@ Overwrites any previously saved session without asking."
 ;; Copy environment variables into Emacs
 (use-package exec-path-from-shell
   :ensure t
-  :init
-  (when (display-graphic-p)
-    (exec-path-from-shell-initialize)))
+  :if (display-graphic-p)
+  :config
+  (exec-path-from-shell-initialize))
 
 (use-package mise
   :ensure t
@@ -814,18 +765,13 @@ Overwrites any previously saved session without asking."
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 (use-package eglot
   ;; no :ensure t here because it's built-in
-
-  ;; Configure hooks to automatically turn-on eglot for selected modes
-  ;; :hook
-  ;; (((python-mode ruby-mode elixir-mode) . eglot-ensure))
+  :defer t
 
   :custom
   (eglot-send-changes-idle-time 0.1)
   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
-
-  :config
-  (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
-  )
+  ;; Disable event logging through Eglot's public option, not a JSONRPC override.
+  (eglot-events-buffer-config '(:size 0 :format full)))
 
 ;; Async, cursor-preserving format-on-save.  Per-language formatters are
 ;; configured in the language sections below via `with-eval-after-load'.
@@ -881,6 +827,7 @@ Overwrites any previously saved session without asking."
 ;; Emacs support for Common Lisp
 (use-package slime
   :ensure t
+  :defer t
   :init
   (setq inferior-lisp-program "sbcl")
 
@@ -895,13 +842,15 @@ Overwrites any previously saved session without asking."
 
 (use-package markdown-mode
   :ensure t
-  :hook ((markdown-mode . visual-line-mode)))
+  :defer t)
 
 (use-package yaml-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package json-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;;;; Go
 
@@ -1026,26 +975,6 @@ Covers other SQL edit buffers, interactive REPLs, and the
 
 (add-hook 'sql-mode-hook #'taomacs-sql--setup-completion)
 (add-hook 'sql-interactive-mode-hook #'taomacs-sql--setup-completion)
-
-;; ---------------------------------------------------------------------------
-;; UPGRADE PATH -- schema-aware completion via the `sqls' LSP server.
-;;
-;; Completion today is dabbrev (see `cape-dabbrev' in Search and completion):
-;; after connecting, run `M-x sql-list-table' (columns of one table) or
-;; `M-x sql-list-all' (table names only) to dump object names into a
-;; `*List ...*' buffer; dabbrev (scoped above) then completes them in your
-;; .sql buffer via `completion-at-point' (C-M-i).  Re-run after schema changes.
-;;
-;; To upgrade to structured, scoped, auto-updating completion, install nothing
-;; (the `sqls' binary is already on PATH via mise) and enable eglot for SQL.
-;; VALIDATE the eglot<->sqls config handshake before relying on it; the
-;; fallback is generating ~/.config/sqls/config.yml from
-;; `taomacs-sql-connections'.
-;;
-;; (with-eval-after-load 'eglot
-;;   (add-to-list 'eglot-server-programs '(sql-mode . ("sqls")))
-;;   (add-hook 'sql-mode-hook #'eglot-ensure))
-;; ---------------------------------------------------------------------------
 
 ;; Load machine-local overrides last
 (let ((local (locate-user-emacs-file "local.el")))
