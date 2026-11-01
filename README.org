@@ -109,6 +109,9 @@ events. To compare with Emacs's built-in scrolling in the same session, run
 =M-x ultra-scroll-mode= to disable ultra-scroll, then enable
 =M-x pixel-scroll-precision-mode=.
 
+Control+scroll font zoom is disabled, as is touchpad pinch zoom. Keyboard
+text scaling (=C-x C-+= / =C-x C--=) remains available.
+
 * Layout
 
 | Path            | Purpose                                             |

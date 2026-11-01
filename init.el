@@ -125,6 +125,12 @@ If the new path's directories does not exist, create them."
   ;; Unset the annoying zooming in behavior when pinching on a touchpad
   (global-unset-key (kbd "<pinch>"))
 
+  ;; Disable accidental text zoom when holding Control while scrolling
+  (global-unset-key (kbd "<C-wheel-up>"))
+  (global-unset-key (kbd "<C-wheel-down>"))
+  (global-unset-key (kbd "<C-mouse-4>"))
+  (global-unset-key (kbd "<C-mouse-5>"))
+
   ;; Unset this key since I have a habit of pressing it for undo
   (global-unset-key (kbd "C-z"))
 
