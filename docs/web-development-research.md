@@ -1,0 +1,26 @@
+# Emacs web tooling: assessment
+
+## Recommendation
+
+Keep the existing Emacs 30.2 setup: built-in Tree-sitter modes (`js-ts-mode`, `css-ts-mode`, `typescript-ts-mode`/`tsx-ts-mode`), Eglot for TypeScript, Corfu for the completion UI, and Apheleia/oxfmt for TS/TSX formatting. Do not add Tide, `js2-mode`, or Company just to obtain the features already supplied by this stack. Consider a CSS language server only if CSS diagnostics/completions/navigation are wanted; Emacs 30.2 Eglot already has a `css-ts-mode` server mapping, but the checked-in configuration does not currently start Eglot for CSS. Astro remains intentionally in `web-mode` without LSP/formatter, as the local configuration comments state.
+
+This assessment compares the quoted advice with the repository configuration and a local Eglot connection to TypeScript 7. Setup references: [`init.el` Tree-sitter remaps](../init.el#L773), [Corfu](../init.el#L336), [Eglot and TS hooks](../init.el#L847), and [Apheleia/oxfmt/Astro](../init.el#L864).
+
+## TypeScript 7 and `tsserver.js`
+
+`typescript-language-server` is an LSP wrapper over TypeScript's custom `tsserver` API; its upstream installation instructions pair it with `typescript@6`. TypeScript 7 is a native Go port with its own LSP support, and its package has no `lib/tsserver.js`. Consequently the wrapper cannot use the workspace's TypeScript 7 installation. For TS 6 and older projects, retain the wrapper; tools needing the old API can use Microsoft's `@typescript/typescript6` compatibility package.
+
+For a project-local TypeScript 7 installation, this config selects the local `node_modules/.bin/tsc --lsp --stdio` instead. The installed 7.0.2 executable lists `--stdio` in `tsc --lsp --help`. Without a local native installation, the config retains `typescript-language-server --stdio`. TypeScript 7 supplies source-file errors via the LSP pull-diagnostics protocol, which the Emacs 30.2 bundled Eglot does not support. The configuration installs GNU ELPA Eglot 1.20 or newer when necessary; a headless Emacs 30.2 run with Eglot 1.24 showed syntax errors in Flymake and cleared them after the buffer was corrected.
+
+The native server registers for `workspace/didChangeConfiguration` updates even when the client declines dynamic registration. The configuration forwards changes to `eglot-workspace-configuration` while that registration is active and removes the watcher on unregistration or server shutdown; the headless run showed no unsupported-capability warning. Eglot still sends the initial configuration on connection.
+
+Sources: [Eglot maintainer's pull-diagnostics discussion](https://github.com/joaotavora/eglot/discussions/1559#discussioncomment-15246459) (TypeScript native server requires pull diagnostics; Eglot support arrived after Emacs 30.2); [GNU ELPA Eglot releases](https://elpa.gnu.org/packages/eglot.html).
+
+## CSS, JavaScript modes, Tide, completion
+
+- **CSS LSP:** Emacs 30.2's own Eglot server table maps `css-mode` and `css-ts-mode` to `vscode-css-language-server --stdio`, with `css-languageserver --stdio` as an alternative. The upstream `vscode-langservers-extracted` package supplies the `vscode-css-language-server` executable and extracts CSS/HTML/JSON/ESLint servers from VS Code. That is a reasonable optional CSS server; it is not necessary for Tree-sitter syntax highlighting/indentation, and this setup currently has no `css-ts-mode` Eglot hook. Add one only if LSP features are desired.
+- **`js2-mode` vs `js-ts-mode`:** `js-ts-mode` is already the chosen built-in mode here and is the maintainable default for Emacs 30.2. `js2-mode` is an alternate JavaScript editing mode; its upstream README specifically recommends built-in `js-mode` plus `js2-minor-mode` when its JS2 AST integrations are wanted. That is a specialized reason to add it, not a replacement needed alongside the current Tree-sitter mode.
+- **Tide:** Tide is an Emacs client for `tsserver` and its README's standard setup enables Company, Flycheck, Eldoc, Tide highlighting, and Tide formatting. Eglot already owns the TypeScript LSP connection in this configuration; adding Tide would introduce overlapping language-service features and another server/client configuration. Also, the TypeScript 7 `tsserver` compatibility concern applies to Tide's legacy-server model.
+- **Company vs Corfu:** They are alternative in-buffer completion UIs, not competing language servers. Eglot supplies completion through Emacs completion-at-point; Corfu presents those candidates in a popup and explicitly relies on CAPFs rather than supplying its own backend. Company can also present completion candidates, but Tide's use of Company is not a reason to install Tide or replace the already-configured Corfu. Keep Corfu.
+
+Sources: [Emacs 30.2 Eglot server mappings](https://github.com/emacs-mirror/emacs/blob/emacs-30.2/lisp/progmodes/eglot.el) (`eglot-server-programs`, JS/TS and CSS entries); [`vscode-langservers-extracted` upstream README](https://github.com/hrsh7th/vscode-langservers-extracted); [`js2-mode` upstream README](https://github.com/mooz/js2-mode#react-and-jsx); [Tide upstream README](https://github.com/ananthakumaran/tide); [Corfu upstream README](https://github.com/minad/corfu); [Eglot manual, features](https://www.gnu.org/software/emacs/manual/html_node/eglot/Eglot-Features.html).

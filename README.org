@@ -32,6 +32,30 @@ format before saving, once the language server is connected. Install =gopls=
 and the Go tree-sitter grammar; =goimports= is not required. Apheleia still
 handles formatting for languages configured to use it, but not Go.
 
+For JavaScript and TypeScript, install the =javascript=, =typescript=, and
+=tsx= tree-sitter grammars. TS/TSX buffers start Eglot automatically: when
+the nearest project-local TypeScript installation has no =tsserver.js=,
+Eglot uses its =node_modules/.bin/tsc --lsp --stdio= (TypeScript 7).
+Otherwise it uses =typescript-language-server --stdio= for older
+TypeScript installations; install that server separately for TS 6
+projects. This config installs GNU ELPA Eglot 1.20 or newer when needed:
+the Emacs 30 bundled version cannot display TypeScript 7's pull diagnostics.
+Flymake shows syntax and type errors in managed TS/TSX buffers; use
+=M-g f= to list diagnostics. Reconnect an already-open buffer with
+=M-x eglot-reconnect= after changing TypeScript versions or upgrading Eglot.
+
+The =css-ts-mode= grammar provides CSS highlighting without an LSP
+server. For optional CSS language features, install
+=vscode-langservers-extracted= (provides =vscode-css-language-server=)
+and run =M-x eglot= in a CSS buffer; the built-in Eglot mapping already
+knows that server. Corfu displays completion, and Apheleia uses
+project-local =oxfmt= for TS/TSX formatting when installed. See
+[[file:docs/web-development-research.md][the web tooling assessment]] for the tradeoffs behind this setup.
+
+In an Eglot-managed buffer, =M-x eldoc-doc-buffer= shows function
+documentation. Rendered inline Markdown links in that buffer are buttons:
+use =RET= or mouse-2 to open their URLs.
+
 * Installation
 
 On a fresh machine:
@@ -76,6 +100,15 @@ settles, run the two one-time setup commands below.
   history, tree-sitter grammars, and =custom.el= / =local.el= are
   =.gitignore=d (see below), so each machine builds its own.
 
+* Scrolling
+
+=ultra-scroll= is enabled for pixel-precise trackpad and mouse scrolling; it
+enables the built-in =pixel-scroll-precision-mode= itself. If scrolling is not
+smooth on your device, use =M-x ultra-scroll-check= to inspect its pixel
+events. To compare with Emacs's built-in scrolling in the same session, run
+=M-x ultra-scroll-mode= to disable ultra-scroll, then enable
+=M-x pixel-scroll-precision-mode=.
+
 * Layout
 
 | Path            | Purpose                                             |
@@ -112,6 +145,8 @@ Notable custom bindings (defaults are otherwise unchanged):
 | Key           | Command                             |
 |---------------+-------------------------------------|
 | =C-a= / =C-e=     | Smart beginning / end of line       |
+| =C-/=           | Undo only (never redo past undos)   |
+| =C-c u=         | Redo the last undo                  |
 | =M-DEL=         | Delete word backward (no kill ring) |
 | =C-<backspace>= | Delete to beginning of line         |
 | =C-c j=         | =avy-goto-line=                       |
@@ -131,7 +166,8 @@ Notable custom bindings (defaults are otherwise unchanged):
 
 Corfu automatically offers completion candidates after two typed characters,
 including Eglot suggestions in buffers connected to a language server.
-The popup appears after a short pause; =TAB= still completes on demand.
+Automatic popups are disabled in Org buffers; =TAB= still completes on demand.
+Elsewhere the popup appears after a short pause.
 
 ** Tools
 

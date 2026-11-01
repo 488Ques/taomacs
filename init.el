@@ -112,8 +112,6 @@ If the new path's directories does not exist, create them."
 
   ;; Steady cursor
   (blink-cursor-mode -1)
-  ;; Smooth scrolling
-  (pixel-scroll-precision-mode)
 
   ;; For terminal users, make the mouse more useful
   (xterm-mouse-mode 1)
@@ -162,6 +160,8 @@ If the new path's directories does not exist, create them."
 
   :bind
   (("C-c e" . taomacs-open-init-file)
+   ("C-/" . undo-only)
+   ("C-c u" . undo-redo)
 
    ("C-;" . comment-line)
 
@@ -171,6 +171,14 @@ If the new path's directories does not exist, create them."
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete)))
 
+;; Smooth pixel scrolling for trackpads and high-resolution mice.
+(use-package ultra-scroll
+  :ensure t
+  :config
+  (ultra-scroll-mode 1))
+
+;; Run actions at midnight
+;; By defaul clean up unused buffers at midnight
 (use-package midnight
   :hook (after-init . midnight-mode))
 
@@ -761,12 +769,44 @@ Overwrites any previously saved session without asking."
   :hook
   (after-init . global-mise-mode))
 
+;; Markdown-mode leaves a mouse binding on Eglot's rendered links, but Eglot
+;; removes the Markdown syntax that binding needs to find the URL.
+(defun taomacs-eldoc-buttonize-markdown-links (&rest _)
+  "Make rendered Markdown links in the ElDoc buffer followable."
+  (when (and (boundp 'markdown-mode-mouse-map)
+	     (keymapp markdown-mode-mouse-map))
+    (with-current-buffer (eldoc-doc-buffer)
+      (let ((inhibit-read-only t)
+	    (pos (point-min)))
+	(while (< pos (point-max))
+	  (let* ((end (or (next-single-property-change
+			   pos 'help-echo nil (point-max))
+			  (point-max)))
+		 (echo (get-text-property pos 'help-echo)))
+	    (when (and (stringp echo)
+		       (eq (get-text-property pos 'keymap)
+			   markdown-mode-mouse-map)
+		       (string-match "\\(?:\\`\\|\n\\)\\([^\n]+\\)\\'" echo))
+	      (buttonize-region pos end #'browse-url
+				(match-string 1 echo) echo))
+	    (setq pos end)))))))
+
+(with-eval-after-load 'eldoc
+  (advice-add #'eldoc--format-doc-buffer :after
+	      #'taomacs-eldoc-buttonize-markdown-links))
+
 ;; Helpful resources:
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 (use-package eglot
-  ;; no :ensure t here because it's built-in
+  ;; Emacs 30's bundled Eglot only supports pushed diagnostics.  TypeScript 7
+  ;; requires pull diagnostics, supported by Eglot 1.20 and later.
+  :ensure t
+  :pin gnu
   :defer t
-
+  :init
+  (unless (package-installed-p 'eglot '(1 20))
+    (package-refresh-contents)
+    (package-install 'eglot))
   :custom
   (eglot-send-changes-idle-time 0.1)
   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
@@ -787,12 +827,12 @@ Overwrites any previously saved session without asking."
   :init
   (setopt org-directory "~/org"
 	  org-default-notes-file (expand-file-name "inbox.org" "~/org")
-	  org-agenda-files (list "~/org"))
+	  org-agenda-files (list "~/org/inbox.org"))
   :custom
   ;; Comfort visuals
   (org-startup-indented t)
-  (org-hide-emphasis-markers t)
-  (org-pretty-entities t)
+  (org-hide-emphasis-markers nil)
+  (org-pretty-entities nil)
   (org-ellipsis " ▾")
   (org-src-fontify-natively t)
   (org-src-tab-acts-natively t)
@@ -800,13 +840,16 @@ Overwrites any previously saved session without asking."
   (org-return-follows-link t)
   (org-fontify-quote-and-verse-blocks t)
   ;; Workflow
-  (org-todo-keywords '((sequence "TODO" "NEXT" "|" "DONE")))
+  (org-todo-keywords '((sequence "TODO" "NEXT" "|" "DONE" "ARCHIVED")))
   (org-log-done 'time)
   (org-capture-templates
    '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
-      "* TODO %?\n  %U")
+      "* TODO %?\nCreated at: %U")
      ("n" "Note" entry (file+headline org-default-notes-file "Notes")
-      "* %?\n  %U")))
+      "* %?\nCreated at: %U")))
+  :hook
+  ;; Keep manual completion available without automatic popups in Org buffers.
+  (org-mode . (lambda () (setq-local corfu-auto nil)))
   :bind
   (("C-c o a" . org-agenda)
    ("C-c o c" . org-capture)
@@ -859,8 +902,8 @@ Overwrites any previously saved session without asking."
   (when (eglot-managed-p)
     (let ((server (eglot-current-server)))
       (dolist (action (eglot-code-actions (point-min) (point-max)
-                                          "source.organizeImports"))
-        (eglot-execute server action)))
+					  "source.organizeImports"))
+	(eglot-execute server action)))
     (eglot-format-buffer)))
 
 (defun taomacs-go-ts-setup ()
@@ -883,8 +926,71 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 
 ;;;; Web
 
-;; Auto-start eglot for TS/TSX.  eglot ships the typescript-ts-mode and
-;; tsx-ts-mode -> "typescript-language-server --stdio" mappings.
+;; TypeScript 7 ships its own LSP server instead of tsserver.js, which
+;; typescript-language-server requires.  Keep Eglot's built-in JS/TS mode
+;; grouping (and language IDs) so all those buffers share one server.
+(defun taomacs-typescript-eglot-contact (_interactive _project)
+  "Use the project's native TypeScript LSP, or the tsserver bridge."
+  (let* ((root (locate-dominating-file
+		default-directory "node_modules/typescript/package.json"))
+	 (tsc (and root (expand-file-name "node_modules/.bin/tsc" root))))
+    (if (and tsc
+	     (file-executable-p tsc)
+	     (not (file-exists-p
+		   (expand-file-name "node_modules/typescript/lib/tsserver.js"
+				     root))))
+	(list tsc "--lsp" "--stdio")
+      '("typescript-language-server" "--stdio"))))
+
+;; TypeScript 7 dynamically subscribes to configuration changes even though
+;; Eglot does not advertise dynamic registration for them.  Eglot already
+;; sends the initial configuration; forward subsequent Emacs setting changes
+;; only while the server's registration is active.
+(defvar taomacs-typescript-configuration-watchers nil)
+
+(defun taomacs-typescript-unwatch-configuration (server &rest _)
+  "Stop forwarding configuration changes to SERVER."
+  (when-let ((watcher (alist-get server taomacs-typescript-configuration-watchers)))
+    (remove-variable-watcher 'eglot-workspace-configuration watcher)
+    (setq taomacs-typescript-configuration-watchers
+	  (assq-delete-all server taomacs-typescript-configuration-watchers))))
+
+(with-eval-after-load 'eglot
+  (cl-defmethod eglot-register-capability
+    (server (_method (eql workspace/didChangeConfiguration)) _id &rest _options)
+    (if (equal (plist-get (eglot--server-info server) :name) "typescript-go")
+	(unless (assq server taomacs-typescript-configuration-watchers)
+	  (let ((watcher
+		 (lambda (_symbol _value operation _where)
+		   (when (eq operation 'set)
+		     (if (jsonrpc-running-p server)
+			 (eglot-signal-didChangeConfiguration server)
+		       (taomacs-typescript-unwatch-configuration server))))))
+	    (push (cons server watcher) taomacs-typescript-configuration-watchers)
+	    (add-variable-watcher 'eglot-workspace-configuration watcher)))
+      (cl-call-next-method)))
+
+  (cl-defmethod eglot-unregister-capability
+    (server (_method (eql workspace/didChangeConfiguration)) _id &rest _options)
+    (if (equal (plist-get (eglot--server-info server) :name) "typescript-go")
+	(taomacs-typescript-unwatch-configuration server)
+      (cl-call-next-method)))
+
+  (advice-add #'eglot-shutdown :before
+	      #'taomacs-typescript-unwatch-configuration))
+
+(with-eval-after-load 'eglot
+  (let ((entry (cl-find-if
+		(lambda (entry)
+		  (and (listp (car entry))
+		       (member '(typescript-ts-mode :language-id "typescript")
+			       (car entry))))
+		eglot-server-programs)))
+    (when entry
+      (setcdr entry #'taomacs-typescript-eglot-contact))))
+
+;; Auto-start Eglot for TS/TSX.  The JS/TS server selection above chooses
+;; the project-local TypeScript 7 LSP or the tsserver bridge for older projects.
 ;; The .ts/.tsx -> *-ts-mode routing is configured in Development tools.
 (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook        #'eglot-ensure)
