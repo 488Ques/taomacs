@@ -20,7 +20,7 @@ Recommended external tools (features degrade gracefully without them):
 | Tool                 | Used by                   | Notes                          |
 |----------------------+---------------------------+--------------------------------|
 | =ripgrep= (=rg=)         | =consult-ripgrep= (=M-s r=)   | Fast project search            |
-| A Nerd Font          | doom-modeline, nerd-icons | Install via command below      |
+| A Nerd Font          | Ghostel prompt glyphs    | Optional terminal font fallback |
 | Tree-sitter grammars | =*-ts-mode= major modes     | Install via command below      |
 | =gls= (GNU coreutils)  | Dired listing on macOS    | =brew install coreutils=         |
 | =sbcl=                 | SLIME (Common Lisp)       |                                |
@@ -66,17 +66,11 @@ git clone <this-repo> ~/.emacs.d
 
 Then launch Emacs. The first start will download and install every
 =:ensure t= package automatically — this takes a minute or two. Once it
-settles, run the two one-time setup commands below.
+settles, install the tree-sitter grammars below.
 
 ** One-time setup
 
-1. *Install icon fonts* (otherwise the modeline and Dired show □ boxes):
-
-   #+begin_src
-   M-x nerd-icons-install-fonts
-   #+end_src
-
-2. *Install tree-sitter grammars* for the languages you edit. The
+Install tree-sitter grammars for the languages you edit. The
    =major-mode-remap-alist= routes Python, JS, TS, YAML, JSON, CSS, and
    Bash to their =-ts-mode= variants, which need grammars present:
 
@@ -96,6 +90,11 @@ settles, run the two one-time setup commands below.
   lose those Mac-only niceties.
 - *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
   otherwise the default face is used.
+- *The UI uses the native mode line and no package-provided icons* in
+  Dired, minibuffer completion, or Corfu. Marginalia annotations and Corfu
+  documentation popups remain enabled. The Symbols Nerd Font Mono fallback
+  is retained for terminal prompt glyphs in Ghostel; icon-font installation
+  is not a prerequisite for the Emacs UI.
 - *State is not shared across machines.* Package directories, caches,
   history, tree-sitter grammars, and =custom.el= / =local.el= are
   =.gitignore=d (see below), so each machine builds its own.
@@ -227,8 +226,7 @@ associations remain available without loading the implementations at startup.
 Clojure's existing startup setup is retained because loading its tree-sitter
 package also registers mode remappings and CIDER integration.
 
-Dired subtree insertion refreshes icon overlays without reverting the
-directory buffer. Byte/native compiler warnings are no longer suppressed.
+Byte/native compiler warnings are no longer suppressed.
 Eglot event logging is disabled with =eglot-events-buffer-config= rather
 than replacing JSONRPC internals. To troubleshoot an LSP connection, set it
 to =(:size 2000000 :format full)= and run =M-x eglot-reconnect=.
