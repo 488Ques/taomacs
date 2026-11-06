@@ -13,6 +13,7 @@
 /.cache/
 /tmp/
 /bookmarks
+/bookmarks.eld
 /places
 /recentf
 /history
@@ -22,6 +23,7 @@
 /tramp
 /transient/
 /projects
+/projects.eld
 /network-security.data
 
 # Org-mode generated files
