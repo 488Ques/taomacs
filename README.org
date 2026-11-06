@@ -91,8 +91,10 @@ Install tree-sitter grammars for the languages you edit. The
 - *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
   otherwise the default face is used.
 - *The UI uses the native mode line and no package-provided icons* in
-  Dired, minibuffer completion, or Corfu. Marginalia annotations and Corfu
-  documentation popups remain enabled. The Symbols Nerd Font Mono fallback
+  Dired, minibuffer completion, or Corfu. Minor-mode names are collapsed
+  into =…= using Emacs 31.1's built-in option; the modes remain active.
+  Marginalia annotations and Corfu documentation popups remain enabled.
+  The Symbols Nerd Font Mono fallback
   is retained for terminal prompt glyphs in Ghostel; icon-font installation
   is not a prerequisite for the Emacs UI.
 - *State is not shared across machines.* Package directories, caches,

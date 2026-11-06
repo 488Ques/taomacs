@@ -225,6 +225,9 @@ If the new path's directories does not exist, create them."
 ;; Disable clock
 (display-time-mode -1)
 
+;; Collapse minor-mode names without hiding major-mode or Eglot status.
+(setopt mode-line-collapse-minor-modes t)
+
 ;;; Search and completion
 
 ;; Consult: Misc. enhanced commands
