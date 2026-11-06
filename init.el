@@ -260,8 +260,33 @@ If the new path's directories does not exist, create them."
 	 ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
 	 )
   :config
-  ;; Use Consult's default buffer source and filtering.
+  ;; Narrowing prefix; with bufferlo, `< o' lists the other tabs' buffers.
   (setq consult-narrow-key "<"))
+
+;; Bufferlo: every frame and tab keeps its own buffer list — the buffers
+;; displayed in it.  `C-x b' offers only those; narrow with `< o' to reach
+;; buffers from other tabs.  Buffers are never killed by switching tabs.
+(use-package bufferlo
+  :ensure t
+  :custom
+  ;; Also keep `C-x <left>'/`C-x <right>' and `other-buffer' within the tab.
+  (bufferlo-prefer-local-buffers 'tabs)
+  :init
+  (bufferlo-mode)
+  :config
+  (with-eval-after-load 'consult
+    (setq consult-buffer-list-function #'bufferlo-local-buffers))
+  (defvar-keymap taomacs-bufferlo-keymap
+    :doc "Manage the frame/tab-local buffer list."
+    "i" #'bufferlo-ibuffer                ; local buffers in ibuffer
+    "o" #'bufferlo-ibuffer-orphans        ; buffers in no tab's list
+    "f" #'bufferlo-find-buffer-switch     ; jump to the tab holding a buffer
+    "r" #'bufferlo-remove                 ; drop a buffer from this tab
+    "c" #'bufferlo-clear                  ; drop all but the current buffer
+    "p" #'bufferlo-isolate-project        ; keep only this project's buffers
+    "k" #'bufferlo-kill-buffers           ; kill this tab's buffers
+    "K" #'bufferlo-tab-close-kill-buffers) ; close tab and kill its buffers
+  (keymap-global-set "C-c b" taomacs-bufferlo-keymap))
 
 ;; Integration between embark and consult
 (use-package embark-consult
