@@ -243,8 +243,20 @@ If the new path's directories does not exist, create them."
 ;; Disable clock
 (display-time-mode -1)
 
-;; Collapse minor-mode names without hiding major-mode or Eglot status.
-(setopt mode-line-collapse-minor-modes t)
+;; Keep the useful context without encoding, scroll, or minor-mode clutter.
+(use-package doom-modeline
+  :ensure t
+  :demand t
+  :custom
+  (doom-modeline-height 24)
+  (doom-modeline-icon (taomacs-font-exists-p "Symbols Nerd Font Mono"))
+  (doom-modeline-buffer-encoding nil)
+  (doom-modeline-percent-position nil)
+  (doom-modeline-minor-modes nil)
+  (doom-modeline-env-version nil)
+  (doom-modeline-position-column-line-format '("L%l:C%c"))
+  :config
+  (doom-modeline-mode 1))
 
 ;;; Search and completion
 
@@ -732,10 +744,7 @@ Overwrites any previously saved session without asking."
 ;; Project management
 (use-package project
   :config
-  (setopt project-vc-extra-root-markers '("deps.edn"))
-
-  ;; Show project name in the modeline (Emacs 30+).
-  (setopt project-mode-line t))
+  (setopt project-vc-extra-root-markers '("deps.edn")))
 
 ;; Tree-sitter: prefer the built-in *-ts-mode variants, but only when the
 ;; language's grammar is actually installed---otherwise fall back to the

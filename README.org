@@ -9,8 +9,7 @@ and =use-package=. Shared settings are grouped by topic in
 * Requirements
 
 - *GNU Emacs 30.1+* — the config uses =setopt=, the built-in =which-key=,
-  =project-mode-line=, tree-sitter, and =modus-operandi-tinted=. Developed
-  against Emacs 30.2.
+  tree-sitter, and =modus-operandi-tinted=. Developed against Emacs 30.2.
 - *Network access* on first launch, to download packages from GNU ELPA,
   NonGNU ELPA, and MELPA.
 - *Git*, for Magit.
@@ -114,10 +113,22 @@ GUI frames use =Iosevka= at 15 pt for programming and =Iosevka Etoile= at
 visual line wrapping; code, tables, metadata, and hidden indentation stay
 monospaced. Restart Emacs after installing the fonts.
 
+** Mode line
+
+=doom-modeline= replaces the built-in mode line while keeping the Modus theme.
+It shows the buffer/project path, modified or read-only state, =Lline:Ccolumn=
+position (columns start at zero), major mode, Git branch, and Eglot/Flymake
+status when active. Encoding, scroll percentage, minor-mode names, and language
+runtime versions are hidden.
+
+Icons are enabled in GUI Emacs when =Symbols Nerd Font Mono= is installed;
+otherwise the modeline uses text. Restart Emacs to load the configuration.
+
 ** Ghostel prompt icons
 
-The terminal font fallback in =init.el= uses =Symbols Nerd Font Mono= for
-Nerd Font icons, including supplementary-plane glyphs. On macOS, install it:
+=Symbols Nerd Font Mono= supplies Doom Modeline icons and the terminal font
+fallback for Nerd Font prompt glyphs in Ghostel, including supplementary-plane
+glyphs. On macOS, install it:
 
 #+begin_src sh
 brew install --cask font-symbols-only-nerd-font
@@ -136,13 +147,11 @@ Ghostty's bundled fonts are not automatically available to Emacs.
   lose those Mac-only niceties.
 - *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
   otherwise the default face is used.
-- *The UI uses the native mode line and no package-provided icons* in
-  Dired, minibuffer completion, or Corfu. Minor-mode names are collapsed
-  into =…= using Emacs 31.1's built-in option; the modes remain active.
-  Marginalia annotations and Corfu documentation popups remain enabled.
-  The Symbols Nerd Font Mono fallback
-  is retained for terminal prompt glyphs in Ghostel; icon-font installation
-  is not a prerequisite for the Emacs UI.
+- *Doom Modeline provides the mode line.* Dired, minibuffer completion, and
+  Corfu remain free of package-provided icons. Minor-mode names are hidden;
+  the modes remain active. Marginalia annotations and Corfu documentation
+  popups remain enabled. The Symbols Nerd Font Mono fallback is retained for
+  terminal prompt glyphs in Ghostel; icon-font installation is optional.
 - *State is not shared across machines.* Package directories, caches,
   history, tree-sitter grammars, and =custom.el= / =local.el= are
   =.gitignore=d (see below), so each machine builds its own.
