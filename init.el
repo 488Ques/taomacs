@@ -579,13 +579,13 @@ Overwrites any previously saved session without asking."
   :demand t
   :bind
   (:map taomacs-session-keymap
-        ("n" . activities-new)
-        ("d" . activities-define)
-        ("a" . activities-resume)
-        ("p" . activities-suspend)
-        ("g" . activities-revert)
-        ("l" . activities-list)
-        ("RET" . activities-switch))
+	("n" . activities-new)
+	("d" . activities-define)
+	("a" . activities-resume)
+	("p" . activities-suspend)
+	("g" . activities-revert)
+	("l" . activities-list)
+	("RET" . activities-switch))
   :config
   (activities-mode 1)
   (activities-tabs-mode 1))
@@ -668,12 +668,12 @@ Overwrites any previously saved session without asking."
     "Reuse the bookmarked Eshell, or create it in its saved directory."
     (require 'eshell)
     (let* ((eshell-buffer-name (bookmark-prop-get bookmark 'buffer-name))
-           (default-directory (bookmark-prop-get bookmark 'location))
-           (existing (get-buffer eshell-buffer-name)))
+	   (default-directory (bookmark-prop-get bookmark 'location))
+	   (existing (get-buffer eshell-buffer-name)))
       (when (and existing
-                 (not (with-current-buffer existing
-                        (derived-mode-p 'eshell-mode))))
-        (user-error "Buffer %s exists but is not an Eshell" eshell-buffer-name))
+		 (not (with-current-buffer existing
+			(derived-mode-p 'eshell-mode))))
+	(user-error "Buffer %s exists but is not an Eshell" eshell-buffer-name))
       (eshell)))
 
   (put 'taomacs-eshell-bookmark-jump 'bookmark-handler-type "Eshell")
@@ -684,7 +684,7 @@ Overwrites any previously saved session without asking."
     (keymap-set eshell-mode-map "C-r" 'consult-history)
     ;; The built-in bookmark handler merges all restored shells into *eshell*.
     (setq-local bookmark-make-record-function
-                #'taomacs-eshell-bookmark-make-record))
+		#'taomacs-eshell-bookmark-make-record))
 
   :bind
   (("C-c t" . eshell))
