@@ -229,11 +229,13 @@ Elsewhere the popup appears after a short pause.
 | Key     | Command        |
 |---------+----------------|
 | =C-x g=   | =magit-status=   |
-| =C-c t=   | =ghostel=        |
-| =C-c T=   | Toggle eshell  |
+| =C-c t=   | =eshell=         |
 | =C-c o a= | =org-agenda=     |
 | =C-c o c= | =org-capture=    |
 | =C-c o l= | =org-store-link= |
+
+=C-c t= opens Eshell in the current window without creating a split;
+=C-c T= is unbound.
 
 Eshell is not a terminal emulator. Running =omp= there opens a dedicated
 Ghostel buffer in the same working directory, with arguments preserved.
@@ -241,9 +243,9 @@ Other Eshell visual commands (such as =top= and =less=) also use Ghostel
 instead of =term-mode=. For an unlisted interactive program, use
 =ghostel PROGRAM ARGS...= at the Eshell prompt.
 
-After restarting Emacs, open Eshell with =C-c T= and run =omp= normally.
+After restarting Emacs, open Eshell with =C-c t= and run =omp= normally.
 Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
-Alternatively, open a shell directly in Ghostel with =C-c t=.
+Alternatively, open a shell directly with =M-x ghostel=.
 
 ** Sessions
 

@@ -631,30 +631,8 @@ Overwrites any previously saved session without asking."
     ;; a work-around to make C-r bound in the keymap
     (keymap-set eshell-mode-map "C-r" 'consult-history))
 
-  (defun taomacs-toggle-eshell ()
-    "Opens an eshell window in the bottom area when there is not one."
-    (interactive)
-    (let ((eshell-buf (get-buffer "*eshell*")))
-      (cond
-       ;; Already in eshell window → close it
-       ((string= (buffer-name) "*eshell*")
-	(delete-window))
-       ;; Eshell open somewhere else → jump to it
-       ((and eshell-buf (get-buffer-window eshell-buf))
-	(select-window (get-buffer-window eshell-buf)))
-       ;; Eshell buffer exists but not visible → show it in a split
-       (eshell-buf
-	(split-window-vertically -15)
-	(other-window 1)
-	(switch-to-buffer eshell-buf))
-       ;; No eshell buffer yet → create one
-       (t
-	(split-window-vertically -15)
-	(other-window 1)
-	(eshell)))))
-
   :bind
-  (("C-c T" . taomacs-toggle-eshell))
+  (("C-c t" . eshell))
 
   :hook
   ((eshell-mode . taomacs-setup-eshell)))
@@ -696,9 +674,8 @@ Overwrites any previously saved session without asking."
   (keymap-set ghostel-readonly-mode-map "C-w" #'taomacs-ghostel-copy-stay)
 
   :bind
-  (("C-c t" . ghostel)                  ; terminal, next to C-c T (eshell)
-   :map project-prefix-map
-   ("t" . ghostel-project)))            ; C-x p t: terminal in the current project
+  (:map project-prefix-map
+	("t" . ghostel-project)))       ; C-x p t: terminal in the current project
 
 ;;; Development tools
 
