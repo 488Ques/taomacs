@@ -1,8 +1,22 @@
 ;;; init.el --- Emacs configuration -*- lexical-binding: t -*-
 
-;; Enable MELPA
-(with-eval-after-load 'package
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
+;; Use the official package archives.
+(require 'package)
+(setq package-archives
+      '(("gnu" . "https://elpa.gnu.org/packages/")
+	("nongnu" . "https://elpa.nongnu.org/nongnu/")
+	("melpa" . "https://melpa.org/packages/")))
+
+;; A partial cache (e.g. MELPA only) cannot resolve GNU/NonGNU dependencies.
+;; Refresh on first use of an archive, not on every startup.
+(unless (seq-every-p
+	 (lambda (archive)
+	   (file-exists-p
+	    (expand-file-name
+	     (concat "archives/" (car archive) "/archive-contents")
+	     package-user-dir)))
+	 package-archives)
+  (package-refresh-contents))
 
 ;;; Editor defaults
 
@@ -212,8 +226,12 @@ If the new path's directories does not exist, create them."
   "Check if FONT exists."
   (and (display-graphic-p) (not (null (x-list-fonts font)))))
 
-(when (taomacs-font-exists-p "IBM Plex Mono")
-  (set-face-attribute 'default nil :family "IBM Plex Mono" :height 140))
+(when (taomacs-font-exists-p "Iosevka")
+  (set-face-attribute 'default nil :family "Iosevka" :height 150)
+  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 150))
+
+(when (taomacs-font-exists-p "Iosevka Etoile")
+  (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 150))
 
 ;; Keep private-use glyph fallback for plain terminal output (e.g. an
 ;; oh-my-pi prompt inside Ghostel), independently of Emacs UI icons.
@@ -265,9 +283,8 @@ If the new path's directories does not exist, create them."
   :custom
   ;; Also keep `C-x <left>'/`C-x <right>' and `other-buffer' within the tab.
   (bufferlo-prefer-local-buffers 'tabs)
-  :init
-  (bufferlo-mode)
   :config
+  (bufferlo-mode 1)
   (with-eval-after-load 'consult
     (setq consult-buffer-list-function #'bufferlo-local-buffers))
   (defvar-keymap taomacs-bufferlo-keymap
@@ -345,12 +362,13 @@ If the new path's directories does not exist, create them."
   (corfu-popupinfo-delay '(0.25 . 0.1))
   (corfu-popupinfo-hide nil))
 
-;; Make corfu popup come up in terminal overlay
-(use-package corfu-terminal
-  :if (not (display-graphic-p))
-  :ensure t
-  :config
-  (corfu-terminal-mode))
+;; Emacs 31 supports terminal child frames natively; older Emacs needs overlays.
+(unless (featurep 'tty-child-frames)
+  (use-package corfu-terminal
+    :if (not (display-graphic-p))
+    :ensure t
+    :config
+    (corfu-terminal-mode)))
 
 ;; Extra completion-at-point sources, autoloaded when completion requests them.
 (use-package cape
@@ -677,6 +695,13 @@ Overwrites any previously saved session without asking."
   (with-eval-after-load 'project
     (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t))
 
+  ;; Full-screen programs need a terminal emulator, not Eshell's output buffer.
+  (with-eval-after-load 'em-term
+    (add-to-list 'eshell-visual-commands "omp"))
+
+  :hook
+  (eshell-load . ghostel-eshell-visual-command-mode)
+
   :config
   ;; `M-w' / `C-w' in copy mode run `ghostel-readonly-copy', which copies and
   ;; then exits read-only mode whenever `ghostel-readonly-fast-exit' is on
@@ -759,19 +784,6 @@ Overwrites any previously saved session without asking."
     (when (treesit-ready-p (car assoc) t)
       (add-to-list 'auto-mode-alist (cdr assoc)))))
 
-;; Copy environment variables into Emacs
-(use-package exec-path-from-shell
-  :ensure t
-  :if (display-graphic-p)
-  :config
-  (add-to-list 'exec-path-from-shell-variables "SSH_AUTH_SOCK")
-  (exec-path-from-shell-initialize))
-
-(use-package mise
-  :ensure t
-  :hook
-  (after-init . global-mise-mode))
-
 ;; Markdown-mode leaves a mouse binding on Eglot's rendered links, but Eglot
 ;; removes the Markdown syntax that binding needs to find the URL.
 (defun taomacs-eldoc-buttonize-markdown-links (&rest _)
@@ -851,12 +863,23 @@ Overwrites any previously saved session without asking."
      ("n" "Note" entry (file+headline org-default-notes-file "Notes")
       "* %?\nCreated at: %U")))
   :hook
+  (org-mode . variable-pitch-mode)
+  (org-mode . visual-line-mode)
   ;; Keep manual completion available without automatic popups in Org buffers.
   (org-mode . (lambda () (setq-local corfu-auto nil)))
   :bind
   (("C-c o a" . org-agenda)
    ("C-c o c" . org-capture)
-   ("C-c o l" . org-store-link)))
+   ("C-c o l" . org-store-link))
+  :config
+  ;; Keep aligned content monospaced when prose uses variable-pitch.
+  (dolist (face '(org-code org-verbatim org-block org-table org-formula
+			   org-checkbox org-meta-line org-block-begin-line
+			   org-block-end-line))
+    (set-face-attribute face nil :inherit 'fixed-pitch))
+  ;; Org's virtual indentation must remain hidden as well as monospaced.
+  (with-eval-after-load 'org-indent
+    (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))))
 
 ;;; Languages
 

@@ -15,16 +15,32 @@ and =use-package=. Shared settings are grouped by topic in
   NonGNU ELPA, and MELPA.
 - *Git*, for Magit.
 
+On macOS, GUI Emacs uses [[https://github.com/d12frosted/homebrew-emacs-plus#injected-path][Emacs Plus PATH injection]], not a shell-import
+package. This requires the *formula* (=emacs-plus@31=), not the
+=emacs-plus-app= cask. The formula enables =inject_path= by default and
+captures the installing shell's PATH for =Emacs.app= launches.
+
+After changing shell PATH directories, run this from a normal shell:
+
+#+begin_src sh
+brew reinstall d12frosted/emacs-plus/emacs-plus@31 --with-xwidgets --with-mailutils
+#+end_src
+
+Launch =/Applications/Emacs.app= (linked to
+=/opt/homebrew/opt/emacs-plus@31/Emacs.app=), then recreate Eshell buffers.
+=M-: (bound-and-true-p ns-emacs-plus-injected-path)= should return =t=.
+The formula's =site-start.el= sets both =PATH= and =exec-path=; =-Q= skips
+that initialization.
+
 Recommended external tools (features degrade gracefully without them):
 
 | Tool                 | Used by                   | Notes                          |
 |----------------------+---------------------------+--------------------------------|
 | =ripgrep= (=rg=)         | =consult-ripgrep= (=M-s r=)   | Fast project search            |
-| A Nerd Font          | Ghostel prompt glyphs    | Optional terminal font fallback |
+| Symbols Nerd Font Mono | Ghostel prompt glyphs | Required for Nerd Font icons |
 | Tree-sitter grammars | =*-ts-mode= major modes     | Install via command below      |
 | =gls= (GNU coreutils)  | Dired listing on macOS    | =brew install coreutils=         |
 | =sbcl=                 | SLIME (Common Lisp)       |                                |
-| =mise=                 | =global-mise-mode=          | Per-project tool versions      |
 | Language servers     | =eglot=                     | Install per language as needed |
 
 Go buffers in =go-ts-mode= use =gopls= through Eglot to organize imports and
@@ -68,6 +84,15 @@ Then launch Emacs. The first start will download and install every
 =:ensure t= package automatically — this takes a minute or two. Once it
 settles, install the tree-sitter grammars below.
 
+Packages come from the official GNU ELPA, NonGNU ELPA, and MELPA servers.
+If archive downloads fail with connection resets, check VPN connectivity.
+Missing archive indexes are refreshed before package installation, including
+when only part of the archive cache exists. To update existing indexes, run
+=M-x package-refresh-contents=.
+
+On Emacs 31 with native terminal child frames, Corfu needs no
+=corfu-terminal= package; Emacs 30 still installs and enables it in terminals.
+
 ** One-time setup
 
 Install tree-sitter grammars for the languages you edit. The
@@ -81,6 +106,27 @@ Install tree-sitter grammars for the languages you edit. The
    Sources for the configured languages are listed in
    =treesit-language-source-alist=. Restart Emacs after installing a grammar
    so the startup-only mode remapping picks it up.
+
+** Fonts
+
+GUI frames use =Iosevka= at 15 pt for programming and =Iosevka Etoile= at
+15 pt for Org prose, when installed. Org enables variable-pitch text and
+visual line wrapping; code, tables, metadata, and hidden indentation stay
+monospaced. Restart Emacs after installing the fonts.
+
+** Ghostel prompt icons
+
+The terminal font fallback in =init.el= uses =Symbols Nerd Font Mono= for
+Nerd Font icons, including supplementary-plane glyphs. On macOS, install it:
+
+#+begin_src sh
+brew install --cask font-symbols-only-nerd-font
+#+end_src
+
+Restart Emacs after installation: font availability is checked at startup.
+Missing fonts appear as boxes containing hexadecimal character codes.
+Ghostty's bundled fonts are not automatically available to Emacs.
+
 
 * Portability notes
 
@@ -201,6 +247,16 @@ from a tab's list never kills it.
 | =C-c o a= | =org-agenda=     |
 | =C-c o c= | =org-capture=    |
 | =C-c o l= | =org-store-link= |
+
+Eshell is not a terminal emulator. Running =omp= there opens a dedicated
+Ghostel buffer in the same working directory, with arguments preserved.
+Other Eshell visual commands (such as =top= and =less=) also use Ghostel
+instead of =term-mode=. For an unlisted interactive program, use
+=ghostel PROGRAM ARGS...= at the Eshell prompt.
+
+After restarting Emacs, open Eshell with =C-c T= and run =omp= normally.
+Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
+Alternatively, open a shell directly in Ghostel with =C-c t=.
 
 ** Sessions
 
