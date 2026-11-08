@@ -219,23 +219,10 @@ including Eglot suggestions in buffers connected to a language server.
 Automatic popups are disabled in Org buffers; =TAB= still completes on demand.
 Elsewhere the popup appears after a short pause.
 
-** Buffers (bufferlo)
+** Buffers
 
-Each frame and tab keeps its own buffer list: the buffers displayed in it.
-=C-x b= offers only those; type =< o= to narrow to buffers from other tabs.
-=C-x <left>= / =C-x <right>= also stay within the tab.  Removing a buffer
-from a tab's list never kills it.
-
-| Key       | Command                                     |
-|-----------+---------------------------------------------|
-| =C-c b i= | ibuffer of this tab's buffers               |
-| =C-c b o= | ibuffer of buffers in no tab's list         |
-| =C-c b f= | Jump to the tab holding a buffer            |
-| =C-c b r= | Remove a buffer from this tab's list        |
-| =C-c b c= | Clear this tab's list (keep current buffer) |
-| =C-c b p= | Keep only the current project's buffers     |
-| =C-c b k= | Kill this tab's buffers                     |
-| =C-c b K= | Close the tab and kill its buffers          |
+=C-x b= uses =consult-buffer= across all tabs and frames.
+=C-x <left>= / =C-x <right>= cycle buffers without tab-local filtering.
 
 ** Tools
 
