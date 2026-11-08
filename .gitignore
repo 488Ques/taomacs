@@ -25,6 +25,7 @@
 /projects
 /projects.eld
 /network-security.data
+/persist/
 
 # Org-mode generated files
 /org-persist/

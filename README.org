@@ -249,13 +249,39 @@ Alternatively, open a shell directly with =M-x ghostel=.
 
 ** Sessions
 
+*** Named tab layouts (Activities)
+
+Arrange windows and file buffers in a tab, then press =C-c s d= and give
+the activity a name. Activities keeps both that default layout and the
+last-used state, saving automatically on idle and exit under =persist/=
+(git-ignored). After restarting Emacs, resume an activity explicitly;
+saved tabs are not automatically opened at startup.
+
+| Key           | Command                                      |
+|---------------+----------------------------------------------|
+| =C-c s n=     | Create a new activity in a new tab            |
+| =C-c s d=     | Define the current tab as a named activity    |
+| =C-u C-c s d= | Replace an existing activity's default layout |
+| =C-c s a=     | Resume an activity's last-used layout         |
+| =C-c s p=     | Save and suspend an activity (close its tab)  |
+| =C-c s g=     | Revert the current activity to its default    |
+| =C-c s l=     | List and manage activities                    |
+| =C-c s RET=   | Switch to an already-active activity          |
+
+Buffers remain shared: =C-x b= lists buffers globally, and suspending an
+activity does not kill its buffers. Restoring buffers depends on the
+major mode's bookmark support; arbitrary unsaved contents and running
+terminal/REPL processes are not preserved across Emacs restarts.
+
+*** Whole-session snapshots (Desktop)
+
 | Key     | Command                                       |
 |---------+-----------------------------------------------|
 | =C-c s s= | Save the session (buffers, windows, frames)   |
 | =C-c s r= | Restore the saved session                     |
 
-Sessions are entirely manual: =desktop-save-mode= is never enabled, so Emacs
-neither asks to save on exit nor restores anything at startup.  =C-c s s=
+Desktop snapshots remain entirely manual: =desktop-save-mode= is never
+enabled, so there is no exit save prompt or automatic startup restore. =C-c s s=
 overwrites =desktop/.emacs.desktop= (git-ignored) without asking, =C-c s r=
 reads it back into the running Emacs.  The desktop lock file is released
 right away, so a session never gets tied to one Emacs process.

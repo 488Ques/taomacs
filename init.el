@@ -485,9 +485,8 @@ narrowing and point afterward so the cursor does not jump."
 
 ;;; Sessions
 
-;; Sessions (buffers, window and frame layout) are saved and restored only
-;; when asked for: `desktop-save-mode' stays off, so there is no save-on-exit
-;; prompt, no autosave timer, and nothing is restored at startup.
+;; Whole-session Desktop snapshots remain manual: `desktop-save-mode'
+;; stays off, with no save-on-exit prompt, autosave, or startup restore.
 ;;
 ;;   C-c s s   save the current session, overwriting the previous one
 ;;   C-c s r   restore the saved session
@@ -560,6 +559,24 @@ Overwrites any previously saved session without asking."
   "r" #'taomacs-session-restore)
 
 (keymap-global-set "C-c s" taomacs-session-keymap)
+
+;; Named tab layouts persist independently of the manual Desktop snapshot.
+;; Buffer switching stays global; suspending an activity leaves buffers alive.
+(use-package activities
+  :ensure t
+  :demand t
+  :bind
+  (:map taomacs-session-keymap
+        ("n" . activities-new)
+        ("d" . activities-define)
+        ("a" . activities-resume)
+        ("p" . activities-suspend)
+        ("g" . activities-revert)
+        ("l" . activities-list)
+        ("RET" . activities-switch))
+  :config
+  (activities-mode 1)
+  (activities-tabs-mode 1))
 
 ;;; Files and Dired
 
