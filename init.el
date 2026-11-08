@@ -643,10 +643,36 @@ Overwrites any previously saved session without asking."
 ;; eshell
 (use-package eshell
   :init
+  (defvar eshell-buffer-name)
+
+  (defun taomacs-eshell-bookmark-make-record ()
+    "Bookmark this Eshell's buffer identity and working directory."
+    `(,(buffer-name)
+      (buffer-name . ,(buffer-name))
+      (location . ,default-directory)
+      (handler . taomacs-eshell-bookmark-jump)))
+
+  (defun taomacs-eshell-bookmark-jump (bookmark)
+    "Reuse the bookmarked Eshell, or create it in its saved directory."
+    (require 'eshell)
+    (let* ((eshell-buffer-name (bookmark-prop-get bookmark 'buffer-name))
+           (default-directory (bookmark-prop-get bookmark 'location))
+           (existing (get-buffer eshell-buffer-name)))
+      (when (and existing
+                 (not (with-current-buffer existing
+                        (derived-mode-p 'eshell-mode))))
+        (user-error "Buffer %s exists but is not an Eshell" eshell-buffer-name))
+      (eshell)))
+
+  (put 'taomacs-eshell-bookmark-jump 'bookmark-handler-type "Eshell")
+
   (defun taomacs-setup-eshell ()
     ;; Something funny is going on with how Eshell sets up its keymaps; this is
     ;; a work-around to make C-r bound in the keymap
-    (keymap-set eshell-mode-map "C-r" 'consult-history))
+    (keymap-set eshell-mode-map "C-r" 'consult-history)
+    ;; The built-in bookmark handler merges all restored shells into *eshell*.
+    (setq-local bookmark-make-record-function
+                #'taomacs-eshell-bookmark-make-record))
 
   :bind
   (("C-c t" . eshell))

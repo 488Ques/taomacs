@@ -273,6 +273,18 @@ activity does not kill its buffers. Restoring buffers depends on the
 major mode's bookmark support; arbitrary unsaved contents and running
 terminal/REPL processes are not preserved across Emacs restarts.
 
+Eshell bookmarks preserve each buffer's name and working directory, so
+multiple displayed Eshells restore as separate shells, even when they
+share a directory. Existing shells are reused by name without changing
+their current directories; missing shells start fresh in their saved
+directories, without old output, shell variables, or running commands.
+A name occupied by a non-Eshell buffer raises an error instead of
+converting that buffer into a shell.
+
+For activities saved with the old Eshell bookmarks, restart Emacs,
+recreate and arrange the separate shells (=C-u C-c t= creates another
+Eshell), then use =C-u C-c s d= to replace the activity's default state.
+
 *** Whole-session snapshots (Desktop)
 
 | Key     | Command                                       |
