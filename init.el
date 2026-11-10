@@ -686,9 +686,6 @@ Overwrites any previously saved session without asking."
     (setq-local bookmark-make-record-function
 		#'taomacs-eshell-bookmark-make-record))
 
-  :bind
-  (("C-c t" . eshell))
-
   :hook
   ((eshell-mode . taomacs-setup-eshell)))
 
@@ -729,8 +726,9 @@ Overwrites any previously saved session without asking."
   (keymap-set ghostel-readonly-mode-map "C-w" #'taomacs-ghostel-copy-stay)
 
   :bind
-  (:map project-prefix-map
-	("t" . ghostel-project)))       ; C-x p t: terminal in the current project
+  (("C-c t" . ghostel)                 ; C-u C-c t: another terminal
+   :map project-prefix-map
+   ("t" . ghostel-project)))           ; C-x p t: terminal in the current project
 
 ;;; Development tools
 
