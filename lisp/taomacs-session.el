@@ -8,7 +8,7 @@
 ;; Switching saves the active session, kills its buffers (`desktop-clear'),
 ;; and restores the other session's buffers, frames, tabs, and windows.
 ;; Ghostel restores its terminals through its own desktop handler; this
-;; file adds one for Eshell.
+;; file adds handlers for Eshell and Magit status buffers.
 
 ;;; Code:
 
@@ -59,10 +59,24 @@ EXISTING non-nil requires the name of a saved session."
   (desktop-save-mode -1)
   (setq desktop-dirname nil))
 
+(defun taomacs-session--checkpoint (dir)
+  "Return the checkpoint file of the session in DIR.
+It is a copy of the desktop file taken by `taomacs-session-save', which
+auto-saves never touch."
+  (concat (desktop-full-file-name dir) ".checkpoint"))
+
+(defun taomacs-session--restore (dir)
+  "Load the session in DIR and auto-save it if that succeeded."
+  (desktop-read dir)
+  ;; `desktop-read' clears `desktop-dirname' when the session is locked by
+  ;; another Emacs and loading it anyway is declined.
+  (desktop-save-mode (if desktop-dirname 1 -1)))
+
 (defun taomacs-session-save (name)
   "Save frames, tabs, windows, and buffers as session NAME and activate it.
-Interactively, save the active session; with a prefix argument, or
-when no session is active, read NAME."
+Also record the saved state as the checkpoint `taomacs-session-revert'
+restores.  Interactively, save the active session; with a prefix
+argument, or when no session is active, read NAME."
   (interactive
    (list (or (and (not current-prefix-arg) (taomacs-session-current))
              (taomacs-session--read "Save session as: "))))
@@ -76,26 +90,59 @@ when no session is active, read NAME."
       ((error quit)
        (setq desktop-dirname old)
        (signal (car err) (cdr err))))
+    (copy-file (desktop-full-file-name dir) (taomacs-session--checkpoint dir) t)
     (when (and old (not (equal old dir)) (eql (desktop-owner old) (emacs-pid)))
       (desktop-release-lock old))
     (desktop-save-mode 1)
     (message "Session %s saved" name)))
 
-(defun taomacs-session-switch (name)
-  "Save and close the active session, then restore session NAME.
-Closing kills every buffer not matched by `desktop-clear-preserve-buffers',
+(defun taomacs-session--leave ()
+  "Save and detach the active session, then kill its buffers.
+Kills every buffer not matched by `desktop-clear-preserve-buffers',
 also when no session is active."
-  (interactive (list (taomacs-session--read "Switch to session: " t)))
-  (when (equal name (taomacs-session-current))
-    (user-error "Session %s is already active" name))
   (when (taomacs-session-current)
     (desktop-save desktop-dirname t))
   (taomacs-session--detach)
-  (desktop-clear)
-  (desktop-read (taomacs-session--dir name))
-  ;; `desktop-read' clears `desktop-dirname' when the session is locked by
-  ;; another Emacs and loading it anyway is declined.
-  (desktop-save-mode (if desktop-dirname 1 -1)))
+  (desktop-clear))
+
+(defun taomacs-session-switch (name)
+  "Save and close the active session, then restore session NAME.
+See `taomacs-session--leave' for which buffers closing kills."
+  (interactive (list (taomacs-session--read "Switch to session: " t)))
+  (when (equal name (taomacs-session-current))
+    (user-error "Session %s is already active" name))
+  (taomacs-session--leave)
+  (taomacs-session--restore (taomacs-session--dir name)))
+
+(defun taomacs-session-revert ()
+  "Restore the active session to its last `taomacs-session-save'.
+Kill its buffers without saving them and discard every change since,
+including later auto-saves."
+  (interactive)
+  (let* ((name (or (taomacs-session-current) (user-error "No active session")))
+         (dir desktop-dirname)
+         (checkpoint (taomacs-session--checkpoint dir)))
+    (unless (file-exists-p checkpoint)
+      (user-error "No checkpoint for session %s; save it first" name))
+    (unless (yes-or-no-p (format "Revert session %s to its last manual save? " name))
+      (user-error "Session %s kept" name))
+    (taomacs-session--detach)
+    (desktop-clear)
+    (copy-file checkpoint (desktop-full-file-name dir) t)
+    (taomacs-session--restore dir)
+    (message "Session %s reverted" name)))
+
+(defun taomacs-session-close ()
+  "Save and close the active session, leaving one frame and tab on *scratch*.
+See `taomacs-session--leave' for which buffers closing kills."
+  (interactive)
+  (let ((name (taomacs-session-current)))
+    (taomacs-session--leave)
+    (delete-other-frames)
+    (tab-bar-close-other-tabs)
+    (tab-bar-rename-tab "")             ; back to the automatic name
+    (switch-to-buffer (get-scratch-buffer-create))
+    (message (if name (format "Session %s closed" name) "Buffers closed"))))
 
 (defun taomacs-session-delete (name)
   "Delete the saved session NAME.
@@ -108,10 +155,25 @@ Deleting the active session keeps its buffers but stops saving them."
   (delete-directory (taomacs-session--dir name) t)
   (message "Session %s deleted" name))
 
-;;;; Eshell
+;;;; Frames
 
-(defun taomacs-session--eshell-save (_desktop-dirname)
-  "Return this Eshell buffer's directory as its desktop data."
+(defun taomacs-session--filter-position (current filtered parameters saving)
+  "Drop `left' and `top' of maximized frames; otherwise filter as frameset does.
+A maximized macOS frame can report its position from before it was
+maximized, and `frameset-restore' applies the saved position even to an
+already-maximized frame, moving it off its place.  Filtering on restore
+too covers sessions saved before this filter existed.  For CURRENT,
+FILTERED, PARAMETERS and SAVING see `frameset-filter-alist'."
+  (and (not (memq (cdr (assq 'fullscreen parameters)) '(maximized fullboth)))
+       (frameset-filter-shelve-param current filtered parameters saving)))
+
+(dolist (param '(left top))
+  (push (cons param #'taomacs-session--filter-position) frameset-filter-alist))
+
+;;;; Eshell and Magit status
+
+(defun taomacs-session--save-directory (_desktop-dirname)
+  "Return this buffer's directory as its desktop data."
   default-directory)
 
 (defun taomacs-session--eshell-restore (_file-name buffer-name misc)
@@ -125,10 +187,27 @@ Skip remote and missing directories, as Ghostel's handler does."
 
 (defun taomacs-session-setup-eshell ()
   "Include the current Eshell buffer in saved sessions."
-  (setq-local desktop-save-buffer #'taomacs-session--eshell-save))
+  (setq-local desktop-save-buffer #'taomacs-session--save-directory))
+
+(declare-function magit-status-setup-buffer "magit-status" (&optional directory))
+
+(defun taomacs-session--magit-restore (_file-name buffer-name misc)
+  "Restore Magit status buffer BUFFER-NAME for the repository in MISC.
+Leave windows alone: the session's layout is restored afterwards."
+  (if (and (stringp misc) (not (file-remote-p misc)) (file-directory-p misc))
+      (save-window-excursion
+        (magit-status-setup-buffer misc))
+    (message "Desktop: skipping %s; %s is unavailable" buffer-name misc)
+    nil))
+
+(defun taomacs-session-setup-magit ()
+  "Include the current Magit status buffer in saved sessions."
+  (setq-local desktop-save-buffer #'taomacs-session--save-directory))
 
 (add-to-list 'desktop-buffer-mode-handlers
              '(eshell-mode . taomacs-session--eshell-restore))
+(add-to-list 'desktop-buffer-mode-handlers
+             '(magit-status-mode . taomacs-session--magit-restore))
 
 (provide 'taomacs-session)
 ;;; taomacs-session.el ends here

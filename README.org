@@ -262,25 +262,35 @@ Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
 
 | Key       | Command                                     |
 |-----------+---------------------------------------------|
-| =C-c s s=   | Save the active session (=C-u=: under a new name) |
+| =C-c s s=   | Save the active session and its checkpoint (=C-u=: under a new name) |
 | =C-c s r=   | Switch to a saved session                   |
+| =C-c s v=   | Revert the active session to its last manual save |
+| =C-c s c=   | Close the active session, leaving =*scratch*=  |
 | =C-c s k=   | Delete a saved session                      |
 
 A session is a named, saved desktop (built-in =desktop.el=): its buffers,
-frames, tabs, window layouts, and the working directories of its Ghostel
-and Eshell buffers. Emacs starts with no active session. Saving without an
-active session asks for a name and makes that session active.
+frames, tabs, window layouts, the working directories of its Ghostel and
+Eshell buffers, and the repositories of its Magit status buffers (other
+Magit buffers are not saved). Emacs starts with no active session. Saving
+without an active session asks for a name and makes that session active.
 
 While a session is active it is saved automatically when Emacs is idle,
-when you switch away, and when you quit. Switching kills every buffer
-(except =*scratch*=, =*Messages*= and similar), even when no session is
-active, then restores the chosen session. Emacs still asks before killing
-unsaved files or terminals that are running a command. Terminals come back
-as fresh shells in their saved directories, without scrollback; Ghostel
-skips terminals that were running a program (such as =omp= launched from
-Eshell). Deleting the active session keeps its buffers open but stops
-saving them. Minibuffer and search history, registers, and the kill ring
-are shared by all sessions.
+when you switch away, when you close it, and when you quit. Switching or
+closing kills every buffer (except =*scratch*=, =*Messages*= and similar),
+even when no session is active; switching then restores the chosen session,
+while closing leaves a single frame and tab showing =*scratch*=. Emacs still
+asks before killing unsaved files or terminals that are running a command.
+Terminals come back as fresh shells in their saved directories, without
+scrollback; Ghostel skips terminals that were running a program (such as
+=omp= launched from Eshell). Deleting the active session keeps its buffers
+open but stops saving them. Minibuffer and search history, registers, and
+the kill ring are shared by all sessions.
+
+Saving with =C-c s s= also records a checkpoint; auto-saves never change it.
+=C-c s v= (after confirmation) kills the session's buffers without saving and
+restores the checkpoint, discarding everything since that manual save,
+including auto-saves. Like switching, it restarts terminals. Sessions saved
+before checkpoints existed need one =C-c s s= before they can be reverted.
 
 Sessions are stored per machine in =sessions/NAME/= (git-ignored).
 

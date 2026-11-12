@@ -628,9 +628,12 @@ narrowing and point afterward so the cursor does not jump."
 
 (use-package taomacs-session
   :load-path "lisp"
-  :hook (eshell-mode . taomacs-session-setup-eshell)
+  :hook ((eshell-mode . taomacs-session-setup-eshell)
+         (magit-status-mode . taomacs-session-setup-magit))
   :bind (("C-c s s" . taomacs-session-save)     ; C-u: save under another name
          ("C-c s r" . taomacs-session-switch)
+         ("C-c s v" . taomacs-session-revert)
+         ("C-c s c" . taomacs-session-close)
          ("C-c s k" . taomacs-session-delete)))
 
 ;;; Development tools
