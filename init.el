@@ -495,101 +495,6 @@ narrowing and point afterward so the cursor does not jump."
   ([remap describe-key] . helpful-key)
   ([remap describe-symbol] . helpful-symbol))
 
-;;; Sessions
-
-;; Whole-session Desktop snapshots remain manual: `desktop-save-mode'
-;; stays off, with no save-on-exit prompt, autosave, or startup restore.
-;;
-;;   C-c s s   save the current session, overwriting the previous one
-;;   C-c s r   restore the saved session
-
-;; `desktop' itself is loaded on first use, by the commands below.
-(declare-function desktop-release-lock "desktop" (&optional dirname))
-(declare-function desktop--get-file-modtime "desktop" ())
-
-(defconst taomacs-session-directory
-  (locate-user-emacs-file "desktop/")
-  "Directory holding the hand-saved desktop session.")
-
-(use-package desktop
-  :defer t
-  :custom
-  ;; Only ever look at our own session directory.
-  (desktop-dirname taomacs-session-directory)
-  (desktop-path (list taomacs-session-directory))
-  ;; No background autosave: the session file changes when I save it.
-  (desktop-auto-save-timeout nil)
-  ;; A lock left by a dead Emacs is not a conflict, so don't ask about it.
-  (desktop-load-locked-desktop 'check-pid)
-  ;; Restore everything eagerly (the `desktop-restore-eager' default).  Lazy
-  ;; restore keeps not-yet-created buffers in `desktop-buffer-args-list',
-  ;; which `desktop-save' does not serialize: saving before the idle timer
-  ;; drains that list would silently shrink the session to what is live.
-  ;; Files that moved or disappeared since the save are not worth a prompt.
-  (desktop-missing-file-warning nil)
-  ;; These reconstruct themselves from the repository, and restore badly.
-  (desktop-modes-not-to-save '(tags-table-mode
-			       magit-status-mode
-			       magit-diff-mode
-			       magit-revision-mode
-			       magit-process-mode)))
-
-(defun taomacs-session-file ()
-  "Return the file `taomacs-session-save' writes."
-  (require 'desktop)
-  (expand-file-name desktop-base-file-name taomacs-session-directory))
-
-(defun taomacs-session-save ()
-  "Save the current session to `taomacs-session-directory'.
-Overwrites any previously saved session without asking."
-  (interactive)
-  (require 'desktop)
-  (make-directory taomacs-session-directory t)
-  (setq desktop-dirname taomacs-session-directory)
-  ;; `desktop-save' asks before overwriting a file this Emacs did not load.
-  ;; An explicit save *is* the answer to that question, so tell the conflict
-  ;; detection what is currently on disk.
-  (when (file-exists-p (taomacs-session-file))
-    (desktop--get-file-modtime))
-  ;; RELEASE: nothing here relies on owning the session, and holding the lock
-  ;; would only leave a stale one behind on exit.
-  (desktop-save taomacs-session-directory t)
-  (message "Session saved: %s" (taomacs-session-file)))
-
-(defun taomacs-session-restore ()
-  "Restore the session saved by `taomacs-session-save'."
-  (interactive)
-  (unless (file-exists-p (taomacs-session-file))
-    (user-error "No saved session in %s" taomacs-session-directory))
-  (desktop-read taomacs-session-directory)
-  (desktop-release-lock taomacs-session-directory)
-  (message "Session restored: %s" (taomacs-session-file)))
-
-(defvar-keymap taomacs-session-keymap
-  :doc "Save and restore the desktop session by hand."
-  "s" #'taomacs-session-save
-  "r" #'taomacs-session-restore)
-
-(keymap-global-set "C-c s" taomacs-session-keymap)
-
-;; Named tab layouts persist independently of the manual Desktop snapshot.
-;; Buffer switching stays global; suspending an activity leaves buffers alive.
-(use-package activities
-  :ensure t
-  :demand t
-  :bind
-  (:map taomacs-session-keymap
-	("n" . activities-new)
-	("d" . activities-define)
-	("a" . activities-resume)
-	("p" . activities-suspend)
-	("g" . activities-revert)
-	("l" . activities-list)
-	("RET" . activities-switch))
-  :config
-  (activities-mode 1)
-  (activities-tabs-mode 1))
-
 ;;; Files and Dired
 
 ;; Dired: file manager
@@ -655,36 +560,10 @@ Overwrites any previously saved session without asking."
 ;; eshell
 (use-package eshell
   :init
-  (defvar eshell-buffer-name)
-
-  (defun taomacs-eshell-bookmark-make-record ()
-    "Bookmark this Eshell's buffer identity and working directory."
-    `(,(buffer-name)
-      (buffer-name . ,(buffer-name))
-      (location . ,default-directory)
-      (handler . taomacs-eshell-bookmark-jump)))
-
-  (defun taomacs-eshell-bookmark-jump (bookmark)
-    "Reuse the bookmarked Eshell, or create it in its saved directory."
-    (require 'eshell)
-    (let* ((eshell-buffer-name (bookmark-prop-get bookmark 'buffer-name))
-	   (default-directory (bookmark-prop-get bookmark 'location))
-	   (existing (get-buffer eshell-buffer-name)))
-      (when (and existing
-		 (not (with-current-buffer existing
-			(derived-mode-p 'eshell-mode))))
-	(user-error "Buffer %s exists but is not an Eshell" eshell-buffer-name))
-      (eshell)))
-
-  (put 'taomacs-eshell-bookmark-jump 'bookmark-handler-type "Eshell")
-
   (defun taomacs-setup-eshell ()
     ;; Something funny is going on with how Eshell sets up its keymaps; this is
     ;; a work-around to make C-r bound in the keymap
-    (keymap-set eshell-mode-map "C-r" 'consult-history)
-    ;; The built-in bookmark handler merges all restored shells into *eshell*.
-    (setq-local bookmark-make-record-function
-		#'taomacs-eshell-bookmark-make-record))
+    (keymap-set eshell-mode-map "C-r" 'consult-history))
 
   :hook
   ((eshell-mode . taomacs-setup-eshell)))

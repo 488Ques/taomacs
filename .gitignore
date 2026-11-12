@@ -26,7 +26,6 @@
 /projects
 /projects.eld
 /network-security.data
-/persist/
 
 # Org-mode generated files
 /org-persist/
@@ -49,6 +48,5 @@
 /docs/superpowers/
 /.superpowers/
 
-# Saved agent conversations and desktop sessions
+# Saved agent conversations
 /agent/
-/desktop/

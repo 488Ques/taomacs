@@ -199,6 +199,8 @@ Notable custom bindings (defaults are otherwise unchanged):
 | =C-c r= then h/l/j/k | Resize window (repeatable) |
 | =C-x o=              | =ace-window=                 |
 
+Exiting Emacs asks for confirmation even when all buffers are saved.
+
 ** Editing & navigation
 
 | Key           | Command                             |
@@ -255,67 +257,13 @@ instead of =term-mode=. For an unlisted interactive program, use
 
 Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
 
-** Sessions
-
-*** Named tab layouts (Activities)
-
-Arrange windows and file buffers in a tab, then press =C-c s d= and give
-the activity a name. Activities keeps both that default layout and the
-last-used state, saving automatically on idle and exit under =persist/=
-(git-ignored). After restarting Emacs, resume an activity explicitly;
-saved tabs are not automatically opened at startup.
-
-| Key           | Command                                      |
-|---------------+----------------------------------------------|
-| =C-c s n=     | Create a new activity in a new tab            |
-| =C-c s d=     | Define the current tab as a named activity    |
-| =C-u C-c s d= | Replace an existing activity's default layout |
-| =C-c s a=     | Resume an activity's last-used layout         |
-| =C-c s p=     | Save and suspend an activity (close its tab)  |
-| =C-c s g=     | Revert the current activity to its default    |
-| =C-c s l=     | List and manage activities                    |
-| =C-c s RET=   | Switch to an already-active activity          |
-
-Buffers remain shared: =C-x b= lists buffers globally, and suspending an
-activity does not kill its buffers. Restoring buffers depends on the
-major mode's bookmark support; arbitrary unsaved contents and running
-terminal/REPL processes are not preserved across Emacs restarts.
-
-Eshell bookmarks preserve each buffer's name and working directory, so
-multiple displayed Eshells restore as separate shells, even when they
-share a directory. Existing shells are reused by name without changing
-their current directories; missing shells start fresh in their saved
-directories, without old output, shell variables, or running commands.
-A name occupied by a non-Eshell buffer raises an error instead of
-converting that buffer into a shell.
-
-For activities saved with the old Eshell bookmarks, restart Emacs,
-recreate and arrange the separate shells (=C-u M-x eshell= creates another
-Eshell), then use =C-u C-c s d= to replace the activity's default state.
-
-*** Whole-session snapshots (Desktop)
-
-| Key     | Command                                       |
-|---------+-----------------------------------------------|
-| =C-c s s= | Save the session (buffers, windows, frames)   |
-| =C-c s r= | Restore the saved session                     |
-
-Desktop snapshots remain entirely manual: =desktop-save-mode= is never
-enabled, so there is no exit save prompt or automatic startup restore. =C-c s s=
-overwrites =desktop/.emacs.desktop= (git-ignored) without asking, =C-c s r=
-reads it back into the running Emacs.  The desktop lock file is released
-right away, so a session never gets tied to one Emacs process.
-
-Exiting Emacs asks for confirmation even when all buffers are saved. This is
-separate from the optional session save above.
-
 * Startup and maintenance
 
 Optional tools load on first use: Avy, Embark/Consult integration, Eglot,
 SLIME, wgrep, sudo-edit, Markdown, and the JSON/YAML fallback modes.
-Orderless and Cape load through their completion autoloads; desktop loads
-when a session command is invoked. Their commands, bindings, and file
-associations remain available without loading the implementations at startup.
+Orderless and Cape load through their completion autoloads. Their commands,
+bindings, and file associations remain available without loading the
+implementations at startup.
 Clojure's existing startup setup is retained because loading its tree-sitter
 package also registers mode remappings and CIDER integration.
 
