@@ -609,6 +609,30 @@ narrowing and point afterward so the cursor does not jump."
    :map project-prefix-map
    ("t" . ghostel-project)))           ; C-x p t: terminal in the current project
 
+;;; Sessions
+
+;; Named desktop.el sessions, one active at a time: buffers, frames, tabs,
+;; window layouts, and Ghostel/Eshell directories.  Commands live in
+;; lisp/taomacs-session.el; sessions are saved under sessions/NAME/.
+(use-package desktop
+  :defer t
+  :custom
+  ;; Save the active session without asking.  With no active session
+  ;; `desktop-save-mode' is off, so nothing is saved.
+  (desktop-save t)
+  ;; Histories, registers, and the kill ring stay global across sessions;
+  ;; savehist persists the minibuffer histories.
+  (desktop-globals-to-save '(desktop-missing-file-warning
+                             tags-file-name tags-table-list))
+  (desktop-globals-to-clear nil))
+
+(use-package taomacs-session
+  :load-path "lisp"
+  :hook (eshell-mode . taomacs-session-setup-eshell)
+  :bind (("C-c s s" . taomacs-session-save)     ; C-u: save under another name
+         ("C-c s r" . taomacs-session-switch)
+         ("C-c s k" . taomacs-session-delete)))
+
 ;;; Development tools
 
 ;; Modify search results en masse

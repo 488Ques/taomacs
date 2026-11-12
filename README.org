@@ -175,6 +175,7 @@ text scaling (=C-x C-+= / =C-x C--=) remains available.
 | [[file:early-init.el][=early-init.el=]] | Settings that must run before normal initialization |
 | [[file:init.el][=init.el=]]       | All shared settings, grouped by topic               |
 | =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
+| [[file:lisp/][=lisp/=]]         | Elisp libraries loaded by =init.el=                   |
 | =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
 | [[file:snippets/][=snippets/=]]     | YASnippet snippets                                  |
 | [[file:templates/][=templates/=]]    | =autoinsert= file templates                           |
@@ -256,6 +257,32 @@ instead of =term-mode=. For an unlisted interactive program, use
 =ghostel PROGRAM ARGS...= at the Eshell prompt.
 
 Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
+
+** Sessions
+
+| Key       | Command                                     |
+|-----------+---------------------------------------------|
+| =C-c s s=   | Save the active session (=C-u=: under a new name) |
+| =C-c s r=   | Switch to a saved session                   |
+| =C-c s k=   | Delete a saved session                      |
+
+A session is a named, saved desktop (built-in =desktop.el=): its buffers,
+frames, tabs, window layouts, and the working directories of its Ghostel
+and Eshell buffers. Emacs starts with no active session. Saving without an
+active session asks for a name and makes that session active.
+
+While a session is active it is saved automatically when Emacs is idle,
+when you switch away, and when you quit. Switching kills every buffer
+(except =*scratch*=, =*Messages*= and similar), even when no session is
+active, then restores the chosen session. Emacs still asks before killing
+unsaved files or terminals that are running a command. Terminals come back
+as fresh shells in their saved directories, without scrollback; Ghostel
+skips terminals that were running a program (such as =omp= launched from
+Eshell). Deleting the active session keeps its buffers open but stops
+saving them. Minibuffer and search history, registers, and the kill ring
+are shared by all sessions.
+
+Sessions are stored per machine in =sessions/NAME/= (git-ignored).
 
 * Startup and maintenance
 
