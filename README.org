@@ -9,27 +9,33 @@ and =use-package=. Shared settings are grouped by topic in
 * Requirements
 
 - *GNU Emacs 30.1+* — the config uses =setopt=, the built-in =which-key=,
-  tree-sitter, and =modus-operandi-tinted=. Developed against Emacs 30.2.
+  tree-sitter, and =modus-operandi-tinted=. Verified with Emacs 31.1.
 - *Network access* on first launch, to download packages from GNU ELPA,
   NonGNU ELPA, and MELPA.
 - *Git*, for Magit.
 
-On macOS, GUI Emacs uses [[https://github.com/d12frosted/homebrew-emacs-plus#injected-path][Emacs Plus PATH injection]], not a shell-import
-package. This requires the *formula* (=emacs-plus@31=), not the
-=emacs-plus-app= cask. The formula enables =inject_path= by default and
-captures the installing shell's PATH for =Emacs.app= launches.
+GUI and daemon sessions use [[https://github.com/purcell/exec-path-from-shell][exec-path-from-shell]] at startup to import
+=PATH= and =MANPATH= from the shell and update =exec-path=. Terminal sessions
+keep their inherited environment. After changing shell PATH directories,
+restart Emacs; no rebuild is needed. This works independently of Emacs Plus.
 
-After changing shell PATH directories, run this from a normal shell:
+[[https://github.com/eki3z/mise.el][mise.el]] enables =global-mise-mode= after initialization, applying mise tool
+paths and environment variables per buffer. Install [[https://mise.jdx.dev/][mise]] and ensure the shell
+can find it, then run =mise install= in each project. Trust project configs
+only when you trust their contents. The current mise.el enables mise's
+=experimental= setting when needed.
 
-#+begin_src sh
-brew reinstall d12frosted/emacs-plus/emacs-plus@31 --with-xwidgets --with-mailutils
-#+end_src
+After editing mise configuration, use =M-x mise-update-dir= to refresh project
+buffers (=C-u M-x mise-update-dir= refreshes all managed buffers). Reconnect
+existing language servers with =M-x eglot-reconnect= so their processes inherit
+the updated environment. Eshell environments update when changing directories.
 
-Launch =/Applications/Emacs.app= (linked to
-=/opt/homebrew/opt/emacs-plus@31/Emacs.app=), then recreate Eshell buffers.
-=M-: (bound-and-true-p ns-emacs-plus-injected-path)= should return =t=.
-The formula's =site-start.el= sets both =PATH= and =exec-path=; =-Q= skips
-that initialization.
+On macOS, use the stable [[https://github.com/d12frosted/homebrew-emacs-plus][Emacs Plus cask]] (=emacs-plus-app=). It includes
+xwidgets, mailutils, tree-sitter, and native compilation. The cask manages its
+native-compilation environment and installs =gcc= / =libgccjit= as dependencies;
+no custom =LIBRARY_PATH= setup is needed here. It does not capture the user's
+PATH, so =exec-path-from-shell= supplies it at startup. No =inject_path= build
+configuration is needed.
 
 Recommended external tools (features degrade gracefully without them):
 
@@ -72,6 +78,24 @@ documentation. Rendered inline Markdown links in that buffer are buttons:
 use =RET= or mouse-2 to open their URLs.
 
 * Installation
+
+On macOS (Apple Silicon, macOS 15+), install the stable prebuilt cask:
+
+#+begin_src sh
+brew trust d12frosted/emacs-plus
+brew tap d12frosted/emacs-plus
+brew install --cask d12frosted/emacs-plus/emacs-plus-app
+#+end_src
+
+Launch =/Applications/Emacs.app=. The cask also installs the =emacs= and
+=emacsclient= commands. Upgrade without compiling Emacs:
+
+#+begin_src sh
+brew upgrade --cask emacs-plus-app
+#+end_src
+
+Do not keep an =emacs-plus@N= formula installed alongside the cask: their
+command-line links conflict.
 
 On a fresh machine:
 
@@ -141,10 +165,9 @@ Ghostty's bundled fonts are not automatically available to Emacs.
 
 * Portability notes
 
-- *macOS-specific code is guarded.* Native-compilation library-path setup
-  (Homebrew =gcc=/=libgccjit=) and the =gls= Dired tweak only run when
-  =system-type= is =darwin=, so the config also runs on Linux — you simply
-  lose those Mac-only niceties.
+- *macOS-specific code is guarded.* The =gls= Dired tweak runs only when
+  =system-type= is =darwin=. On Linux, use the system's Emacs package;
+  the Emacs Plus cask handles macOS native-compilation setup outside this config.
 - *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
   otherwise the default face is used.
 - *Doom Modeline provides the mode line.* Dired, minibuffer completion, and

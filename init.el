@@ -18,6 +18,21 @@
 	 package-archives)
   (package-refresh-contents))
 
+;;; External tool environments
+
+;; Refresh the base environment on GUI/daemon startup, independent of Emacs Plus.
+(use-package exec-path-from-shell
+  :ensure t
+  :if (or (memq window-system '(mac ns x pgtk)) (daemonp))
+  :demand t
+  :config
+  (exec-path-from-shell-initialize))
+
+;; Apply project-specific tools and variables after the base environment is ready.
+(use-package mise
+  :ensure t
+  :hook (after-init . global-mise-mode))
+
 ;;; Editor defaults
 
 ;; Core configuration
