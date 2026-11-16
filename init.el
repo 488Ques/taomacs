@@ -463,17 +463,18 @@
   :hook
   (eshell-load . ghostel-eshell-visual-command-mode)
 
-  :config
-  (use-package taomacs-ghostel
-    :load-path "lisp"
-    :demand t)
-  (keymap-set ghostel-readonly-mode-map "M-w" #'taomacs-ghostel-copy-stay)
-  (keymap-set ghostel-readonly-mode-map "C-w" #'taomacs-ghostel-copy-stay)
-
   :bind
   (("C-c t" . ghostel)                 ; C-u C-c t: another terminal
    :map project-prefix-map
    ("t" . ghostel-project)))           ; C-x p t: terminal in the current project
+
+(use-package taomacs-ghostel
+  :load-path "lisp"
+  :after ghostel
+  :demand t
+  :bind (:map ghostel-readonly-mode-map
+	      ("M-w" . taomacs-ghostel-copy-stay)
+	      ("C-w" . taomacs-ghostel-copy-stay)))
 
 ;;; Sessions
 

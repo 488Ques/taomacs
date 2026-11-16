@@ -247,7 +247,8 @@ Libraries are grouped by responsibility:
 - =taomacs-window.el=: previous-window navigation.
 - =taomacs-fonts.el=: font availability checks.
 - =taomacs-avy.el=: Avy-to-Embark action.
-- =taomacs-ghostel.el=: copy without leaving terminal read-only mode.
+- =taomacs-ghostel.el=: copy without leaving terminal read-only mode;
+  loaded after Ghostel, with =M-w= and =C-w= bound in its read-only keymap.
 - =taomacs-eldoc.el=: followable rendered Markdown links.
 - =taomacs-go.el=: Go buffer setup, import organization, and formatting.
 - =taomacs-typescript.el=: Eglot server selection and configuration forwarding.
