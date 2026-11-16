@@ -2,9 +2,10 @@
 #+AUTHOR: tri.nguyen
 #+OPTIONS: toc:2 num:nil
 
-A single-file Emacs configuration built around the built-in =package.el=
-and =use-package=. Shared settings are grouped by topic in
-[[file:init.el][=init.el=]]; machine-specific state is kept out of version control.
+An Emacs configuration built around the built-in =package.el= and
+=use-package=. Shared settings, package declarations, bindings, and hooks
+live in [[file:init.el][=init.el=]]; commands, helpers, and compatibility code live in
+[[file:lisp/][=lisp/=]]. Machine-specific state is kept out of version control.
 
 * Requirements
 
@@ -235,14 +236,28 @@ text scaling (=C-x C-+= / =C-x C--=) remains available.
 | [[file:early-init.el][=early-init.el=]] | Settings that must run before normal initialization |
 | [[file:init.el][=init.el=]]       | All shared settings, grouped by topic               |
 | =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
-| [[file:lisp/][=lisp/=]]         | Elisp libraries loaded by =init.el=                   |
+| [[file:lisp/][=lisp/=]]         | Commands, helpers, and compatibility integrations   |
 | =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
+
+Libraries are grouped by responsibility:
+
+- =taomacs-bootstrap.el=: package archive cache checks and refresh.
+- =taomacs-files.el=: backup paths and opening the configuration.
+- =taomacs-editing.el=: smart line motion, backward deletion, and indentation.
+- =taomacs-window.el=: previous-window navigation.
+- =taomacs-fonts.el=: font availability checks.
+- =taomacs-avy.el=: Avy-to-Embark action.
+- =taomacs-ghostel.el=: copy without leaving terminal read-only mode.
+- =taomacs-eldoc.el=: followable rendered Markdown links.
+- =taomacs-go.el=: Go buffer setup, import organization, and formatting.
+- =taomacs-typescript.el=: Eglot server selection and configuration forwarding.
+- =taomacs-session.el= and =taomacs-instance.el=: sessions and separate instances.
 
 ** Finding a setting
 
 Open =init.el= with =C-c e=. Use =M-s o= (=consult-outline=) to jump
-between topic headings, =M-i= (=consult-imenu=) for function and variable
-definitions, or =C-s= to search within the file.
+between topic headings, =M-i= (=consult-imenu=) for package declarations
+and variables, or =C-s= to search. Command implementations live in =lisp/=.
 
 * Key bindings
 

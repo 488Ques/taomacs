@@ -7,16 +7,11 @@
 	("nongnu" . "https://elpa.nongnu.org/nongnu/")
 	("melpa" . "https://melpa.org/packages/")))
 
-;; A partial cache (e.g. MELPA only) cannot resolve GNU/NonGNU dependencies.
-;; Refresh on first use of an archive, not on every startup.
-(unless (seq-every-p
-	 (lambda (archive)
-	   (file-exists-p
-	    (expand-file-name
-	     (concat "archives/" (car archive) "/archive-contents")
-	     package-user-dir)))
-	 package-archives)
-  (package-refresh-contents))
+(use-package taomacs-bootstrap
+  :load-path "lisp"
+  :demand t
+  :config
+  (taomacs-bootstrap-refresh-package-archives))
 
 ;;; External tool environments
 
@@ -35,24 +30,13 @@
 
 ;;; Editor defaults
 
+(use-package taomacs-files
+  :load-path "lisp"
+  :demand t)
+
 ;; Core configuration
 (use-package emacs
   :config
-
-  (defun taomacs-backup-file-name (fpath)
-    "Return a new file path of a given file path.
-If the new path's directories does not exist, create them."
-    (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
-	   (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-	   (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-      (make-directory (file-name-directory backupFilePath) t)
-      backupFilePath))
-
-  ;; Function to quickly open the init.el file
-  (defun taomacs-open-init-file ()
-    "Open init.el file for editing."
-    (interactive)
-    (find-file user-init-file))
 
   ;; Word wrap
   (global-visual-line-mode 1)
@@ -208,10 +192,9 @@ If the new path's directories does not exist, create them."
   :hook (after-init . midnight-mode))
 
 ;; Enhancement for window navigation
-(defun taomacs-previous-window ()
-  "Select the previous window, the reverse of `other-window'."
-  (interactive)
-  (other-window -1))
+(use-package taomacs-window
+  :load-path "lisp"
+  :demand t)
 
 (use-package ace-window
   :ensure t
@@ -227,9 +210,9 @@ If the new path's directories does not exist, create them."
 
 (load-theme 'modus-operandi-tinted t)
 
-(defun taomacs-font-exists-p (font)
-  "Check if FONT exists."
-  (and (display-graphic-p) (not (null (x-list-fonts font)))))
+(use-package taomacs-fonts
+  :load-path "lisp"
+  :demand t)
 
 (when (taomacs-font-exists-p "Iosevka")
   (set-face-attribute 'default nil :family "Iosevka" :height 150)
@@ -364,74 +347,19 @@ If the new path's directories does not exist, create them."
 
 ;;; Editing and navigation
 
-;; --- Smart line motion (replaces the `mwim' package) ---
-(defun taomacs-beginning-of-line ()
-  "Move to first non-whitespace char, or to column 0 if already there."
-  (interactive "^")
-  (let ((start (point)))
-    (back-to-indentation)
-    (when (= start (point))
-      (beginning-of-line))))
+(use-package taomacs-editing
+  :load-path "lisp"
+  :demand t)
 
 (global-set-key (kbd "C-a") #'taomacs-beginning-of-line)
 (global-set-key (kbd "C-e") #'end-of-line)
 
-;; --- VSCode-style backward delete (replaces the `bbww' package) ---
-;; Neither command touches the kill ring, matching VSCode (deleted text does
-;; not land on the clipboard).
-
-(defun taomacs-backward-delete-word ()
-  "Delete backward one chunk, in the style of the `bbww' package.
-A chunk is a maximal run of a single class: whitespace, word/symbol
-characters, or punctuation.  Exactly one class is deleted per call, so
-it is never greedy and never crosses a class boundary.  In `(foo bar)  |'
-it deletes only the trailing whitespace, then `)', then `bar', and so on.
-Nothing is saved to the kill ring.  At the beginning of a line it joins
-with the previous line."
-  (interactive)
-  (let ((end (point)))
-    (cond
-     ((bobp) nil)
-     ((bolp) (backward-char))                       ; join with previous line
-     (t (pcase (char-syntax (char-before))
-	  ((or ?\s ?-) (skip-chars-backward " \t")) ; a run of whitespace
-	  ((or ?w ?_)  (skip-syntax-backward "w_")) ; a run of word/symbol chars
-	  (_           (skip-syntax-backward "^w_ "))))) ; a run of punctuation
-    (delete-region (point) end)))
-
-(defun taomacs-backward-delete-line ()
-  "Delete from point back to the beginning of the line, like VSCode's
-`deleteAllLeft', without saving to the kill ring.  At the beginning of a
-line, join with the previous line."
-  (interactive)
-  (if (bolp)
-      (unless (bobp) (delete-char -1))
-    (delete-region (line-beginning-position) (point))))
-
 (global-set-key (kbd "M-DEL") #'taomacs-backward-delete-word)
 (global-set-key (kbd "C-<backspace>") #'taomacs-backward-delete-line)
 
-;; --- Re-indent the whole buffer ---
-(defun taomacs-indent-buffer ()
-  "Re-indent the entire buffer using the current major mode's rules.
-Unlike the naive `indent-region' over point-min/point-max, this widens
-first so a narrowed buffer is still fully indented, and restores both the
-narrowing and point afterward so the cursor does not jump."
-  (interactive)
-  (save-excursion
-    (save-restriction
-      (widen)
-      (indent-region (point-min) (point-max)))))
-
-;; Navigation aid
-(defun taomacs-avy-action-embark (pt)
-  "Run Embark at Avy target PT, then return to the original window."
-  (unwind-protect
-      (save-excursion
-	(goto-char pt)
-	(embark-act))
-    (select-window (cdr (ring-ref avy-ring 0))))
-  t)
+(use-package taomacs-avy
+  :load-path "lisp"
+  :demand t)
 
 (use-package avy
   :ensure t
@@ -536,19 +464,9 @@ narrowing and point afterward so the cursor does not jump."
   (eshell-load . ghostel-eshell-visual-command-mode)
 
   :config
-  ;; `M-w' / `C-w' in copy mode run `ghostel-readonly-copy', which copies and
-  ;; then exits read-only mode whenever `ghostel-readonly-fast-exit' is on
-  ;; (the default) -- hence only one copy per copy-mode entry.  Its exit
-  ;; branch reads the variable dynamically, so let-binding it to nil disables
-  ;; the exit *only* for copying: `q' / `C-g' / self-insert still exit, and
-  ;; the `use-region-p' guard (absent from plain `kill-ring-save') is kept.
-  ;; Bound in the shared parent map, which
-  ;; `ghostel-readonly-fast-exit-mode-map' inherits.
-  (defun taomacs-ghostel-copy-stay ()
-    "Copy the region like `ghostel-readonly-copy', but stay in read-only mode."
-    (interactive)
-    (let ((ghostel-readonly-fast-exit nil))
-      (call-interactively #'ghostel-readonly-copy)))
+  (use-package taomacs-ghostel
+    :load-path "lisp"
+    :demand t)
   (keymap-set ghostel-readonly-mode-map "M-w" #'taomacs-ghostel-copy-stay)
   (keymap-set ghostel-readonly-mode-map "C-w" #'taomacs-ghostel-copy-stay)
 
@@ -611,31 +529,9 @@ narrowing and point afterward so the cursor does not jump."
             typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
           treesit-auto-install-grammar 'ask))
 
-;; Markdown-mode leaves a mouse binding on Eglot's rendered links, but Eglot
-;; removes the Markdown syntax that binding needs to find the URL.
-(defun taomacs-eldoc-buttonize-markdown-links (&rest _)
-  "Make rendered Markdown links in the ElDoc buffer followable."
-  (when (and (boundp 'markdown-mode-mouse-map)
-	     (keymapp markdown-mode-mouse-map))
-    (with-current-buffer (eldoc-doc-buffer)
-      (let ((inhibit-read-only t)
-	    (pos (point-min)))
-	(while (< pos (point-max))
-	  (let* ((end (or (next-single-property-change
-			   pos 'help-echo nil (point-max))
-			  (point-max)))
-		 (echo (get-text-property pos 'help-echo)))
-	    (when (and (stringp echo)
-		       (eq (get-text-property pos 'keymap)
-			   markdown-mode-mouse-map)
-		       (string-match "\\(?:\\`\\|\n\\)\\([^\n]+\\)\\'" echo))
-	      (buttonize-region pos end #'browse-url
-				(match-string 1 echo) echo))
-	    (setq pos end)))))))
-
-(with-eval-after-load 'eldoc
-  (advice-add #'eldoc--format-doc-buffer :after
-	      #'taomacs-eldoc-buttonize-markdown-links))
+(use-package taomacs-eldoc
+  :load-path "lisp"
+  :demand t)
 
 ;; Helpful resources:
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
@@ -740,23 +636,9 @@ narrowing and point afterward so the cursor does not jump."
 
 ;;;; Go
 
-(defun taomacs-go-format-on-save ()
-  "Organize Go imports and format the buffer using gopls before saving."
-  (when (eglot-managed-p)
-    (let ((server (eglot-current-server)))
-      (dolist (action (eglot-code-actions (point-min) (point-max)
-					  "source.organizeImports"))
-	(eglot-execute server action)))
-    (eglot-format-buffer)))
-
-(defun taomacs-go-ts-setup ()
-  "Set up Go display and gopls-only formatting on save.
-Go indents with tabs; render them 4 columns wide without changing
-the file's tab characters.  `go-ts-mode-indent-offset' matches
-`tab-width' so re-indenting emits one tab per level."
-  (setq-local tab-width 4)
-  (apheleia-mode -1)
-  (add-hook 'before-save-hook #'taomacs-go-format-on-save nil t))
+(use-package taomacs-go
+  :load-path "lisp"
+  :demand t)
 
 ;; Auto-start Eglot for Go; its built-in mapping uses gopls.  Eglot
 ;; selects the project root via project.el, while gopls understands go.mod.
@@ -769,66 +651,9 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 
 ;;;; Web
 
-;; Keep Eglot's built-in JS/TS grouping while selecting the project's server.
-(defun taomacs-typescript-eglot-contact (_interactive _project)
-  "Use the project's native TypeScript LSP, or the tsserver bridge."
-  (let* ((root (locate-dominating-file
-                default-directory "node_modules/typescript/package.json"))
-         (tsc (and root (expand-file-name "node_modules/.bin/tsc" root))))
-    (if (and tsc
-             (file-executable-p tsc)
-             (not (file-exists-p
-                   (expand-file-name "node_modules/typescript/lib/tsserver.js"
-                                     root))))
-        (list tsc "--lsp" "--stdio")
-      '("typescript-language-server" "--stdio"))))
-
-;; TypeScript 7 dynamically subscribes to configuration changes even though
-;; Eglot does not advertise dynamic registration for them.  Eglot already
-;; sends the initial configuration; forward subsequent Emacs setting changes
-;; only while the server's registration is active.
-(defvar taomacs-typescript-configuration-watchers nil)
-
-(defun taomacs-typescript-unwatch-configuration (server &rest _)
-  "Stop forwarding configuration changes to SERVER."
-  (when-let* ((watcher (alist-get server taomacs-typescript-configuration-watchers)))
-    (remove-variable-watcher 'eglot-workspace-configuration watcher)
-    (setq taomacs-typescript-configuration-watchers
-	  (assq-delete-all server taomacs-typescript-configuration-watchers))))
-
-(with-eval-after-load 'eglot
-  (cl-defmethod eglot-register-capability
-    (server (_method (eql workspace/didChangeConfiguration)) _id &rest _options)
-    (if (equal (plist-get (eglot--server-info server) :name) "typescript-go")
-	(unless (assq server taomacs-typescript-configuration-watchers)
-	  (let ((watcher
-		 (lambda (_symbol _value operation _where)
-		   (when (eq operation 'set)
-		     (if (jsonrpc-running-p server)
-			 (eglot-signal-didChangeConfiguration server)
-		       (taomacs-typescript-unwatch-configuration server))))))
-	    (push (cons server watcher) taomacs-typescript-configuration-watchers)
-	    (add-variable-watcher 'eglot-workspace-configuration watcher)))
-      (cl-call-next-method)))
-
-  (cl-defmethod eglot-unregister-capability
-    (server (_method (eql workspace/didChangeConfiguration)) _id &rest _options)
-    (if (equal (plist-get (eglot--server-info server) :name) "typescript-go")
-	(taomacs-typescript-unwatch-configuration server)
-      (cl-call-next-method)))
-
-  (advice-add #'eglot-shutdown :before
-	      #'taomacs-typescript-unwatch-configuration))
-
-(with-eval-after-load 'eglot
-  (let ((entry (cl-find-if
-		(lambda (entry)
-		  (and (listp (car entry))
-		       (member '(typescript-ts-mode :language-id "typescript")
-			       (car entry))))
-		eglot-server-programs)))
-    (when entry
-      (setcdr entry #'taomacs-typescript-eglot-contact))))
+(use-package taomacs-typescript
+  :load-path "lisp"
+  :demand t)
 
 ;; Auto-start Eglot for TS/TSX with the version-aware server contact above.
 ;; Native Tree-sitter management handles .ts/.tsx mode routing.
