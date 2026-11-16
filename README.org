@@ -168,8 +168,14 @@ separately when needed.
 
 The oxfmt command reads stdin with the real filename, preserving nested
 configuration and filename-specific overrides. Go retains its separate
-gopls import-organization and formatting hooks. Global
-=whitespace-cleanup= still runs before saving.
+gopls import-organization and formatting hooks.
+
+Built-in =editorconfig-mode= reads project =.editorconfig= files for
+indentation, trailing-whitespace trimming, and final-newline settings.
+There is no global =whitespace-cleanup= save hook; run
+=M-x whitespace-cleanup= for deliberate cleanup. Unspecified properties
+retain Emacs or major-mode defaults. Language formatters remain enabled
+and need configuration consistent with the project's EditorConfig rules.
 
 ** Fonts
 

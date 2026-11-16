@@ -165,8 +165,6 @@
   (prog-mode . display-line-numbers-mode)
   ;; Modes to highlight the current line with
   ((text-mode prog-mode) . hl-line-mode)
-  ;; Clean up whitespace
-  (before-save . whitespace-cleanup)
 
   :bind
   (("C-c e" . taomacs-open-init-file)
@@ -180,6 +178,12 @@
 
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete)))
+
+;; Follow project whitespace and indentation settings.
+(use-package editorconfig
+  :demand t
+  :config
+  (editorconfig-mode 1))
 
 ;; Built-in pixel scrolling for trackpads and high-resolution mice.
 (use-package pixel-scroll
