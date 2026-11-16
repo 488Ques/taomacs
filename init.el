@@ -442,7 +442,7 @@
 ;; Bind after the library that owns Eshell's keymap has loaded.
 (use-package esh-mode
   :bind (:map eshell-mode-map
-              ("C-r" . consult-history)))
+	      ("C-r" . consult-history)))
 
 ;; Ghostel: terminal emulator powered by libghostty (the Ghostty VT engine).
 ;; The native module lives in the package dir; `M-x ghostel-download-module'
@@ -490,18 +490,18 @@
   ;; Histories, registers, and the kill ring stay global across sessions;
   ;; savehist persists the minibuffer histories.
   (desktop-globals-to-save '(desktop-missing-file-warning
-                             tags-file-name tags-table-list))
+			     tags-file-name tags-table-list))
   (desktop-globals-to-clear nil))
 
 (use-package taomacs-session
   :load-path "lisp"
   :hook ((eshell-mode . taomacs-session-setup-eshell)
-         (magit-status-mode . taomacs-session-setup-magit))
+	 (magit-status-mode . taomacs-session-setup-magit))
   :bind (("C-c s s" . taomacs-session-save)     ; C-u: save under another name
-         ("C-c s r" . taomacs-session-switch)
-         ("C-c s v" . taomacs-session-revert)
-         ("C-c s c" . taomacs-session-close)
-         ("C-c s k" . taomacs-session-delete)))
+	 ("C-c s r" . taomacs-session-switch)
+	 ("C-c s v" . taomacs-session-revert)
+	 ("C-c s c" . taomacs-session-close)
+	 ("C-c s k" . taomacs-session-delete)))
 
 ;; Start another Emacs instance, e.g. to work in a second session at once.
 (use-package taomacs-instance
@@ -526,9 +526,9 @@
 (use-package treesit
   :config
   (setopt treesit-enabled-modes
-          '(bash-ts-mode css-ts-mode js-ts-mode json-ts-mode python-ts-mode
-            typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
-          treesit-auto-install-grammar 'ask))
+	  '(bash-ts-mode css-ts-mode js-ts-mode json-ts-mode python-ts-mode
+			 typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
+	  treesit-auto-install-grammar 'ask))
 
 ;; Helpful resources:
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
@@ -547,9 +547,9 @@
   :config
   ;; Preserve the real filename for nested oxfmt configs and file overrides.
   (setf (alist-get 'oxfmt apheleia-formatters)
-        '("apheleia-npx" "oxfmt" "--stdin-filepath" filepath)
-        (alist-get 'typescript-ts-mode apheleia-mode-alist) 'oxfmt
-        (alist-get 'tsx-ts-mode apheleia-mode-alist) 'oxfmt)
+	'("apheleia-npx" "oxfmt" "--stdin-filepath" filepath)
+	(alist-get 'typescript-ts-mode apheleia-mode-alist) 'oxfmt
+	(alist-get 'tsx-ts-mode apheleia-mode-alist) 'oxfmt)
   (apheleia-global-mode 1))
 
 ;;; Org
@@ -628,7 +628,7 @@
 (use-package js
   :defer t
   :mode (("\\.jsonld\\'" . js-json-mode)
-         ("\\(?:\\.babelrc\\|\\.bowerrc\\|composer\\.lock\\)\\'" . js-json-mode))
+	 ("\\(?:\\.babelrc\\|\\.bowerrc\\|composer\\.lock\\)\\'" . js-json-mode))
   :magic-fallback ("^[{[]$" . js-json-mode))
 
 ;;;; Go
