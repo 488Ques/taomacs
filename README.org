@@ -76,8 +76,8 @@ project-local =oxfmt= for TS/TSX formatting when installed. See
 [[file:docs/web-development-research.md][the web tooling assessment]] for the tradeoffs behind this setup.
 
 In an Eglot-managed buffer, =M-x eldoc-doc-buffer= shows function
-documentation. Rendered inline Markdown links in that buffer are buttons:
-use =RET= or mouse-2 to open their URLs.
+documentation. Use mouse-2 to follow rendered inline Markdown links;
+Emacs 31's Eglot preserves the hidden syntax needed to resolve their URLs.
 
 * Installation
 
@@ -249,7 +249,6 @@ Libraries are grouped by responsibility:
 - =taomacs-avy.el=: Avy-to-Embark action.
 - =taomacs-ghostel.el=: copy without leaving terminal read-only mode;
   loaded after Ghostel, with =M-w= and =C-w= bound in its read-only keymap.
-- =taomacs-eldoc.el=: followable rendered Markdown links.
 - =taomacs-go.el=: Go buffer setup, import organization, and formatting.
 - =taomacs-typescript.el=: Eglot server selection and configuration forwarding.
 - =taomacs-session.el= and =taomacs-instance.el=: sessions and separate instances.

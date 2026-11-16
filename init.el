@@ -530,10 +530,6 @@
             typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
           treesit-auto-install-grammar 'ask))
 
-(use-package taomacs-eldoc
-  :load-path "lisp"
-  :demand t)
-
 ;; Helpful resources:
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 (use-package eglot
