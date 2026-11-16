@@ -8,8 +8,8 @@ and =use-package=. Shared settings are grouped by topic in
 
 * Requirements
 
-- *GNU Emacs 30.1+* — the config uses =setopt=, the built-in =which-key=,
-  tree-sitter, and =modus-operandi-tinted=. Verified with Emacs 31.1.
+- *GNU Emacs 31.1+* — uses built-in Eglot with pull diagnostics,
+  native terminal child frames, Tree-sitter, and =use-package=.
 - *Network access* on first launch, to download packages from GNU ELPA,
   NonGNU ELPA, and MELPA.
 - *Git*, for Magit.
@@ -43,27 +43,28 @@ Recommended external tools (features degrade gracefully without them):
 |----------------------+---------------------------+--------------------------------|
 | =ripgrep= (=rg=)         | =consult-ripgrep= (=M-s r=)   | Fast project search            |
 | Symbols Nerd Font Mono | Ghostel prompt glyphs | Required for Nerd Font icons |
-| Tree-sitter grammars | =*-ts-mode= major modes     | Install via command below      |
+| Tree-sitter grammars | =*-ts-mode= major modes     | Install when prompted          |
 | =gls= (GNU coreutils)  | Dired listing on macOS    | =brew install coreutils=         |
 | =sbcl=                 | SLIME (Common Lisp)       |                                |
 | Language servers     | =eglot=                     | Install per language as needed |
 
 Go buffers in =go-ts-mode= use =gopls= through Eglot to organize imports and
 format before saving, once the language server is connected. Install =gopls=
-and the Go tree-sitter grammar; =goimports= is not required. Apheleia still
-handles formatting for languages configured to use it, but not Go.
+and accept the Go grammar installation prompt; =goimports= is not required.
+Apheleia still handles formatting for languages configured to use it, but not Go.
 
-For JavaScript and TypeScript, install the =javascript=, =typescript=, and
-=tsx= tree-sitter grammars. TS/TSX buffers start Eglot automatically: when
-the nearest project-local TypeScript installation has no =tsserver.js=,
-Eglot uses its =node_modules/.bin/tsc --lsp --stdio= (TypeScript 7).
-Otherwise it uses =typescript-language-server --stdio= for older
-TypeScript installations; install that server separately for TS 6
-projects. This config installs GNU ELPA Eglot 1.20 or newer when needed:
-the Emacs 30 bundled version cannot display TypeScript 7's pull diagnostics.
+For JavaScript and TypeScript, accept the grammar installation prompts for
+=javascript=, =typescript=, and =tsx=. TS/TSX buffers start Eglot automatically.
+The nearest project-local TypeScript installation selects the server:
+TypeScript 7, which has no =tsserver.js=, uses
+=node_modules/.bin/tsc --lsp --stdio=. Older versions use
+=typescript-language-server --stdio=; install that server separately and
+make it available on Emacs's PATH for TypeScript 6 and older projects.
+Emacs 31's bundled Eglot supports pull diagnostics; no separately installed
+Eglot package is needed.
 Flymake shows syntax and type errors in managed TS/TSX buffers; use
 =M-g f= to list diagnostics. Reconnect an already-open buffer with
-=M-x eglot-reconnect= after changing TypeScript versions or upgrading Eglot.
+=M-x eglot-reconnect= after changing TypeScript versions or upgrading Emacs.
 
 The =css-ts-mode= grammar provides CSS highlighting without an LSP
 server. For optional CSS language features, install
@@ -104,8 +105,8 @@ git clone <this-repo> ~/.emacs.d
 #+end_src
 
 Then launch Emacs. The first start will download and install every
-=:ensure t= package automatically — this takes a minute or two. Once it
-settles, install the tree-sitter grammars below.
+=:ensure t= package automatically — this takes a minute or two. Missing
+Tree-sitter grammars are installed on demand, as described below.
 
 Packages come from the official GNU ELPA, NonGNU ELPA, and MELPA servers.
 If archive downloads fail with connection resets, check VPN connectivity.
@@ -113,22 +114,61 @@ Missing archive indexes are refreshed before package installation, including
 when only part of the archive cache exists. To update existing indexes, run
 =M-x package-refresh-contents=.
 
-On Emacs 31 with native terminal child frames, Corfu needs no
-=corfu-terminal= package; Emacs 30 still installs and enables it in terminals.
+Corfu uses Emacs 31's native terminal child frames; neither =corfu-terminal=
+nor its =popon= dependency is needed.
 
-** One-time setup
+** Tree-sitter grammars
 
-Install tree-sitter grammars for the languages you edit. The
-   =major-mode-remap-alist= routes Python, JS, TS, YAML, JSON, CSS, and
-   Bash to their =-ts-mode= variants, which need grammars present:
+Emacs 31's =treesit-enabled-modes= selects the built-in modes for Bash, CSS,
+JavaScript, JSON, Python, TypeScript, TSX, YAML, Go, and Go modules.
+=treesit-auto-install-grammar= is set to =ask=: opening a file prompts to
+download and compile its missing grammar, then enables the mode without
+restarting Emacs. Emacs supplies the grammar repositories and revisions.
 
-   #+begin_src
-   M-x treesit-install-language-grammar
-   #+end_src
+Grammar installation requires network access, Git, and a C/C++ compiler.
+On macOS, install the Command Line Tools with =xcode-select --install= if
+needed. Compiled grammars normally live in =~/.emacs.d/tree-sitter/=.
+There is no =yaml-mode= fallback; declining installation or a failed build
+leaves YAML without Tree-sitter highlighting and indentation.
 
-   Sources for the configured languages are listed in
-   =treesit-language-source-alist=. Restart Emacs after installing a grammar
-   so the startup-only mode remapping picks it up.
+For manual installation, load the corresponding mode library first
+(for example, =M-x load-library RET yaml-ts-mode RET=), then run
+=M-x treesit-install-language-grammar=. Clojure's external mode retains
+its own grammar management.
+
+** JSON editing
+
+JSON uses built-in =json-ts-mode=, including =.jsonld=, =.babelrc=,
+=.bowerrc=, and =composer.lock=. JSON content detection is retained for
+otherwise unrecognized filenames. No =json-mode= or =json-snatcher=
+package is needed.
+
+Select JSON text (=C-x h= for the whole buffer), then run
+=M-x json-pretty-print= to format it. =M-x json-ts-jq-path-at-point=
+displays the path at point and copies it to the kill ring.
+
+** Privileged file editing
+
+Use built-in TRAMP commands; no =sudo-edit= package is needed:
+
+- =M-x tramp-revert-buffer-with-sudo= reopens the current file as root.
+- =M-x tramp-dired-find-file-with-sudo= opens the Dired entry as root.
+
+TRAMP handles sudo authentication when needed; these commands do not
+grant privileges without authorization.
+
+** Formatting
+
+=apheleia-global-mode= retains Apheleia's default language coverage.
+TypeScript and TSX use =oxfmt=; other modes keep their upstream formatter
+choices. Apheleia's bundled resolver prefers project-local executables
+and does not download missing tools. Install the selected formatter
+separately when needed.
+
+The oxfmt command reads stdin with the real filename, preserving nested
+configuration and filename-specific overrides. Go retains its separate
+gopls import-organization and formatting hooks. Global
+=whitespace-cleanup= still runs before saving.
 
 ** Fonts
 
@@ -168,7 +208,7 @@ Ghostty's bundled fonts are not automatically available to Emacs.
 - *macOS-specific code is guarded.* The =gls= Dired tweak runs only when
   =system-type= is =darwin=. On Linux, use the system's Emacs package;
   the Emacs Plus cask handles macOS native-compilation setup outside this config.
-- *Fonts degrade gracefully.* =IBM Plex Mono= is applied only if installed;
+- *Fonts degrade gracefully.* =Iosevka= is applied only if installed;
   otherwise the default face is used.
 - *Doom Modeline provides the mode line.* Dired, minibuffer completion, and
   Corfu remain free of package-provided icons. Minor-mode names are hidden;
@@ -181,12 +221,9 @@ Ghostty's bundled fonts are not automatically available to Emacs.
 
 * Scrolling
 
-=ultra-scroll= is enabled for pixel-precise trackpad and mouse scrolling; it
-enables the built-in =pixel-scroll-precision-mode= itself. If scrolling is not
-smooth on your device, use =M-x ultra-scroll-check= to inspect its pixel
-events. To compare with Emacs's built-in scrolling in the same session, run
-=M-x ultra-scroll-mode= to disable ultra-scroll, then enable
-=M-x pixel-scroll-precision-mode=.
+Built-in =pixel-scroll-precision-mode= handles pixel-level trackpad and
+mouse-wheel events. There is no Ultra-scroll remapping or custom
+momentum/interpolation configuration; scrolling uses Emacs's defaults.
 
 Control+scroll font zoom is disabled, as is touchpad pinch zoom. Keyboard
 text scaling (=C-x C-+= / =C-x C--=) remains available.
@@ -200,8 +237,6 @@ text scaling (=C-x C-+= / =C-x C--=) remains available.
 | =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
 | [[file:lisp/][=lisp/=]]         | Elisp libraries loaded by =init.el=                   |
 | =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
-| [[file:snippets/][=snippets/=]]     | YASnippet snippets                                  |
-| [[file:templates/][=templates/=]]    | =autoinsert= file templates                           |
 
 ** Finding a setting
 
@@ -239,6 +274,17 @@ Exiting Emacs asks for confirmation even when all buffers are saved.
 | =s-j=           | =avy-goto-char-timer=                 |
 | =C-c a=         | =embark-act=                          |
 
+New =.el= files receive a header from built-in Autoinsert, with the real
+filename, lexical binding, and point placed in the code section.
+YASnippet and the =usp= snippet are removed. Completion still works through
+Corfu and Eglot, but LSP snippet expansion is no longer available.
+
+** Dired
+
+Use =i= to insert a subdirectory into the same listing, =$= to hide or show
+its contents, and =C-M-n= / =C-M-p= to move between subdirectories.
+TAB-based inline tree expansion is removed.
+
 ** Search & completion
 
 | Key   | Command          |
@@ -272,7 +318,8 @@ Elsewhere the popup appears after a short pause.
 
 =C-c t= opens a Ghostel terminal in the current window without creating a
 split, reusing the existing =*ghostel*= buffer; =C-u C-c t= creates another
-terminal. =C-c T= is unbound. Eshell has no key; use =M-x eshell=.
+terminal. =C-c T= is unbound. Use =M-x eshell= for Eshell and =C-r= there
+for Consult history; =C-c C-r= retains the built-in output navigation.
 
 Eshell is not a terminal emulator. Running =omp= there opens a dedicated
 Ghostel buffer in the same working directory, with arguments preserved.
@@ -328,7 +375,7 @@ Sessions are stored per machine in =sessions/NAME/= (git-ignored).
 * Startup and maintenance
 
 Optional tools load on first use: Avy, Embark/Consult integration, Eglot,
-SLIME, wgrep, sudo-edit, Markdown, and the JSON/YAML fallback modes.
+SLIME, wgrep, Markdown, and the built-in JSON mode.
 Orderless and Cape load through their completion autoloads. Their commands,
 bindings, and file associations remain available without loading the
 implementations at startup.
