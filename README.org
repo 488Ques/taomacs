@@ -390,13 +390,26 @@ Installed packages are not automatically pruned. An undeclared package can
 still be used through =M-x= or be required by another package; review these
 uses before deleting it with =M-x package-delete=.
 
-** SQL completion
+** SQL
 
-The SQL setup uses built-in =sql.el=, =sql-indent=, and SQL-scoped Cape
-dabbrev completion. After connecting, =M-x sql-list-table= (columns) or
-=M-x sql-list-all= (tables) makes those names available to completion in
-SQL buffers. Repeat after schema changes. Schema-aware LSP completion would
-be a separate workflow change, not a prerequisite for this setup.
+Define named connections directly in =local.el=:
+
+#+begin_src emacs-lisp
+(setq sql-connection-alist
+      '(("local-postgres"
+         (sql-product 'postgres)
+         (sql-server "localhost")
+         (sql-port 5432)
+         (sql-user "me")
+         (sql-database "app"))))
+#+end_src
+
+=C-c d c= runs built-in =sql-connect= to select a connection; =C-c d b=
+shows its SQLi buffer. Keep passwords outside this list, in auth-source.
+The =sql-indent= extension is removed; built-in SQL indentation remains.
+
+SQL has no custom word or schema completion. Cape supplies filename
+completion only; Eglot supplies completion in managed language buffers.
 
 * Per-machine customization
 
