@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: use-package skeleton
-# key: usp
-# --
-
-(use-package $0)

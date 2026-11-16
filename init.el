@@ -424,34 +424,21 @@ narrowing and point afterward so the cursor does not jump."
       (widen)
       (indent-region (point-min) (point-max)))))
 
-;; Snippet
-(use-package yasnippet
-  :ensure t
-
-  :init
-  (yas-global-mode 1)
-
-  :config
-  (add-to-list 'yas-snippet-dirs (locate-user-emacs-file "snippets")))
-
-;; Auto insert a template when opening a file
+;; Insert a Lisp header without an external template or snippet engine.
 (use-package autoinsert
-  :init
-  ;; Don't ask before insertion
-  (setopt auto-insert-query nil)
-
-  ;; Set autoinsert's template directory
-  (setq auto-insert-directory (locate-user-emacs-file "templates"))
-
-  ;; Enable it
-  (auto-insert-mode 1)
-
+  :custom
+  (auto-insert-query nil)
   :config
-  (defun taomacs-autoinsert-yas-expand ()
-    "Replace text in yasnippet template."
-    (yas-expand-snippet (buffer-string) (point-min) (point-max)))
-
-  (define-auto-insert "\\.el$" ["default-elisp.el" taomacs-autoinsert-yas-expand]))
+  (define-auto-insert "\\.el\\'"
+    '(nil
+      ";;; " (file-name-nondirectory buffer-file-name)
+      " --- -*- lexical-binding: t; -*-\n\n"
+      ";;; Commentary:\n\n"
+      ";;\n\n"
+      ";;; Code:\n\n"
+      _ "\n"
+      ";;; " (file-name-nondirectory buffer-file-name) " ends here\n"))
+  (auto-insert-mode 1))
 
 ;; Navigation aid
 (defun taomacs-avy-action-embark (pt)
@@ -541,16 +528,10 @@ narrowing and point afterward so the cursor does not jump."
 
 ;;; Shells and terminals
 
-;; eshell
-(use-package eshell
-  :init
-  (defun taomacs-setup-eshell ()
-    ;; Something funny is going on with how Eshell sets up its keymaps; this is
-    ;; a work-around to make C-r bound in the keymap
-    (keymap-set eshell-mode-map "C-r" 'consult-history))
-
-  :hook
-  ((eshell-mode . taomacs-setup-eshell)))
+;; Bind after the library that owns Eshell's keymap has loaded.
+(use-package esh-mode
+  :bind (:map eshell-mode-map
+              ("C-r" . consult-history)))
 
 ;; Ghostel: terminal emulator powered by libghostty (the Ghostty VT engine).
 ;; The native module lives in the package dir; `M-x ghostel-download-module'
