@@ -424,22 +424,6 @@ narrowing and point afterward so the cursor does not jump."
       (widen)
       (indent-region (point-min) (point-max)))))
 
-;; Insert a Lisp header without an external template or snippet engine.
-(use-package autoinsert
-  :custom
-  (auto-insert-query nil)
-  :config
-  (define-auto-insert "\\.el\\'"
-    '(nil
-      ";;; " (file-name-nondirectory buffer-file-name)
-      " --- -*- lexical-binding: t; -*-\n\n"
-      ";;; Commentary:\n\n"
-      ";;\n\n"
-      ";;; Code:\n\n"
-      _ "\n"
-      ";;; " (file-name-nondirectory buffer-file-name) " ends here\n"))
-  (auto-insert-mode 1))
-
 ;; Navigation aid
 (defun taomacs-avy-action-embark (pt)
   "Run Embark at Avy target PT, then return to the original window."

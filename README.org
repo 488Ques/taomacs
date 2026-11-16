@@ -274,8 +274,7 @@ Exiting Emacs asks for confirmation even when all buffers are saved.
 | =s-j=           | =avy-goto-char-timer=                 |
 | =C-c a=         | =embark-act=                          |
 
-New =.el= files receive a header from built-in Autoinsert, with the real
-filename, lexical binding, and point placed in the code section.
+New =.el= files open without an automatically inserted template.
 YASnippet and the =usp= snippet are removed. Completion still works through
 Corfu and Eglot, but LSP snippet expansion is no longer available.
 
