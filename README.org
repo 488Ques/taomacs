@@ -222,6 +222,7 @@ Notable custom bindings (defaults are otherwise unchanged):
 | =M-n= / =M-p=          | Scroll one line down / up  |
 | =C-c r= then h/l/j/k | Resize window (repeatable) |
 | =C-x o=              | =ace-window=                 |
+| =C-c n=              | Start another Emacs instance |
 
 Exiting Emacs asks for confirmation even when all buffers are saved.
 
@@ -296,6 +297,13 @@ frames, tabs, window layouts, the working directories of its Ghostel and
 Eshell buffers, and the repositories of its Magit status buffers (other
 Magit buffers are not saved). Emacs starts with no active session. Saving
 without an active session asks for a name and makes that session active.
+
+Each Emacs has at most one active session. To work in several sessions at
+once, start another Emacs with =C-c n= (macOS otherwise reuses the running
+Emacs) and switch it to a session. Opening a session that another Emacs has
+open asks for confirmation first. Minibuffer history, saved places, and
+bookmarks are single files shared by all instances; the instance that saves
+last wins.
 
 While a session is active it is saved automatically when Emacs is idle,
 when you switch away, when you close it, and when you quit. Switching or

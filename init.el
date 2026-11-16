@@ -651,6 +651,11 @@ narrowing and point afterward so the cursor does not jump."
          ("C-c s c" . taomacs-session-close)
          ("C-c s k" . taomacs-session-delete)))
 
+;; Start another Emacs instance, e.g. to work in a second session at once.
+(use-package taomacs-instance
+  :load-path "lisp"
+  :bind ("C-c n" . taomacs-instance-start))
+
 ;;; Development tools
 
 ;; Modify search results en masse
