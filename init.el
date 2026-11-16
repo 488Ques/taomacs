@@ -67,16 +67,10 @@ If the new path's directories does not exist, create them."
    display-time-default-load-average nil
    ;; Fix archaic defaults
    sentence-end-double-space nil
-   ;; Show current line in modeline
-   line-number-mode t
-   ;; Show column as well
+   ;; Show columns alongside the default line-number display
    column-number-mode t
-   ;; Prettier underlines
-   x-underline-at-descent-line nil
    ;; Make switching buffers more consistent
    switch-to-buffer-obey-display-actions t
-   ;; By default, don't underline trailing spaces
-   show-trailing-whitespace nil
    ;; Show buffer top and bottom in the margin
    indicate-buffer-boundaries 'left
    ;; Enable horizontal scrolling
@@ -91,9 +85,6 @@ If the new path's directories does not exist, create them."
 
   (setopt
    auto-revert-avoid-polling t
-   ;; Some systems don't do file notifications well; see
-   ;; https://todo.sr.ht/~ashton314/emacs-bedrock/11
-   auto-revert-interval 5
    auto-revert-check-vc-info t)
 
   ;; Don't litter file system with *~ backup files; put them all inside
@@ -364,14 +355,6 @@ If the new path's directories does not exist, create them."
   :custom
   (corfu-popupinfo-delay '(0.25 . 0.1))
   (corfu-popupinfo-hide nil))
-
-;; Emacs 31 supports terminal child frames natively; older Emacs needs overlays.
-(unless (featurep 'tty-child-frames)
-  (use-package corfu-terminal
-    :if (not (display-graphic-p))
-    :ensure t
-    :config
-    (corfu-terminal-mode)))
 
 ;; Extra completion-at-point sources, autoloaded when completion requests them.
 (use-package cape
@@ -670,48 +653,13 @@ narrowing and point afterward so the cursor does not jump."
   :config
   (setopt project-vc-extra-root-markers '("deps.edn")))
 
-;; Tree-sitter: prefer the built-in *-ts-mode variants, but only when the
-;; language's grammar is actually installed---otherwise fall back to the
-;; classic mode instead of throwing a "grammar unavailable" warning.
-;; Grammar availability is checked once at startup, not on every file open.
-;;
-;; Bookkeeping is manual: install a grammar with
-;; `M-x treesit-install-language-grammar' (sources below), then restart Emacs
-;; so it gets picked up.  This Emacs loads tree-sitter ABI 15, so the grammars'
-;; default branches load fine---no revision pinning needed.
+;; Emacs 31 manages mode routing and prompts to build missing grammars.
 (use-package treesit
-  ;; built-in---no :ensure
   :config
-  (setq treesit-language-source-alist
-	'((bash       . ("https://github.com/tree-sitter/tree-sitter-bash"))
-	  (css        . ("https://github.com/tree-sitter/tree-sitter-css"))
-	  (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript"))
-	  (json       . ("https://github.com/tree-sitter/tree-sitter-json"))
-	  (python     . ("https://github.com/tree-sitter/tree-sitter-python"))
-	  (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src"))
-	  (tsx        . ("https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src"))
-	  (yaml       . ("https://github.com/tree-sitter-grammars/tree-sitter-yaml"))
-	  (go    . ("https://github.com/tree-sitter/tree-sitter-go"))
-	  (gomod . ("https://github.com/camdencheek/tree-sitter-go-mod"))))
-
-  ;; Remap classic modes -> tree-sitter modes, grammar permitting.
-  (dolist (remap '((bash       . (sh-mode      . bash-ts-mode))
-		   (css        . (css-mode     . css-ts-mode))
-		   (javascript . (js-mode      . js-ts-mode))
-		   (json       . (js-json-mode . json-ts-mode))
-		   (json       . (json-mode    . json-ts-mode))
-		   (python     . (python-mode  . python-ts-mode))
-		   (yaml       . (yaml-mode    . yaml-ts-mode))))
-    (when (treesit-ready-p (car remap) t)
-      (add-to-list 'major-mode-remap-alist (cdr remap))))
-
-  ;; .ts/.tsx have no classic major mode, so route them straight to ts-mode.
-  (dolist (assoc '((typescript . ("\\.ts\\'"  . typescript-ts-mode))
-		   (tsx        . ("\\.tsx\\'" . tsx-ts-mode))
-		   (go    . ("\\.go\\'"    . go-ts-mode))
-		   (gomod . ("/go\\.mod\\'" . go-mod-ts-mode))))
-    (when (treesit-ready-p (car assoc) t)
-      (add-to-list 'auto-mode-alist (cdr assoc)))))
+  (setopt treesit-enabled-modes
+          '(bash-ts-mode css-ts-mode js-ts-mode json-ts-mode python-ts-mode
+            typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
+          treesit-auto-install-grammar 'ask))
 
 ;; Markdown-mode leaves a mouse binding on Eglot's rendered links, but Eglot
 ;; removes the Markdown syntax that binding needs to find the URL.
@@ -742,27 +690,24 @@ narrowing and point afterward so the cursor does not jump."
 ;; Helpful resources:
 ;; - https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
 (use-package eglot
-  ;; Emacs 30's bundled Eglot only supports pushed diagnostics.  TypeScript 7
-  ;; requires pull diagnostics, supported by Eglot 1.20 and later.
-  :ensure t
-  :pin gnu
+  ;; Emacs 31 includes pull diagnostics, including TypeScript 7 support.
   :defer t
-  :init
-  (unless (package-installed-p 'eglot '(1 20))
-    (package-refresh-contents)
-    (package-install 'eglot))
   :custom
   (eglot-send-changes-idle-time 0.1)
   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
   ;; Disable event logging through Eglot's public option, not a JSONRPC override.
   (eglot-events-buffer-config '(:size 0 :format full)))
 
-;; Async, cursor-preserving format-on-save.  Per-language formatters are
-;; configured in the language sections below via `with-eval-after-load'.
+;; Async, cursor-preserving formatting with Apheleia's global defaults.
 (use-package apheleia
   :ensure t
   :config
-  (apheleia-global-mode +1))
+  ;; Preserve the real filename for nested oxfmt configs and file overrides.
+  (setf (alist-get 'oxfmt apheleia-formatters)
+        '("apheleia-npx" "oxfmt" "--stdin-filepath" filepath)
+        (alist-get 'typescript-ts-mode apheleia-mode-alist) 'oxfmt
+        (alist-get 'tsx-ts-mode apheleia-mode-alist) 'oxfmt)
+  (apheleia-global-mode 1))
 
 ;;; Org
 
@@ -775,11 +720,7 @@ narrowing and point afterward so the cursor does not jump."
   :custom
   ;; Comfort visuals
   (org-startup-indented t)
-  (org-hide-emphasis-markers nil)
-  (org-pretty-entities nil)
   (org-ellipsis " ▾")
-  (org-src-fontify-natively t)
-  (org-src-tab-acts-natively t)
   (org-edit-src-content-indentation 0)
   (org-return-follows-link t)
   (org-fontify-quote-and-verse-blocks t)
@@ -793,7 +734,6 @@ narrowing and point afterward so the cursor does not jump."
       "* %?\nCreated at: %U")))
   :hook
   (org-mode . variable-pitch-mode)
-  (org-mode . visual-line-mode)
   ;; Keep manual completion available without automatic popups in Org buffers.
   (org-mode . (lambda () (setq-local corfu-auto nil)))
   :bind
@@ -842,13 +782,11 @@ narrowing and point afterward so the cursor does not jump."
   :ensure t
   :defer t)
 
-(use-package yaml-mode
-  :ensure t
-  :defer t)
-
-(use-package json-mode
-  :ensure t
-  :defer t)
+(use-package js
+  :defer t
+  :mode (("\\.jsonld\\'" . js-json-mode)
+         ("\\(?:\\.babelrc\\|\\.bowerrc\\|composer\\.lock\\)\\'" . js-json-mode))
+  :magic-fallback ("^[{[]$" . js-json-mode))
 
 ;;;; Go
 
@@ -881,20 +819,18 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 
 ;;;; Web
 
-;; TypeScript 7 ships its own LSP server instead of tsserver.js, which
-;; typescript-language-server requires.  Keep Eglot's built-in JS/TS mode
-;; grouping (and language IDs) so all those buffers share one server.
+;; Keep Eglot's built-in JS/TS grouping while selecting the project's server.
 (defun taomacs-typescript-eglot-contact (_interactive _project)
   "Use the project's native TypeScript LSP, or the tsserver bridge."
   (let* ((root (locate-dominating-file
-		default-directory "node_modules/typescript/package.json"))
-	 (tsc (and root (expand-file-name "node_modules/.bin/tsc" root))))
+                default-directory "node_modules/typescript/package.json"))
+         (tsc (and root (expand-file-name "node_modules/.bin/tsc" root))))
     (if (and tsc
-	     (file-executable-p tsc)
-	     (not (file-exists-p
-		   (expand-file-name "node_modules/typescript/lib/tsserver.js"
-				     root))))
-	(list tsc "--lsp" "--stdio")
+             (file-executable-p tsc)
+             (not (file-exists-p
+                   (expand-file-name "node_modules/typescript/lib/tsserver.js"
+                                     root))))
+        (list tsc "--lsp" "--stdio")
       '("typescript-language-server" "--stdio"))))
 
 ;; TypeScript 7 dynamically subscribes to configuration changes even though
@@ -905,7 +841,7 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 
 (defun taomacs-typescript-unwatch-configuration (server &rest _)
   "Stop forwarding configuration changes to SERVER."
-  (when-let ((watcher (alist-get server taomacs-typescript-configuration-watchers)))
+  (when-let* ((watcher (alist-get server taomacs-typescript-configuration-watchers)))
     (remove-variable-watcher 'eglot-workspace-configuration watcher)
     (setq taomacs-typescript-configuration-watchers
 	  (assq-delete-all server taomacs-typescript-configuration-watchers))))
@@ -944,23 +880,13 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
     (when entry
       (setcdr entry #'taomacs-typescript-eglot-contact))))
 
-;; Auto-start Eglot for TS/TSX.  The JS/TS server selection above chooses
-;; the project-local TypeScript 7 LSP or the tsserver bridge for older projects.
-;; The .ts/.tsx -> *-ts-mode routing is configured in Development tools.
+;; Auto-start Eglot for TS/TSX with the version-aware server contact above.
+;; Native Tree-sitter management handles .ts/.tsx mode routing.
 (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook        #'eglot-ensure)
 
-;; Format-on-save with the project-local oxfmt (Oxc formatter).  `npx' makes
-;; Apheleia prefer node_modules/.bin/oxfmt; `filepath' lets oxfmt infer the
-;; parser from the real file name.  oxfmt reads stdin, writes stdout.
-(with-eval-after-load 'apheleia
-  (setf (alist-get 'oxfmt apheleia-formatters)
-	'(npx "oxfmt" "--stdin-filepath" filepath))
-  (setf (alist-get 'typescript-ts-mode apheleia-mode-alist) 'oxfmt)
-  (setf (alist-get 'tsx-ts-mode apheleia-mode-alist) 'oxfmt))
-
 ;; Astro (light): clean highlighting of the frontmatter + HTML + JSX mix.
-;; No language server, no formatter---these files are edited rarely.
+;; No language server; formatting follows Apheleia's web-mode default.
 (use-package web-mode
   :ensure t
   :mode "\\.astro\\'")
