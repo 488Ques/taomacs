@@ -197,11 +197,10 @@ If the new path's directories does not exist, create them."
    :map minibuffer-mode-map
    ("TAB" . minibuffer-complete)))
 
-;; Smooth pixel scrolling for trackpads and high-resolution mice.
-(use-package ultra-scroll
-  :ensure t
+;; Built-in pixel scrolling for trackpads and high-resolution mice.
+(use-package pixel-scroll
   :config
-  (ultra-scroll-mode 1))
+  (pixel-scroll-precision-mode 1))
 
 ;; Run actions at midnight
 ;; By defaul clean up unused buffers at midnight
@@ -471,11 +470,6 @@ narrowing and point afterward so the cursor does not jump."
   :config
   (setf (alist-get ?. avy-dispatch-alist) #'taomacs-avy-action-embark))
 
-;; Re-open the current (or another) file as root via TRAMP
-(use-package sudo-edit
-  :ensure t
-  :defer t)
-
 ;;; Help
 
 ;; which-key is built into Emacs 30.2 — no :ensure needed
@@ -504,7 +498,6 @@ narrowing and point afterward so the cursor does not jump."
   (setq dired-recursive-copies 'always)       ;; don't ask when copying directories
   (setq dired-create-destination-dirs 'ask)
   (setq dired-clean-confirm-killing-deleted-buffers nil)
-  (setq dired-make-directory-clickable t)
   (setq dired-mouse-drag-files t)
   (setq dired-kill-when-opening-new-dired-buffer t)   ;; Tidy up open buffers by default
   (when (eq system-type 'darwin)
@@ -513,13 +506,6 @@ narrowing and point afterward so the cursor does not jump."
 	(setq dired-use-ls-dired t
 	      insert-directory-program gls
 	      dired-listing-switches "-aBhl  --group-directories-first")))))
-
-;; Toggle a directory to show items inside it
-(use-package dired-subtree
-  :ensure t
-  :after dired
-  :bind (:map dired-mode-map
-	      ("TAB" . dired-subtree-toggle)))
 
 ;;; Version control
 
