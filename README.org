@@ -255,7 +255,8 @@ Libraries are grouped by responsibility:
 - =taomacs-avy.el=: Avy-to-Embark action.
 - =taomacs-ghostel.el=: copy without leaving terminal read-only mode;
   loaded after Ghostel, with =M-w= and =C-w= bound in its read-only keymap.
-- =taomacs-go.el=: Go buffer setup, import organization, and formatting.
+- Go buffer setup, import organization, and formatting live in the
+  =go-ts-mode= declaration in =init.el=.
 - =taomacs-typescript.el=: Eglot server selection and configuration forwarding.
 - =taomacs-session.el= and =taomacs-instance.el=: sessions and separate instances.
 
