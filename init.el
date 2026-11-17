@@ -353,13 +353,12 @@
 
 (use-package taomacs-editing
   :load-path "lisp"
-  :demand t)
-
-(global-set-key (kbd "C-a") #'taomacs-beginning-of-line)
-(global-set-key (kbd "C-e") #'end-of-line)
-
-(global-set-key (kbd "M-DEL") #'taomacs-backward-delete-word)
-(global-set-key (kbd "C-<backspace>") #'taomacs-backward-delete-line)
+  :demand t
+  :bind
+  (("C-a" . taomacs-beginning-of-line)
+   ("C-e" . end-of-line)
+   ("M-DEL" . taomacs-backward-delete-word)
+   ("C-<backspace>" . taomacs-backward-delete-line)))
 
 (use-package taomacs-avy
   :load-path "lisp"
