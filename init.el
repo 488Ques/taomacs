@@ -312,6 +312,16 @@
   :config
   (marginalia-mode))
 
+(use-package nerd-icons-completion
+  :ensure t
+  :if (taomacs-font-exists-p "Symbols Nerd Font Mono")
+  :after marginalia
+  :demand t
+  :config
+  (nerd-icons-completion-mode 1)
+  (nerd-icons-completion-marginalia-setup)
+  :hook (marginalia-mode . nerd-icons-completion-marginalia-setup))
+
 ;; Orderless: powerful completion style
 (use-package orderless
   :ensure t
@@ -341,6 +351,13 @@
   :custom
   (corfu-popupinfo-delay '(0.25 . 0.1))
   (corfu-popupinfo-hide nil))
+
+(use-package kind-icon
+  :ensure t
+  :if (display-graphic-p)
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 ;; Filename completion, autoloaded when requested.
 (use-package cape
@@ -407,6 +424,11 @@
 	(setq dired-use-ls-dired t
 	      insert-directory-program gls
 	      dired-listing-switches "-aBhl  --group-directories-first")))))
+
+(use-package nerd-icons-dired
+  :ensure t
+  :if (taomacs-font-exists-p "Symbols Nerd Font Mono")
+  :hook (dired-mode . nerd-icons-dired-mode))
 
 ;;; Version control
 

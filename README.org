@@ -195,6 +195,14 @@ runtime versions are hidden.
 Icons are enabled in GUI Emacs when =Symbols Nerd Font Mono= is installed;
 otherwise the modeline uses text. Restart Emacs to load the configuration.
 
+** Completion and file icons
+
+=nerd-icons-dired= adds file and folder icons in Dired;
+=nerd-icons-completion= adds icons to minibuffer candidates alongside Marginalia
+annotations. Both require GUI Emacs and =Symbols Nerd Font Mono=.
+=kind-icon= restores completion-kind icons in Corfu popups in GUI Emacs.
+Restart Emacs to load these integrations.
+
 ** Ghostel prompt icons
 
 =Symbols Nerd Font Mono= supplies Doom Modeline icons and the terminal font
