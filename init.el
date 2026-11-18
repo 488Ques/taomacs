@@ -55,6 +55,8 @@
    column-number-mode t
    ;; Make switching buffers more consistent
    switch-to-buffer-obey-display-actions t
+   ;; Name same-named files by their directories: users/page.tsx
+   uniquify-buffer-name-style 'forward
    ;; Show buffer top and bottom in the margin
    indicate-buffer-boundaries 'left
    ;; Enable horizontal scrolling
@@ -74,6 +76,13 @@
   ;; Don't litter file system with *~ backup files; put them all inside
   ;; ~/.emacs.d/backup or wherever
   (setopt make-backup-file-name-function 'taomacs-backup-file-name)
+
+  ;; Keep lock files out of project directories: language servers and file
+  ;; watchers stat their dangling .#file symlinks and fail. One shared
+  ;; directory keeps locking between Emacs instances.
+  (let ((dir (locate-user-emacs-file "locks/")))
+    (make-directory dir t)
+    (setopt lock-file-name-transforms `((".*" ,dir t))))
 
   ;; For help, see: https://www.masteringemacs.org/article/understanding-minibuffer-completion
   (setopt
@@ -551,8 +560,9 @@
 (use-package treesit
   :config
   (setopt treesit-enabled-modes
-	  '(bash-ts-mode css-ts-mode js-ts-mode json-ts-mode python-ts-mode
-			 typescript-ts-mode tsx-ts-mode yaml-ts-mode go-ts-mode go-mod-ts-mode)
+	  '(bash-ts-mode css-ts-mode dockerfile-ts-mode js-ts-mode json-ts-mode
+			 python-ts-mode typescript-ts-mode tsx-ts-mode yaml-ts-mode
+			 go-ts-mode go-mod-ts-mode)
 	  treesit-auto-install-grammar 'ask))
 
 ;; Helpful resources:
@@ -564,17 +574,18 @@
   (eglot-send-changes-idle-time 0.1)
   (eglot-extend-to-xref t)              ; activate Eglot in referenced non-project files
   ;; Disable event logging through Eglot's public option, not a JSONRPC override.
-  (eglot-events-buffer-config '(:size 0 :format full)))
+  (eglot-events-buffer-config '(:size 0 :format full))
+  :config
+  ;; The Prisma language server exits when its settings section is missing.
+  (setq-default eglot-workspace-configuration '(:prisma (:enableDiagnostics t))))
 
 ;; Async, cursor-preserving formatting with Apheleia's global defaults.
 (use-package apheleia
   :ensure t
   :config
-  ;; Preserve the real filename for nested oxfmt configs and file overrides.
+  ;; TypeScript and TSX buffers switch to oxfmt in projects that install it.
   (setf (alist-get 'oxfmt apheleia-formatters)
-	'("apheleia-npx" "oxfmt" "--stdin-filepath" filepath)
-	(alist-get 'typescript-ts-mode apheleia-mode-alist) 'oxfmt
-	(alist-get 'tsx-ts-mode apheleia-mode-alist) 'oxfmt)
+	'("apheleia-npx" "oxfmt" "--stdin-filepath" filepath))
   (apheleia-global-mode 1))
 
 ;;; Org
@@ -650,6 +661,19 @@
   :ensure t
   :defer t)
 
+(use-package dotenv-mode
+  :ensure t
+  :mode "/\\.env\\.[^/]*\\'")             ; .env.example, .env.development, ...
+
+(use-package taomacs-prisma
+  :load-path "lisp"
+  :demand t)
+
+(use-package prisma-ts-mode
+  :ensure t
+  :mode ("\\.prisma\\'" . taomacs-prisma-ts-mode)
+  :hook (prisma-ts-mode . eglot-ensure))
+
 (use-package js
   :defer t
   :mode (("\\.jsonld\\'" . js-json-mode)
@@ -691,12 +715,25 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 
 (use-package taomacs-typescript
   :load-path "lisp"
-  :demand t)
+  :demand t
+  :hook (typescript-ts-base-mode . taomacs-typescript-select-formatter))
 
-;; Auto-start Eglot for TS/TSX with the version-aware server contact above.
+;; Auto-start Eglot for TS/TSX with the project-aware server contact above.
 ;; Native Tree-sitter management handles .ts/.tsx mode routing.
 (add-hook 'typescript-ts-mode-hook #'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook        #'eglot-ensure)
+
+;; Header line showing the project path and the enclosing class/function.
+(use-package breadcrumb
+  :ensure t
+  :hook ((typescript-ts-base-mode js-ts-mode) . breadcrumb-local-mode))
+
+;; Expand abbreviations such as div.card>p with C-j, emitting className.
+(use-package emmet-mode
+  :ensure t
+  :hook tsx-ts-mode
+  :config
+  (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode))
 
 ;; Astro (light): clean highlighting of the frontmatter + HTML + JSX mix.
 ;; No language server; formatting follows Apheleia's web-mode default.

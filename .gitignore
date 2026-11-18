@@ -16,6 +16,8 @@
 /bookmarks.eld
 /places
 /places.eld
+/locks/
+/lisp/__pycache__/
 /recentf
 /history
 /ielm-history.eld

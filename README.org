@@ -59,21 +59,56 @@ For JavaScript and TypeScript, accept the grammar installation prompts for
 The nearest project-local TypeScript installation selects the server:
 TypeScript 7, which has no =tsserver.js=, uses
 =node_modules/.bin/tsc --lsp --stdio=. Older versions use
-=typescript-language-server --stdio=; install that server separately and
-make it available on Emacs's PATH for TypeScript 6 and older projects.
+=typescript-language-server --stdio=.
 Emacs 31's bundled Eglot supports pull diagnostics; no separately installed
 Eglot package is needed.
-Flymake shows syntax and type errors in managed TS/TSX buffers; use
+
+Eglot connects a buffer to one server, so projects with more tools go through
+the =rass= multiplexer ([[https://github.com/joaotavora/rassumfrassum][rassumfrassum]]),
+which adds servers by what the project installs:
+
+| Project installs | Added server                                       |
+|------------------+----------------------------------------------------|
+| =eslint=           | =vscode-eslint-language-server= (diagnostics, fixes) |
+| =oxlint=           | the project's =oxlint --lsp=                         |
+| =tailwindcss=      | =tailwindcss-language-server= (class completion)     |
+
+=lisp/taomacs-typescript-rass.py= gives the ESLint server the settings VS Code
+would. Without =rass= on PATH, Eglot starts the TypeScript server alone.
+Install the servers globally through mise:
+
+#+begin_src sh
+mise use -g uv npm:typescript-language-server npm:vscode-langservers-extracted \
+  npm:@tailwindcss/language-server pipx:rassumfrassum
+#+end_src
+
+Flymake shows syntax, type, and lint errors in managed TS/TSX buffers; use
 =M-g f= to list diagnostics. Reconnect an already-open buffer with
 =M-x eglot-reconnect= after changing TypeScript versions or upgrading Emacs.
 
+Other TypeScript conveniences:
+- A header line (=breadcrumb=) shows the file's project path and the enclosing
+  class and function.
+- In TSX, =C-j= expands Emmet abbreviations: =div.card>p= becomes
+  =<div className="card"><p></p></div>=.
+- Buffers for same-named files carry their directory, such as
+  =users/page.tsx=.
+
+Moving or renaming a file does not update its imports: Eglot does not
+implement =workspace/willRenameFiles=.
+
 The =css-ts-mode= grammar provides CSS highlighting without an LSP
-server. For optional CSS language features, install
-=vscode-langservers-extracted= (provides =vscode-css-language-server=)
-and run =M-x eglot= in a CSS buffer; the built-in Eglot mapping already
-knows that server. Corfu displays completion, and Apheleia uses
-project-local =oxfmt= for TS/TSX formatting when installed. See
+server. For optional CSS language features, run =M-x eglot= in a CSS buffer;
+the built-in Eglot mapping uses =vscode-css-language-server= from
+=vscode-langservers-extracted=. Corfu displays completion. See
 [[file:docs/web-development-research.md][the web tooling assessment]] for the tradeoffs behind this setup.
+
+Prisma schemas use =prisma-ts-mode=; opening one offers to install its
+grammar. Eglot starts the Prisma language server whose major version matches
+the project's =prisma= package, through =mise exec=
+(=npm:@prisma/language-server@6= for Prisma 6). Format a schema with
+=M-x eglot-format-buffer=. =.env= and =.env.*= files use =dotenv-mode=;
+Dockerfiles, including =Dockerfile.dev=, use =dockerfile-ts-mode=.
 
 In an Eglot-managed buffer, =M-x eldoc-doc-buffer= shows function
 documentation. Use mouse-2 to follow rendered inline Markdown links;
@@ -121,7 +156,7 @@ nor its =popon= dependency is needed.
 ** Tree-sitter grammars
 
 Emacs 31's =treesit-enabled-modes= selects the built-in modes for Bash, CSS,
-JavaScript, JSON, Python, TypeScript, TSX, YAML, Go, and Go modules.
+Dockerfile, JavaScript, JSON, Python, TypeScript, TSX, YAML, Go, and Go modules.
 =treesit-auto-install-grammar= is set to =ask=: opening a file prompts to
 download and compile its missing grammar, then enables the mode without
 restarting Emacs. Emacs supplies the grammar repositories and revisions.
@@ -160,11 +195,11 @@ grant privileges without authorization.
 
 ** Formatting
 
-=apheleia-global-mode= retains Apheleia's default language coverage.
-TypeScript and TSX use =oxfmt=; other modes keep their upstream formatter
-choices. Apheleia's bundled resolver prefers project-local executables
-and does not download missing tools. Install the selected formatter
-separately when needed.
+=apheleia-global-mode= retains Apheleia's default language coverage, so
+TypeScript and TSX use Prettier. Projects that install =oxfmt= format
+TypeScript and TSX with it instead. Apheleia's bundled resolver prefers
+project-local executables and does not download missing tools. Install the
+selected formatter separately when needed.
 
 The oxfmt command reads stdin with the real filename, preserving nested
 configuration and filename-specific overrides. Go retains its separate
@@ -265,7 +300,9 @@ Libraries are grouped by responsibility:
   loaded after Ghostel, with =M-w= and =C-w= bound in its read-only keymap.
 - Go buffer setup, import organization, and formatting live in the
   =go-ts-mode= declaration in =init.el=.
-- =taomacs-typescript.el=: Eglot server selection and configuration forwarding.
+- =taomacs-typescript.el=: Eglot server selection, configuration forwarding,
+  TypeScript keys, and formatter selection.
+- =taomacs-prisma.el=: Prisma grammar source and version-matched language server.
 - =taomacs-session.el= and =taomacs-instance.el=: sessions and separate instances.
 
 ** Finding a setting
@@ -357,6 +394,19 @@ instead of =term-mode=. For an unlisted interactive program, use
 =ghostel PROGRAM ARGS...= at the Eshell prompt.
 
 Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
+
+** TypeScript
+
+In TypeScript and TSX buffers:
+
+| Key     | Command                            |
+|---------+------------------------------------|
+| =C-c l o= | Organize imports                   |
+| =C-c l i= | Add missing imports                |
+| =C-c l f= | Apply all ESLint (or oxlint) fixes |
+
+Projects that sort imports with an ESLint rule, such as
+=simple-import-sort=, should use =C-c l f= instead of =C-c l o=.
 
 ** Sessions
 
