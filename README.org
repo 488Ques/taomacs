@@ -372,6 +372,17 @@ Elsewhere the popup appears after a short pause.
 =C-x b= uses =consult-buffer= across all tabs and frames.
 =C-x <left>= / =C-x <right>= cycle buffers without tab-local filtering.
 
+| Key     | Command                                            |
+|---------+----------------------------------------------------|
+| =C-x x p= | Pin / unpin the buffer (=taomacs-buffer-toggle-pin=) |
+
+After 5 idle minutes, Emacs kills buffers that have not been shown for an
+hour; help, Apropos, Info, Man, and Helpful buffers go after 15 minutes. It
+never kills pinned buffers (=Pinned= in the mode line; sessions keep the pin),
+buffers shown in any window or tab, buffers with a running process, modified file
+buffers, =*scratch*=, or =*Messages*=. Each run logs one =Pruned …= line
+to =*Messages*=.
+
 ** Tools
 
 | Key     | Command        |

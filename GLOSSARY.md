@@ -11,3 +11,7 @@ _Avoid_: Desktop, activity, workspace, project
 **Active session**:
 The one session the current Emacs is working in and saves to; there may be none.
 _Avoid_: Current desktop, loaded session
+
+**Pinned buffer**:
+A buffer that automatic pruning of unused buffers never kills; you can still kill it yourself.
+_Avoid_: Protected, untouchable, kept buffer

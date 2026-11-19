@@ -202,10 +202,18 @@
   :config
   (pixel-scroll-precision-mode 1))
 
-;; Run actions at midnight
-;; By defaul clean up unused buffers at midnight
-(use-package midnight
-  :hook (after-init . midnight-mode))
+;; Kill buffers not shown for an hour (help, Man and Helpful buffers: 15
+;; minutes) whenever Emacs has been idle for 5 minutes.  Pinned buffers
+;; and buffers shown in any tab are kept.
+(use-package taomacs-buffers
+  :load-path "lisp"
+  :demand t
+  :bind ("C-x x p" . taomacs-buffer-toggle-pin)
+  :config
+  (setopt clean-buffer-list-delay-special (* 15 60))
+  ;; Measured in days; setq because the option's type is integer.
+  (setq clean-buffer-list-delay-general (/ 1.0 24))
+  (run-with-idle-timer (* 5 60) t #'taomacs-buffer-prune))
 
 ;; Enhancement for window navigation
 (use-package taomacs-window
