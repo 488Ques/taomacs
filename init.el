@@ -215,6 +215,9 @@
   (setq clean-buffer-list-delay-general (/ 1.0 24))
   (run-with-idle-timer (* 5 60) t #'taomacs-buffer-prune))
 
+;; q in help buffers closes the window and kills the buffer.
+(setopt quit-window-kill-buffer '(help-mode helpful-mode))
+
 ;; Enhancement for window navigation
 (use-package taomacs-window
   :load-path "lisp"

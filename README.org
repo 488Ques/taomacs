@@ -383,6 +383,8 @@ buffers shown in any window or tab, buffers with a running process, modified fil
 buffers, =*scratch*=, or =*Messages*=. Each run logs one =Pruned …= line
 to =*Messages*=.
 
+=q= in a help or Helpful buffer closes its window and kills the buffer.
+
 ** Tools
 
 | Key     | Command        |
