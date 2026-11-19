@@ -565,7 +565,7 @@
 ;; Project management
 (use-package project
   :config
-  (setopt project-vc-extra-root-markers '("deps.edn")))
+  (setopt project-vc-extra-root-markers '("deps.edn" "package.json" "mise.toml")))
 
 ;; Emacs 31 manages mode routing and prompts to build missing grammars.
 (use-package treesit
