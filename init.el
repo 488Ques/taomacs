@@ -69,6 +69,9 @@
    ;; y/n instead of yes/no when prompted
    use-short-answers t)
 
+  ;; Disable clock in the mode line
+  (display-time-mode -1)
+
   (setopt
    auto-revert-avoid-polling t
    auto-revert-check-vc-info t)
@@ -240,9 +243,6 @@
   (dolist (range '((#xe000 . #xf8ff)      ; BMP private use: most Nerd Font icons
 		   (#xf0000 . #xffffd)))  ; plane 15: Material Design Icons
     (set-fontset-font t range "Symbols Nerd Font Mono" nil 'prepend)))
-
-;; Disable clock
-(display-time-mode -1)
 
 ;; Keep the useful context without encoding, scroll, or minor-mode clutter.
 (use-package doom-modeline
