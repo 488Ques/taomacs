@@ -216,7 +216,7 @@
   (run-with-idle-timer (* 5 60) t #'taomacs-buffer-prune))
 
 ;; q in help buffers closes the window and kills the buffer.
-(setopt quit-window-kill-buffer '(help-mode helpful-mode))
+(setopt quit-window-kill-buffer '(help-mode helpful-mode magit-revision-mode))
 
 ;; Enhancement for window navigation
 (use-package taomacs-window
