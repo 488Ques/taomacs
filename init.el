@@ -521,6 +521,29 @@
 	      ("M-w" . taomacs-ghostel-copy-stay)
 	      ("C-w" . taomacs-ghostel-copy-stay)))
 
+;;; Coding agents
+
+;; agent-shell: omp in a native Emacs buffer over ACP (`omp acp').
+(use-package agent-shell
+  :ensure t
+  :custom
+  ;; omp is the only agent in use; skip the agent picker.
+  (agent-shell-preferred-agent-config 'omp)
+  ;; omp already saves every session under ~/.omp/agent/sessions.  The
+  ;; default transcript writes PROJECT/.agent-shell/ and edits .gitignore.
+  (agent-shell-transcript-file-path-function nil)
+  ;; Without that transcript, agent-shell falls back to shell-maker's, which
+  ;; asks to save one (default: transcript.txt in the project) on every kill.
+  (shell-maker-prompt-before-killing-buffer nil)
+  ;; C-c i carries over context: keep explicit selections (region, Dired
+  ;; marks) but not whatever line or diagnostic point happens to be on.
+  (agent-shell-context-sources '(files region))
+  ;; Replay the whole conversation when resuming; the default (`minimal')
+  ;; shows only the session title.
+  (agent-shell-session-restore-verbosity 'full)
+  :bind
+  ("C-c i" . agent-shell))             ; C-u C-c i: new shell; C-u C-u: pick one
+
 ;;; Sessions
 
 ;; Named desktop.el sessions, one active at a time: buffers, frames, tabs,

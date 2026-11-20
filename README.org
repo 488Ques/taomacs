@@ -391,6 +391,7 @@ to =*Messages*=.
 |---------+----------------|
 | =C-x g=   | =magit-status=   |
 | =C-c t=   | =ghostel=        |
+| =C-c i=   | =agent-shell=    |
 | =C-c o a= | =org-agenda=     |
 | =C-c o c= | =org-capture=    |
 | =C-c o l= | =org-store-link= |
@@ -407,6 +408,16 @@ instead of =term-mode=. For an unlisted interactive program, use
 =ghostel PROGRAM ARGS...= at the Eshell prompt.
 
 Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
+
+=C-c i= opens omp in an =agent-shell= buffer for the current project (over
+=omp acp=), or switches to the existing one. On start it asks whether to resume a
+saved omp session or begin a new one; a resumed session replays its whole
+conversation. =C-u C-c i= starts another shell;
+=C-u C-u C-c i= picks among open shells. With an active region, or files marked
+in Dired, =C-c i= also inserts them into the prompt; the current line and the
+error at point are not inserted. Slash commands and skills complete in the
+prompt. Transcripts are not written to =.agent-shell/=; omp keeps sessions in
+=~/.omp/agent/sessions=.
 
 ** TypeScript
 
