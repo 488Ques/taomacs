@@ -419,6 +419,11 @@ error at point are not inserted. Slash commands and skills complete in the
 prompt. Transcripts are not written to =.agent-shell/=; omp keeps sessions in
 =~/.omp/agent/sessions=.
 
+Pasting (=s-v= or =C-y=) with an image on the clipboard attaches it to the
+prompt; otherwise it pastes text as usual. macOS needs =pngpaste=
+(=brew install pngpaste=). Pasted images are saved in
+=.cache/agent-shell-screenshots/= rather than the project's =.agent-shell/=.
+
 ** TypeScript
 
 In TypeScript and TSX buffers:

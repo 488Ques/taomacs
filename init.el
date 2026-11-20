@@ -541,6 +541,13 @@
   ;; Replay the whole conversation when resuming; the default (`minimal')
   ;; shows only the session title.
   (agent-shell-session-restore-verbosity 'full)
+  ;; Pasted images (s-v / C-y, via pngpaste) default to PROJECT/.agent-shell/
+  ;; screenshots/, which every yank creates; keep them out of projects.
+  (agent-shell-dot-subdir-function
+   (lambda (subdir)
+     (if (equal subdir "screenshots")
+         (locate-user-emacs-file ".cache/agent-shell-screenshots/")
+       (agent-shell--dot-subdir-in-repo subdir))))
   :bind
   ("C-c i" . agent-shell))             ; C-u C-c i: new shell; C-u C-u: pick one
 
