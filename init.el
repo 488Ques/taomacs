@@ -548,8 +548,31 @@
      (if (equal subdir "screenshots")
          (locate-user-emacs-file ".cache/agent-shell-screenshots/")
        (agent-shell--dot-subdir-in-repo subdir))))
+  ;; Give every new session an "emacs" MCP server for driving this Emacs
+  ;; (eval-elisp, diagnostics, Org).  The lambda runs at session start.
+  (agent-shell-mcp-servers
+   '(((name . "emacs")
+      (command . "nc")
+      (args . (lambda () (list "-U" (taomacs-mcp-socket))))
+      (env . ()))))
   :bind
   ("C-c i" . agent-shell))             ; C-u C-c i: new shell; C-u C-u: pick one
+
+;; Emacs MCP server (not on MELPA).  Started on demand by agent-shell.
+(use-package mcp-server
+  :vc (:url "https://github.com/rhblind/emacs-mcp-server" :rev :newest)
+  :defer t
+  :custom
+  ;; One socket per Emacs process, kept out of the tracked config tree.
+  (mcp-server-socket-name 'session)
+  (mcp-server-socket-directory (locate-user-emacs-file ".cache/"))
+  ;; eval-elisp calls to dangerous functions (files, processes, `eval', ...)
+  ;; are silently blocked by default; ask in the minibuffer instead.
+  (mcp-server-security-prompt-for-permissions t))
+
+(use-package taomacs-mcp
+  :load-path "lisp"
+  :commands taomacs-mcp-socket)
 
 ;;; Sessions
 
