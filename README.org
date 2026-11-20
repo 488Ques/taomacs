@@ -40,14 +40,14 @@ configuration is needed.
 
 Recommended external tools (features degrade gracefully without them):
 
-| Tool                 | Used by                   | Notes                          |
-|----------------------+---------------------------+--------------------------------|
-| =ripgrep= (=rg=)         | =consult-ripgrep= (=M-s r=)   | Fast project search            |
-| Symbols Nerd Font Mono | Ghostel prompt glyphs | Required for Nerd Font icons |
-| Tree-sitter grammars | =*-ts-mode= major modes     | Install when prompted          |
-| =gls= (GNU coreutils)  | Dired listing on macOS    | =brew install coreutils=         |
-| =sbcl=                 | SLIME (Common Lisp)       |                                |
-| Language servers     | =eglot=                     | Install per language as needed |
+| Tool                   | Used by                     | Notes                          |
+|------------------------+-----------------------------+--------------------------------|
+| =ripgrep= (=rg=)       | =consult-ripgrep= (=M-s r=) | Fast project search            |
+| Symbols Nerd Font Mono | Ghostel prompt glyphs       | Required for Nerd Font icons   |
+| Tree-sitter grammars   | =*-ts-mode= major modes     | Install when prompted          |
+| =gls= (GNU coreutils)  | Dired listing on macOS      | =brew install coreutils=       |
+| =sbcl=                 | SLIME (Common Lisp)         |                                |
+| Language servers       | =eglot=                     | Install per language as needed |
 
 Go buffers in =go-ts-mode= use =gopls= through Eglot to organize imports and
 format before saving, once the language server is connected. Install =gopls=
@@ -67,11 +67,11 @@ Eglot connects a buffer to one server, so projects with more tools go through
 the =rass= multiplexer ([[https://github.com/joaotavora/rassumfrassum][rassumfrassum]]),
 which adds servers by what the project installs:
 
-| Project installs | Added server                                       |
-|------------------+----------------------------------------------------|
-| =eslint=           | =vscode-eslint-language-server= (diagnostics, fixes) |
-| =oxlint=           | the project's =oxlint --lsp=                         |
-| =tailwindcss=      | =tailwindcss-language-server= (class completion)     |
+| Project installs | Added server                                         |
+|------------------+------------------------------------------------------|
+| =eslint=         | =vscode-eslint-language-server= (diagnostics, fixes) |
+| =oxlint=         | the project's =oxlint --lsp=                         |
+| =tailwindcss=    | =tailwindcss-language-server= (class completion)     |
 
 =lisp/taomacs-typescript-rass.py= gives the ESLint server the settings VS Code
 would. Without =rass= on PATH, Eglot starts the TypeScript server alone.
@@ -284,9 +284,9 @@ text scaling (=C-x C-+= / =C-x C--=) remains available.
 |-----------------+-----------------------------------------------------|
 | [[file:early-init.el][=early-init.el=]] | Settings that must run before normal initialization |
 | [[file:init.el][=init.el=]]       | All shared settings, grouped by topic               |
-| =custom.el=       | Emacs =custom-*= output (git-ignored)                 |
+| =custom.el=     | Emacs =custom-*= output (git-ignored)               |
 | [[file:lisp/][=lisp/=]]         | Commands, helpers, and compatibility integrations   |
-| =local.el=        | Per-machine overrides, loaded last (git-ignored)    |
+| =local.el=      | Per-machine overrides, loaded last (git-ignored)    |
 
 Libraries are grouped by responsibility:
 
@@ -318,12 +318,12 @@ Notable custom bindings (defaults are otherwise unchanged):
 
 ** General
 
-| Key                | Command                    |
-|--------------------+----------------------------|
+| Key                  | Command                      |
+|----------------------+------------------------------|
 | =C-c e=              | Open =init.el=               |
-| =C-;=                | Comment/uncomment line     |
-| =M-n= / =M-p=          | Scroll one line down / up  |
-| =C-c r= then h/l/j/k | Resize window (repeatable) |
+| =C-;=                | Comment/uncomment line       |
+| =M-n= / =M-p=        | Scroll one line down / up    |
+| =C-c r= then h/l/j/k | Resize window (repeatable)   |
 | =C-x o=              | =ace-window=                 |
 | =C-c n=              | Start another Emacs instance |
 
@@ -331,16 +331,16 @@ Exiting Emacs asks for confirmation even when all buffers are saved.
 
 ** Editing & navigation
 
-| Key           | Command                             |
-|---------------+-------------------------------------|
-| =C-a= / =C-e=     | Smart beginning / end of line       |
+| Key             | Command                             |
+|-----------------+-------------------------------------|
+| =C-a= / =C-e=   | Smart beginning / end of line       |
 | =C-/=           | Undo only (never redo past undos)   |
 | =C-c u=         | Redo the last undo                  |
 | =M-DEL=         | Delete word backward (no kill ring) |
 | =C-<backspace>= | Delete to beginning of line         |
-| =C-c j=         | =avy-goto-line=                       |
-| =s-j=           | =avy-goto-char-timer=                 |
-| =C-c a=         | =embark-act=                          |
+| =C-c j=         | =avy-goto-line=                     |
+| =s-j=           | =avy-goto-char-timer=               |
+| =C-c a=         | =embark-act=                        |
 
 New =.el= files open without an automatically inserted template.
 YASnippet and the =usp= snippet are removed. Completion still works through
@@ -354,8 +354,8 @@ TAB-based inline tree expansion is removed.
 
 ** Search & completion
 
-| Key   | Command          |
-|-------+------------------|
+| Key     | Command            |
+|---------+--------------------|
 | =C-x b= | =consult-buffer=   |
 | =C-s=   | =consult-line=     |
 | =M-s r= | =consult-ripgrep=  |
@@ -373,8 +373,8 @@ Elsewhere the popup appears after a short pause.
 =C-x b= uses =consult-buffer= across all tabs and frames.
 =C-x <left>= / =C-x <right>= cycle buffers without tab-local filtering.
 
-| Key     | Command                                            |
-|---------+----------------------------------------------------|
+| Key       | Command                                              |
+|-----------+------------------------------------------------------|
 | =C-x x p= | Pin / unpin the buffer (=taomacs-buffer-toggle-pin=) |
 
 After 5 idle minutes, Emacs kills buffers that have not been shown for an
@@ -388,8 +388,8 @@ to =*Messages*=.
 
 ** Tools
 
-| Key     | Command        |
-|---------+----------------|
+| Key       | Command          |
+|-----------+------------------|
 | =C-x g=   | =magit-status=   |
 | =C-c t=   | =ghostel=        |
 | =C-c i=   | =agent-shell=    |
@@ -439,8 +439,8 @@ have no =emacs= server; start a new one.
 
 In TypeScript and TSX buffers:
 
-| Key     | Command                            |
-|---------+------------------------------------|
+| Key       | Command                            |
+|-----------+------------------------------------|
 | =C-c l o= | Organize imports                   |
 | =C-c l i= | Add missing imports                |
 | =C-c l f= | Apply all ESLint (or oxlint) fixes |
@@ -450,13 +450,13 @@ Projects that sort imports with an ESLint rule, such as
 
 ** Sessions
 
-| Key       | Command                                     |
-|-----------+---------------------------------------------|
-| =C-c s s=   | Save the active session and its checkpoint (=C-u=: under a new name) |
-| =C-c s r=   | Switch to a saved session                   |
-| =C-c s v=   | Revert the active session to its last manual save |
-| =C-c s c=   | Close the active session, leaving =*scratch*=  |
-| =C-c s k=   | Delete a saved session                      |
+| Key       | Command                                                              |
+|-----------+----------------------------------------------------------------------|
+| =C-c s s= | Save the active session and its checkpoint (=C-u=: under a new name) |
+| =C-c s r= | Switch to a saved session                                            |
+| =C-c s v= | Revert the active session to its last manual save                    |
+| =C-c s c= | Close the active session, leaving =*scratch*=                        |
+| =C-c s k= | Delete a saved session                                               |
 
 A session is a named, saved desktop (built-in =desktop.el=): its buffers,
 frames, tabs, window layouts, the working directories of its Ghostel and
