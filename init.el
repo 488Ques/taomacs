@@ -285,9 +285,10 @@
 	 ;; Searching
 	 ("M-s r" . consult-ripgrep)
 	 ("C-s" . consult-line)
-	 ("M-s s" . consult-line)
 	 ("M-s L" . consult-line-multi)
 	 ("M-s o" . consult-outline)
+	 ;; Bookmark
+	 ("C-x x b" . consult-bookmark)
 	 ;; Isearch integration
 	 :map isearch-mode-map
 	 ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
