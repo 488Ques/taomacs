@@ -418,7 +418,8 @@ conversation. =C-u C-c i= starts another shell;
 in Dired, =C-c i= also inserts them into the prompt; the current line and the
 error at point are not inserted. Slash commands and skills complete in the
 prompt. Transcripts are not written to =.agent-shell/=; omp keeps sessions in
-=~/.omp/agent/sessions=.
+=~/.omp/agent/sessions=. Tool calls (bash, file edits, and so on) are approved
+automatically, so a session never sits waiting for a permission prompt.
 
 Pasting (=s-v= or =C-y=) with an image on the clipboard attaches it to the
 prompt; otherwise it pastes text as usual. macOS needs =pngpaste=

@@ -542,6 +542,11 @@
   ;; Replay the whole conversation when resuming; the default (`minimal')
   ;; shows only the session title.
   (agent-shell-session-restore-verbosity 'full)
+  ;; Approve every tool call (bash, edits, ...) instead of blocking on a
+  ;; prompt.  Under ACP, omp downgrades its default `yolo' approval mode to
+  ;; always-ask for bash unless tools.approvalMode is set explicitly.
+  (agent-shell-permission-responder-function
+   #'agent-shell-permission-allow-always)
   ;; Pasted images (s-v / C-y, via pngpaste) default to PROJECT/.agent-shell/
   ;; screenshots/, which every yank creates; keep them out of projects.
   (agent-shell-dot-subdir-function
