@@ -796,7 +796,7 @@ the file's tab characters.  `go-ts-mode-indent-offset' matches
 ;; Header line showing the project path and the enclosing class/function.
 (use-package breadcrumb
   :ensure t
-  :hook ((typescript-ts-base-mode js-ts-mode) . breadcrumb-local-mode))
+  :hook ((typescript-ts-base-mode js-ts-mode go-ts-mode) . breadcrumb-local-mode))
 
 ;; Expand abbreviations such as div.card>p with C-j, emitting className.
 (use-package emmet-mode
