@@ -304,7 +304,6 @@ Libraries are grouped by responsibility:
   TypeScript keys, and formatter selection.
 - =taomacs-prisma.el=: Prisma grammar source and version-matched language server.
 - =taomacs-session.el= and =taomacs-instance.el=: sessions and separate instances.
-- =taomacs-mcp.el=: starts this Emacs's MCP server for agent-shell sessions.
 
 ** Finding a setting
 
@@ -392,7 +391,6 @@ to =*Messages*=.
 |-----------+------------------|
 | =C-x g=   | =magit-status=   |
 | =C-c t=   | =ghostel=        |
-| =C-c i=   | =agent-shell=    |
 | =C-c o a= | =org-agenda=     |
 | =C-c o c= | =org-capture=    |
 | =C-c o l= | =org-store-link= |
@@ -408,33 +406,12 @@ Other Eshell visual commands (such as =top= and =less=) also use Ghostel
 instead of =term-mode=. For an unlisted interactive program, use
 =ghostel PROGRAM ARGS...= at the Eshell prompt.
 
-Exit omp with =/exit=; press =q= in the exited terminal buffer to dismiss it.
+Run =omp= directly in a terminal for the full OMP interface. Inside Emacs,
+use =C-c t= for Ghostel or =C-x p t= for a terminal in the current project,
+then run =omp=. Use =omp --resume= to pick a saved session.
 
-=C-c i= opens omp in an =agent-shell= buffer for the current project (over
-=omp acp=), or switches to the existing one. On start it asks whether to resume a
-saved omp session or begin a new one; a resumed session replays its whole
-conversation. =C-u C-c i= starts another shell;
-=C-u C-u C-c i= picks among open shells. With an active region, or files marked
-in Dired, =C-c i= also inserts them into the prompt; the current line and the
-error at point are not inserted. Slash commands and skills complete in the
-prompt. Transcripts are not written to =.agent-shell/=; omp keeps sessions in
-=~/.omp/agent/sessions=. Tool calls (bash, file edits, and so on) are approved
-automatically, so a session never sits waiting for a permission prompt.
-
-Pasting (=s-v= or =C-y=) with an image on the clipboard attaches it to the
-prompt; otherwise it pastes text as usual. macOS needs =pngpaste=
-(=brew install pngpaste=). Pasted images are saved in
-=.cache/agent-shell-screenshots/= rather than the project's =.agent-shell/=.
-
-Each new agent-shell session also gets an =emacs= MCP server ([[https://github.com/rhblind/emacs-mcp-server][emacs-mcp-server]],
-installed from Git), so omp can drive this Emacs: =eval-elisp= (buffers,
-windows, commands, variables), =get-diagnostics= (Flymake/Flycheck), and Org
-agenda, capture, and refile tools. The server starts with the first session,
-listens on a per-process socket in =.cache/=, and stops when Emacs exits; omp
-reaches it through macOS's =nc -U=. Before =eval-elisp= calls a dangerous
-function (files, processes, =eval=, and so on), Emacs asks in the minibuffer:
-=y= allows, =!= always allows, =n= refuses. Shells started before this setting
-have no =emacs= server; start a new one.
+Exit omp with =/exit=. If it was launched directly from Eshell, press =q=
+in the exited Ghostel buffer to dismiss it.
 
 ** TypeScript
 

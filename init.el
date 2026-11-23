@@ -522,64 +522,6 @@
 	      ("M-w" . taomacs-ghostel-copy-stay)
 	      ("C-w" . taomacs-ghostel-copy-stay)))
 
-;;; Coding agents
-
-;; agent-shell: omp in a native Emacs buffer over ACP (`omp acp').
-(use-package agent-shell
-  :ensure t
-  :custom
-  ;; omp is the only agent in use; skip the agent picker.
-  (agent-shell-preferred-agent-config 'omp)
-  ;; omp already saves every session under ~/.omp/agent/sessions.  The
-  ;; default transcript writes PROJECT/.agent-shell/ and edits .gitignore.
-  (agent-shell-transcript-file-path-function nil)
-  ;; Without that transcript, agent-shell falls back to shell-maker's, which
-  ;; asks to save one (default: transcript.txt in the project) on every kill.
-  (shell-maker-prompt-before-killing-buffer nil)
-  ;; C-c i carries over context: keep explicit selections (region, Dired
-  ;; marks) but not whatever line or diagnostic point happens to be on.
-  (agent-shell-context-sources '(files region))
-  ;; Replay the whole conversation when resuming; the default (`minimal')
-  ;; shows only the session title.
-  (agent-shell-session-restore-verbosity 'full)
-  ;; Approve every tool call (bash, edits, ...) instead of blocking on a
-  ;; prompt.  Under ACP, omp downgrades its default `yolo' approval mode to
-  ;; always-ask for bash unless tools.approvalMode is set explicitly.
-  (agent-shell-permission-responder-function
-   #'agent-shell-permission-allow-always)
-  ;; Pasted images (s-v / C-y, via pngpaste) default to PROJECT/.agent-shell/
-  ;; screenshots/, which every yank creates; keep them out of projects.
-  (agent-shell-dot-subdir-function
-   (lambda (subdir)
-     (if (equal subdir "screenshots")
-         (locate-user-emacs-file ".cache/agent-shell-screenshots/")
-       (agent-shell--dot-subdir-in-repo subdir))))
-  ;; Give every new session an "emacs" MCP server for driving this Emacs
-  ;; (eval-elisp, diagnostics, Org).  The lambda runs at session start.
-  (agent-shell-mcp-servers
-   '(((name . "emacs")
-      (command . "nc")
-      (args . (lambda () (list "-U" (taomacs-mcp-socket))))
-      (env . ()))))
-  :bind
-  ("C-c i" . agent-shell))             ; C-u C-c i: new shell; C-u C-u: pick one
-
-;; Emacs MCP server (not on MELPA).  Started on demand by agent-shell.
-(use-package mcp-server
-  :vc (:url "https://github.com/rhblind/emacs-mcp-server" :rev :newest)
-  :defer t
-  :custom
-  ;; One socket per Emacs process, kept out of the tracked config tree.
-  (mcp-server-socket-name 'session)
-  (mcp-server-socket-directory (locate-user-emacs-file ".cache/"))
-  ;; eval-elisp calls to dangerous functions (files, processes, `eval', ...)
-  ;; are silently blocked by default; ask in the minibuffer instead.
-  (mcp-server-security-prompt-for-permissions t))
-
-(use-package taomacs-mcp
-  :load-path "lisp"
-  :commands taomacs-mcp-socket)
-
 ;;; Sessions
 
 ;; Named desktop.el sessions, one active at a time: buffers, frames, tabs,
