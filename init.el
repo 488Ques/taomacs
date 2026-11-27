@@ -113,6 +113,9 @@
   ;; Banish the Custom stuff
   (setopt custom-file (locate-user-emacs-file "custom.el"))
 
+  ;; q in help buffers closes the window and kills the buffer.
+  (setopt quit-window-kill-buffer '(help-mode helpful-mode magit-revision-mode))
+
   ;; Automatically reread from disk if the underlying file changes
   (global-auto-revert-mode)
 
@@ -218,9 +221,6 @@
   (setq clean-buffer-list-delay-general (/ 1.0 24))
   (run-with-idle-timer (* 5 60) t #'taomacs-buffer-prune))
 
-;; q in help buffers closes the window and kills the buffer.
-(setopt quit-window-kill-buffer '(help-mode helpful-mode magit-revision-mode))
-
 ;; Enhancement for window navigation
 (use-package taomacs-window
   :load-path "lisp"
@@ -242,21 +242,21 @@
 
 (use-package taomacs-fonts
   :load-path "lisp"
-  :demand t)
+  :demand t
+  :config
+  (when (taomacs-font-exists-p "Iosevka")
+    (set-face-attribute 'default nil :family "Iosevka" :height 150)
+    (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 150))
 
-(when (taomacs-font-exists-p "Iosevka")
-  (set-face-attribute 'default nil :family "Iosevka" :height 150)
-  (set-face-attribute 'fixed-pitch nil :family "Iosevka" :height 150))
+  (when (taomacs-font-exists-p "Iosevka Etoile")
+    (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 150))
 
-(when (taomacs-font-exists-p "Iosevka Etoile")
-  (set-face-attribute 'variable-pitch nil :family "Iosevka Etoile" :height 150))
-
-;; Keep private-use glyph fallback for plain terminal output (e.g. an
-;; oh-my-pi prompt inside Ghostel), independently of Emacs UI icons.
-(when (taomacs-font-exists-p "Symbols Nerd Font Mono")
-  (dolist (range '((#xe000 . #xf8ff)      ; BMP private use: most Nerd Font icons
-		   (#xf0000 . #xffffd)))  ; plane 15: Material Design Icons
-    (set-fontset-font t range "Symbols Nerd Font Mono" nil 'prepend)))
+  ;; Keep private-use glyph fallback for plain terminal output (e.g. an
+  ;; oh-my-pi prompt inside Ghostel), independently of Emacs UI icons.
+  (when (taomacs-font-exists-p "Symbols Nerd Font Mono")
+    (dolist (range '((#xe000 . #xf8ff)      ; BMP private use: most Nerd Font icons
+		     (#xf0000 . #xffffd)))  ; plane 15: Material Design Icons
+      (set-fontset-font t range "Symbols Nerd Font Mono" nil 'prepend))))
 
 ;; Keep the useful context without encoding, scroll, or minor-mode clutter.
 (use-package doom-modeline
