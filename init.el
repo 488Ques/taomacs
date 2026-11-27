@@ -135,6 +135,9 @@
   ;; Auto parenthesis matching
   (electric-pair-mode 1)
 
+  ;; Typing or pasting replaces the active region, like most applications
+  (delete-selection-mode 1)
+
   ;; Remember and restore the last cursor location of opened files
   (save-place-mode 1)
 
