@@ -701,30 +701,15 @@
 ;; selects the project root via project.el, while gopls understands go.mod.
 (use-package go-ts-mode
   ;; built-in (Emacs 30)---no :ensure
-  :preface
-  (defun taomacs-go-format-on-save ()
-    "Organize Go imports and format the buffer using gopls before saving."
-    (when (eglot-managed-p)
-      (let ((server (eglot-current-server)))
-        (dolist (action (eglot-code-actions (point-min) (point-max)
-                                            "source.organizeImports"))
-          (eglot-execute server action)))
-      (eglot-format-buffer)))
 
-  (defun taomacs-go-ts-setup ()
-    "Set up Go display and gopls-only formatting on save.
-Go indents with tabs; render them 4 columns wide without changing
-the file's tab characters.  `go-ts-mode-indent-offset' matches
-`tab-width' so re-indenting emits one tab per level."
-    (setq-local tab-width 4)
-    (apheleia-mode -1)
-    (add-hook 'before-save-hook #'taomacs-go-format-on-save nil t))
-
-  :hook ((go-ts-mode . eglot-ensure)
-	 (go-ts-mode . taomacs-go-ts-setup))
+  :hook (go-ts-mode . eglot-ensure)
 
   :custom
   (go-ts-mode-indent-offset 4))
+
+(use-package taomacs-go
+  :load-path "lisp"
+  :hook (go-ts-mode . taomacs-go-ts-setup))
 
 ;;;; Web
 
