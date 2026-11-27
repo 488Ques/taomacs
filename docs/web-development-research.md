@@ -2,7 +2,7 @@
 
 ## Recommendation
 
-Keep the existing stack on Emacs 31.1: built-in Tree-sitter modes (`js-ts-mode`, `css-ts-mode`, `typescript-ts-mode`/`tsx-ts-mode`), Eglot for TypeScript, Corfu for the completion UI, and Apheleia/oxfmt for TS/TSX formatting. Do not add Tide, `js2-mode`, or Company just to obtain the features already supplied by this stack. Consider a CSS language server only if CSS diagnostics/completions/navigation are wanted; Eglot already has a `css-ts-mode` server mapping, but the checked-in configuration does not currently start Eglot for CSS. Astro remains intentionally in `web-mode` without LSP.
+Keep the existing stack on Emacs 31.1: built-in Tree-sitter modes (`mhtml-ts-mode`, `js-ts-mode`, `css-ts-mode`, `typescript-ts-mode`/`tsx-ts-mode`), Eglot for TypeScript, Corfu for the completion UI, and Apheleia/oxfmt for TS/TSX formatting. Do not add Tide, `js2-mode`, or Company just to obtain the features already supplied by this stack. Consider a CSS language server only if CSS diagnostics/completions/navigation are wanted; Eglot already has a `css-ts-mode` server mapping, but the checked-in configuration does not currently start Eglot for CSS.
 
 The configuration in [init.el](../init.el) uses built-in Tree-sitter modes, Corfu, Eglot, and Apheleia. A local connection to TypeScript 7 verified the native server and live diagnostics.
 

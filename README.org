@@ -89,13 +89,16 @@ Flymake shows syntax, type, and lint errors in managed TS/TSX buffers; use
 Other TypeScript conveniences:
 - A header line (=breadcrumb=) shows the file's project path and the enclosing
   class and function.
-- In TSX, =C-j= expands Emmet abbreviations: =div.card>p= becomes
-  =<div className="card"><p></p></div>=.
 - Buffers for same-named files carry their directory, such as
   =users/page.tsx=.
 
 Moving or renaming a file does not update its imports: Eglot does not
 implement =workspace/willRenameFiles=.
+
+HTML uses =mhtml-ts-mode= for markup and embedded JavaScript and CSS. Type
+=div= on its own line and press =TAB= to expand it to =<div></div>= with
+point between the tags. Outside an Emmet abbreviation, =TAB= still indents
+or completes as usual.
 
 The =css-ts-mode= grammar provides CSS highlighting without an LSP
 server. For optional CSS language features, run =M-x eglot= in a CSS buffer;
@@ -156,7 +159,8 @@ nor its =popon= dependency is needed.
 ** Tree-sitter grammars
 
 Emacs 31's =treesit-enabled-modes= selects the built-in modes for Bash, CSS,
-Dockerfile, JavaScript, JSON, Python, TypeScript, TSX, YAML, Go, and Go modules.
+Dockerfile, HTML, JavaScript, JSON, Python, TypeScript, TSX, YAML, Go, and Go
+modules. HTML uses the HTML, JavaScript, and CSS grammars.
 =treesit-auto-install-grammar= is set to =ask=: opening a file prompts to
 download and compile its missing grammar, then enables the mode without
 restarting Emacs. Emacs supplies the grammar repositories and revisions.
@@ -298,8 +302,8 @@ Libraries are grouped by responsibility:
 - =taomacs-avy.el=: Avy-to-Embark action.
 - =taomacs-ghostel.el=: copy without leaving terminal read-only mode;
   loaded after Ghostel, with =M-w= and =C-w= bound in its read-only keymap.
-- Go buffer setup, import organization, and formatting live in the
-  =go-ts-mode= declaration in =init.el=.
+- =taomacs-go.el=: Go buffer setup, import organization, and formatting.
+- =taomacs-html.el=: context-aware Emmet expansion on =TAB= in HTML buffers.
 - =taomacs-typescript.el=: Eglot server selection, configuration forwarding,
   TypeScript keys, and formatter selection.
 - =taomacs-prisma.el=: Prisma grammar source and version-matched language server.

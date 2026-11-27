@@ -575,7 +575,7 @@
 (use-package treesit
   :config
   (setopt treesit-enabled-modes
-	  '(bash-ts-mode css-ts-mode dockerfile-ts-mode js-ts-mode json-ts-mode
+	  '(bash-ts-mode css-ts-mode dockerfile-ts-mode js-ts-mode json-ts-mode mhtml-ts-mode
 			 python-ts-mode typescript-ts-mode tsx-ts-mode yaml-ts-mode
 			 go-ts-mode go-mod-ts-mode)
 	  treesit-auto-install-grammar 'ask))
@@ -728,18 +728,19 @@
   :ensure t
   :hook ((typescript-ts-base-mode js-ts-mode go-ts-mode) . breadcrumb-local-mode))
 
-;; Expand abbreviations such as div.card>p with C-j, emitting className.
 (use-package emmet-mode
   :ensure t
-  :hook tsx-ts-mode
-  :config
-  (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode))
+  :defer t)
 
-;; Astro (light): clean highlighting of the frontmatter + HTML + JSX mix.
-;; No language server; formatting follows Apheleia's web-mode default.
-(use-package web-mode
-  :ensure t
-  :mode "\\.astro\\'")
+(use-package taomacs-html
+  :load-path "lisp"
+  :commands taomacs-html-tab)
+
+(use-package mhtml-ts-mode
+  :defer t
+  :config
+  (keymap-set mhtml-ts-mode-map "<remap> <indent-for-tab-command>"
+              #'taomacs-html-tab))
 
 ;;; Databases
 
